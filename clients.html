@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            padding-top: 60px; /* To avoid overlap with the fixed header */
+        }
+
+        h1 {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000; /* Ensure it stays above other content */
+            width: 100%;
+            text-align: center;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .box:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin: 15px 0 0 0;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clients</h1>
+    <div class="container">
+        <div class="box">
+            <a href="https://www.nayapatrikadaily.com/">
+            <img src="assets/img/clients/nayapatrika_cover.jpeg" alt="">
+            
+        </a>
+        <p>Naya Prakashan (Naya Patrika)</p>
+        </div>
+
+        <div class="box">
+            <a href="https://baahrakhari.com/">
+            <img src="assets/img/clients/images.png" alt="">
+            
+        </a>
+        <p>Baahrakhari Media Pvt. Ltd.</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.edutechnepal.org/">
+            <img src="assets/img/clients/images (1).png" alt=""></a>
+            <p>Edutech Nepal</p>
+        </div>
+
+        <div class="box">
+            <a href="https://deerwalk.edu.np/DWIT/">
+            <img src="assets/img/clients/ogBackground.jpg" alt="">
+        </a>
+            <p>Deerwalk Institute of Technology</p>
+        </div>
+
+        <div class="box">
+            <a href="https://kirtipurcoop.com.np/">
+            <img src="assets/img/clients/Nepal-Police-School-Sanga-Building.jpg" alt=""></a>
+            <p>Nepal Police School</p>
+        </div>
+
+        <div class="box">
+            <a href="https://southwestern.edu.np/">
+            <img src="assets/img/clients/Screen-Shot-2022-06-12-at-21.50.39.png" alt=""></a>
+            <p>Southwestern State College</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.aksharaaschool.edu.np/">
+            <img src="assets/img/clients/Aksharaa-School.jpg" alt="">
+        </a>
+            <p>Akshara School</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.mokshadaschool.com/">
+            <img src="assets/img/clients/school.jpg" alt="">
+        </a>
+            <p>Mokshada School</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.manushiarts.com/">
+            <img src="assets/img/clients/images (1).jpeg" alt="">
+            
+        </a>
+        <p>Manushi Trading Nepal</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.facebook.com/p/Green-Lawns-Academy-100066830602488/">
+            <img src="assets/img/clients/unnamed.jpg" alt=""></a>
+            <p>Green Lawns Academy</p>
+        </div>
+
+        
+
+        <div class="box">
+            <a href="https://www.facebook.com/EurekaHighSchool0/">
+            <img src="assets/img/clients/306233466_620354089472857_8517024825274296963_n.jpg" alt="">
+        </a>
+            <p>Eurika School</p>
+        </div>
+
+        <div class="box">
+            <a href="https://pre-primary.kvc.edu.np/">
+            <img src="assets/img/clients/kvc.jpg" alt=""></a>
+            <p>Kathmandu Valley College</p>
+        </div>
+
+        <div class="box">
+            <a href="https://nrcollege.edu.np/">
+            <img src="assets/img/clients/nepal-rastriya-college.jpg" alt=""></a>
+            <p>N.R College</p>
+        </div>
+
+        <div class="box">
+            <a href="https://pre-primary.kvc.edu.np/">
+            <img src="assets/img/clients/kvc.jpg" alt=""></a>
+            <p>Punji Bikash Saving & Credit Co-Operative Ltd.</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.nvess.edu.np/">
+            <img src="assets/img/clients/32880984_101912870692528_6565375381912682496_n.jpg" alt=""></a>
+            <p>North Valley English Secondary School</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.facebook.com/namgyalhighersecondaryschool/?locale=fo_FO&paipv=0&eav=AfbcVaz2YRl0rlMTK9_CL951ZjbHt5-v8m82soyTWD3JjfO9ZUOa_5kIaMV2uBz1GZM&_rdr">
+            <img src="assets/img/clients/52862_368404606575546_254338502_o.jpg" alt=""></a>
+            <p>Namgyal Higher Secondary School</p>
+        </div>
+
+        <div class="box">
+            <a href="https://kantipurschool.edu.np/">
+            <img src="assets/img/clients/2019-12-09.jpg" alt=""></a>
+            <p>Kantipur English High School</p>
+        </div>
+
+        <div class="box">
+            <a href="https://kirtipurcoop.com.np/">
+            <img src="assets/img/clients/KMC-Complex.jpg" alt=""></a>
+            <p>Kirtipur Multipurpose Cooperative</p>
+        </div>
+
+        <div class="box">
+            <a href="https://www.facebook.com/p/Panga-Secondary-School-100063819441439/">
+            <img src="assets/img/clients/20150531valley-deos-yet-to-complete-school-building-assessment.jpg" alt="">
+        </a>
+            <p>Panga School</p>
+        </div>
+        
+
+        <div class="box">
+            <a href="https://www.facebook.com/p/Green-Lawns-Academy-100066830602488/">
+            <img src="assets/img/clients/2017-04-23.jpg" alt=""></a>
+            <p>Swarnim SACCOS</p>
+        </div>
+
+        <div class="box">
+            <a href="https://edusanjal.com/school/sharada-higher-secondary-school/">
+            <img src="assets/img/clients/2023-08-03.jpg" alt=""></a>
+            <p>Shree Sharada Secondary School</p>
+        </div>
+        
+        
+        <div class="box">
+            <a href="https://www.nepalyp.com/company/47130/PUNJI_BIKAS_SAVING_AND_CREDIT_CO_OPERATIVE_LTD">
+                <img src="assets/img/clients/unnamed (1).jpg" alt=""></a>
+           
+            <p>Punji Bikash Saving & Credit Co-Operative Ltd.</p>
+        </div>
+
+
+    </div>
+</body>
+</html>
