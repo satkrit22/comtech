@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Repair & Maintenance</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            padding-top: 60px; /* To avoid overlap with the fixed header */
+        }
+
+        h1 {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000; /* Ensure it stays above other content */
+            width: 100%;
+            text-align: center;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .box:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin: 15px 0 0 0;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Our Devices and Their Support</h1>
+    <div class="container">
+        
+
+        <div class="box"> <a href="r1.html">
+            <img src="assets/img/devices/HTB1weK9d25G3KVjSZPxq6zI3XXam.avif" alt="">
+            
+        </a>
+        <p>R1 </p>
+        </div>
+
+        <div class="box"> <a href="r1pro.html">
+            <img src="assets/img/devices/HTB1weK9d25G3KVjSZPxq6zI3XXam.avif" alt="">
+        </a>
+        <p>R1 pro</p>
+        </div>
+
+        <div class="box"> <a href="linkpc.html">
+            <img src="assets/img/devices/Front.jpg" alt="">
+        </a>
+        <p>Link PC</p>
+        </div>
+
+        <div class="box"> <a href="linkpc+.html">
+            <img src="assets/img/devices/Front.jpg" alt="">
+            
+        </a>
+        <p>Link PC +</p>
+        </div>
+
+        <div class="box"> 
+            <a href="sunde.html">
+            <img src="assets/img/devices/sundewithcable.jpeg" alt="">
+            
+        </a>
+        <p>Sunde PC</p>
+        </div>
+
+    </div>
+</body>
+</html>
