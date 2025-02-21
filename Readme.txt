@@ -1,6 +1,6 @@
 Thanks for downloading this template!
 
-Template Name: Yummy
-Template URL: https://bootstrapmade.com/yummy-bootstrap-restaurant-website-template/
+Template Name: Comtech
+Template URL: https://bootstrapmade.com
 Author: BootstrapMade.com
 License: https://bootstrapmade.com/license/
