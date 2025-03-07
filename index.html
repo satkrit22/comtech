@@ -9,8 +9,8 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/favicon.jpg" rel="icon">
-  <link href="assets/img/apple-touch-icon.jpg" rel="apple-touch-icon">
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -26,28 +26,20 @@
 
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
-
-  
 </head>
-
-
 <body class="index-page">
-
-
-  
   <header id="header" class="header d-flex align-items-center sticky-top">
     <div class="container position-relative d-flex align-items-center justify-content-between">
       <a href="index.html" class="logo d-flex align-items-center me-auto me-xl-0">
-        <img src="assets/img/logo.jpg" alt="">
-        <h1 class="sitename">Comtech Group Company Pvt.Ltd</h1>
+        <img src="assets/img/logo.png" alt="Company Logo">
+        <h1 class="sitename">Comtech Group Co Pvt.Ltd</h1>
       </a>
 
-      <nav id="navmenu" class="navmenu">
+      <nav id="navmenu" class="navmenu" aria-label="Main Navigation">
         <ul>
           <li><a href="#hero" class="active">Home</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#Sales">Sales</a></li>
-          <li><a href="#Staff">Staff</a></li>
           <li><a href="#contact">Contact</a></li>
           <li><a href="#gallery">Gallery</a></li>
           <li class="dropdown"><a href="#"><span>MORE</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
@@ -59,24 +51,49 @@
                 <ul>
                   <li><a href="repair.html">Repair</a></li>
                   <li><a href="Annualmaintenence.html">Annual Maintenance Contact</a></li>
-                  <li><a href="device.html">Device Repair & Support</a></li>
-                  
+                  <li><a href="device.html">Device Repair & Support</a></li> 
+                </ul>
+              </li>
+              <li class="dropdown"><a href="#"><span>Training</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                <ul>
+                  <li><a href="https://learn.microsoft.com/en-us/training/">Microsoft Training</a></li>
+                  <li><a href="comptia.html">CompTIA A+</a></li>
                 </ul>
               </li>
             </ul>
           </li>
 
-          <li class="dropdown"><a href="#"><span>Training</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-              <li><a href="#">Certification</a></li>
-              <li><a href="#">Microsoft Training</a></li>
-              <li><a href="comptia.html">CompTIA A+</a></li>
-            </ul>
-          </li>
+          
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
     </div>
+            <!-- Inside the header section, after the logo -->
+<div class="header-right d-flex align-items-center">
+  
+  <div class="search-box me-3">
+    <form class="search-form d-flex">
+      <input type="text" class="form-control" placeholder="Search products..." id="search-input">
+      <button type="submit" class="btn btn-link"><i class="bi bi-search"></i></button>
+    </form>
+  </div>
+  <div class="header-cart me-3">
+    <a href="cart.html" class="header-cart-link position-relative">
+      <i class="bi bi-cart3"></i>
+      <span class="header-cart-count">0</span>
+    </a>
+  </div>
+  <div class="dropdown">
+    <a class="btn btn-link dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown">
+      <i class="bi bi-person-circle"></i>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="signup.html">Login</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="account.html">My Account</a></li>
+    </ul>
+  </div>
+</div>
   </header>
 
   <main class="main">
@@ -89,7 +106,7 @@
             <p data-aos="fade-up" data-aos-delay="100">We, <b>COMTECH GROUP COMPANY PVT LTD</b>  go a long way in season and out of season to fulfill the necessities and demands to become proficient in computer hardware and networking in the field of Information Technology. We are COMP TIA authorized service center in Nepal providing best ever quality training in the field of Computer Hardware and Network.</p>
           </div>
           <div class="col-lg-5 order-1 order-lg-2 hero-img" data-aos="zoom-out">
-            <img src="assets/img/A4 Comtech.jpg" class="img-fluid animated" alt="">
+            <img src="assets/img/A4 Comtech.png" class="img-fluid animated" alt="">
           </div>
         </div>
       </div>
@@ -158,33 +175,159 @@
             </div>
             <div class="row gy-5">
               <div class="col-lg-4 menu-item">
-                <a href="assets/img/menu/linkpc.jpg" class="glightbox">
-                  <img src="assets/img/menu/menu-item-1.jpg" class="menu-img img-fluid" alt="Link PC">
-                </a>
-                <h4>Link PC</h4>
-                <p class="price">
-                  <strike>Rs.14,500</strike> <br>
-                  Rs.13,500
-                </p>
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/linkpc.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-1.jpg" class="menu-img img-fluid" alt="Link PC">
+                  </a>
+                  <h4>Link PC</h4>
+                  <p class="price">
+                    <strike>Rs.14,500</strike> <br>
+                    Rs.10,500
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Link PC', 13500)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Link PC', 13500)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-4 menu-item">
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/linkpc.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-1.jpg" class="menu-img img-fluid" alt="Link PC">
+                  </a>
+                  <h4>Link PC+</h4>
+                  <p class="price">
+                    <strike>Rs.14,500</strike> <br>
+                    Rs.13,500
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Link PC', 13500)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Link PC', 13500)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="col-lg-4 menu-item">
-                <a href="assets/img/menu/Spec.jpg" class="glightbox">
-                  <img src="assets/img/menu/menu-item-2.jpg" class="menu-img img-fluid" alt="Link PC +">
-                </a>
-                <h4>Link PC +</h4>
-                <p class="price">
-                  <strike>Rs.15,500</strike> <br>
-                  Rs.14,500
-                </p>
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
+                  </a>
+                  <h4>Keyboard</h4>
+                  <p class="price">
+                    Rs.3,200
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="col-lg-4 menu-item">
-                <a href="assets/img/menu/ezgif-3-ed4638e7d1.png" class="glightbox">
-                  <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
-                </a>
-                <h4>Keyboard</h4>
-                <p class="price">
-                  Rs.3,200
-                </p>
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
+                  </a>
+                  <h4>Keyboard</h4>
+                  <p class="price">
+                    Rs.3,200
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 menu-item">
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
+                  </a>
+                  <h4>Keyboard</h4>
+                  <p class="price">
+                    Rs.3,200
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 menu-item">
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
+                  </a>
+                  <h4>Keyboard</h4>
+                  <p class="price">
+                    Rs.3,200
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 menu-item">
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
+                  </a>
+                  <h4>Keyboard</h4>
+                  <p class="price">
+                    Rs.3,200
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 menu-item">
+                <div class="menu-item-box">
+                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
+                  </a>
+                  <h4>Keyboard</h4>
+                  <p class="price">
+                    Rs.3,200
+                  </p>
+                  <div class="menu-actions">
+                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                      <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="col-lg-4 menu-item">
                 <a href="assets/img/menu/t801-des-1.png" class="glightbox">
@@ -417,7 +560,39 @@
       </div>
     
     </section>
-            
+
+            <script>
+             let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+let cartCount = document.querySelector('.header-cart-count');
+
+function updateCartCount() {
+  cartCount.textContent = cartItems.length;
+}
+
+function addToCart(name, price) {
+  cartItems.push({ name, price });
+  localStorage.setItem('cart', JSON.stringify(cartItems));
+  updateCartCount();
+  showAlert(`${name} added to cart!`);
+}
+
+function buyNow(name, price) {
+  // Redirect to checkout with this item
+  window.location.href = `checkout.html?items=${encodeURIComponent(JSON.stringify([{name, price}]))}`;
+}
+
+function showAlert(message) {
+  const alert = document.createElement('div');
+  alert.className = 'alert alert-success position-fixed top-0 end-0 m-3';
+  alert.textContent = message;
+  document.body.appendChild(alert);
+  
+  setTimeout(() => alert.remove(), 2000);
+}
+
+// Initialize cart count on page load
+updateCartCount();
+            </script>
 
 
     <!-- Testimonials Section -->
@@ -529,83 +704,6 @@
       </div>
 
     </section><!-- /Testimonials Section -->
-
-    
-    <!-- Chefs Section -->
-    <section id="Staff" class="chefs section">
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Staff</h2>
-        <p><span>Our</span> <span class="description-title">Staffs<br></span></p>
-      </div><!---->
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-4 d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="100">
-            <div class="team-member">
-              <div class="member-img">
-                <img src="assets/img/chefs/chefs-1.jpg" class="img-fluid" alt="">
-                <!-- <div class="social">
-                  <a href=""><i class="bi bi-twitter-x"></i></a>
-                  <a href=""><i class="bi bi-facebook"></i></a>
-                  <a href=""><i class="bi bi-instagram"></i></a>
-                  <a href=""><i class="bi bi-linkedin"></i></a>
-                </div> -->
-              </div>
-              <div class="member-info">
-                <h4>Rajesh Vaidya</h4>
-                <span>Chip Level</span>
-                <p>As part of the Chip Level Staff at Comtech Group Pvt. Ltd., I am dedicated to delivering meticulous and precise technical support. Our AMC services include thorough inspections and repairs at the chip level, ensuring your hardware performs at its best. We are committed to resolving even the most complex technical issues efficiently</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="200">
-            <div class="team-member">
-              <div class="member-img">
-                <img src="assets/img/chefs/chefs-2.jpg" class="img-fluid" alt="">
-                <!-- <div class="social">
-                  <a href=""><i class="bi bi-twitter-x"></i></a>
-                  <a href=""><i class="bi bi-facebook"></i></a>
-                  <a href=""><i class="bi bi-instagram"></i></a>
-                  <a href=""><i class="bi bi-linkedin"></i></a>
-                </div> -->
-              </div>
-              <div class="member-info">
-                <h4>Sunena Maharjan</h4>
-                <span>Accountant</span>
-                <p>As the Accountant at Comtech Group Pvt. Ltd., I oversee the financial aspects to ensure transparency and efficiency in our operations. Our AMC services are structured to provide exceptional value, with clear and straightforward billing.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="300">
-            <div class="team-member">
-              <div class="member-img">
-                <img src="assets/img/chefs/chefs-3.jpg" class="img-fluid" alt="">
-                <!-- <div class="social">
-                  <a href=""><i class="bi bi-twitter-x"></i></a>
-                  <a href=""><i class="bi bi-facebook"></i></a>
-                  <a href=""><i class="bi bi-instagram"></i></a>
-                  <a href=""><i class="bi bi-linkedin"></i></a>
-                </div> -->
-              </div>
-              <div class="member-info">
-                <h4>Muskan Tamang</h4>
-                <span>Staff</span>
-                <p>We aim to support our clients with not just technical expertise, but also with financial integrity and clarity.</p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section><!-- /Chefs Section -->
-    
-
     <!-- Contact Section -->
     <section id="contact" class="contact section">
 
@@ -648,7 +746,7 @@
               <i class="icon bi bi-envelope flex-shrink-0"></i>
               <div>
                 <h3>Email Us</h3>
-                <p>comtechgroupco@gmail.com</p>
+                <p>info@comtechgroup.com.np</p>
               </div>
             </div>
           </div>
@@ -664,41 +762,10 @@
           </div>
 
         </div>
-        
-        <form action="https://api.web3forms.com/submit" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="600">
-          <div class="row gy-4">
-            <input type="hidden" name="access_key" value="0678225a-09ea-417a-ac09-ca291dbf9084">
-
-            <div class="col-md-6">
-              <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
-            </div>
-
-            <div class="col-md-6 ">
-              <input type="email" class="form-control" name="email" placeholder="Your Email" required="">
-            </div>
-
-            <div class="col-md-12">
-              <input type="text" class="form-control" name="subject" placeholder="Subject" required="">
-            </div>
-
-            <div class="col-md-12">
-              <textarea class="form-control" name="message" rows="6" placeholder="Message" required=""></textarea>
-            </div>
-
-            <div class="col-md-12 text-center">
-              <div class="loading">Loading</div>
-              <div class="sent-message">Message Sent successfully</div>
-              <button type="submit">Send Message</button>
-              
-            </div>
-
-          </div>
-        </form><!-- End Contact Form -->
 
       </div>
 
     </section><!-- /Contact Section -->
-        <script src="https://smtpjs.com/v3/smtp.js"></script>
 
         <!-- Gallery Section -->
     <section id="gallery" class="gallery section light-background">
@@ -882,7 +949,7 @@ We are centrally located at Putalisadak, Computer Bazzer, where you will find a 
             <h4>Contact</h4>
             <p>
               <strong>Phone:</strong> <span>01-4523161,4523057</span><br>
-              <strong>Email:</strong> <span>comtechgroupco@gmail.com</span><br>
+              <strong>Email:</strong> <span>info@comtechgroup.com.np</span><br>
             </p>
           </div>
         </div>

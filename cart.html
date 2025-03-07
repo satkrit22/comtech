@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link href="assets/img/favicon.png" rel="icon">
+</head>
+<body>
+    <header>
+        <h1>Your Shopping Cart</h1>
+        <div id="cartCount">Cart: 0</div>
+    </header>
+    <main>
+        <ul id="cartItems">
+            <!-- Cart items will be listed here -->
+        </ul>
+        <p>Total: $<span id="cartTotal">0</span></p>
+        <button id="checkoutBtn">Checkout</button>
+    </main>
+
+    <script>
+        // Update the cart content and total
+        function updateCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            cartItemsContainer.innerHTML = ''; // Clear previous items
+            let total = 0;
+
+            cart.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${item.name} - $${item.price}`;
+                cartItemsContainer.appendChild(listItem);
+                total += item.price;
+            });
+
+            cartTotal.textContent = total.toFixed(2);
+            updateCartCount();
+        }
+
+        // Update cart count in the header
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            document.getElementById('cartCount').textContent = `Cart: ${cart.length}`;
+        }
+
+        // Handle checkout process (pseudo logic)
+        document.getElementById('checkoutBtn').addEventListener('click', function() {
+            // Proceed with checkout process, e.g., redirect to a payment gateway
+            alert('Checkout process started!');
+        });
+
+        updateCart();
+    </script>
+</body>
+</html>

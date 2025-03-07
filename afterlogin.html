@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account</title>
+    <link href="assets/img/favicon.png" rel="icon">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Your Account</h1>
+        <div id="cartCount">Cart: 0</div>
+    </header>
+    <main>
+        <h2>Account Details</h2>
+        <p>Email: <span id="userEmail"></span></p>
+        <a href="cart.html">View Cart</a>
+        <button id="logoutBtn">Log Out</button>
+    </main>
+
+    <script>
+        // Display logged-in user email
+        const user = localStorage.getItem('user');
+        if (user) {
+            document.getElementById('userEmail').textContent = user;
+        }
+
+        // Log out functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html'; // Redirect to login
+        });
+
+        // Update cart count from localStorage
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            document.getElementById('cartCount').textContent = `Cart: ${cart.length}`;
+        }
+        
+        updateCartCount();
+    </script>
+</body>
+</html>
