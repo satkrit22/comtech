@@ -5,6 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <link href="assets/img/favicon.png" rel="icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #cartCount {
+            background-color: #ff5722;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        #cartCount:hover {
+            background-color: #e64a19;
+            transform: scale(1.1);
+        }
+        #cartCount:active {
+            background-color: #d84315;
+            transform: scale(0.95);
+        }
+        main {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #ffffff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        li:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        li:active {
+            transform: scale(0.98);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        .item-details {
+            flex-grow: 1;
+            text-align: left;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+        .remove-btn:active {
+            background-color: #a71d2a;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        button:active {
+            background-color: #1e7e34;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -15,22 +122,35 @@
         <ul id="cartItems">
             <!-- Cart items will be listed here -->
         </ul>
-        <p>Total: $<span id="cartTotal">0</span></p>
+        <p><strong>Total: Rs.<span id="cartTotal">0</span></strong></p>
         <button id="checkoutBtn">Checkout</button>
     </main>
 
     <script>
-        // Update the cart content and total
         function updateCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             const cartItemsContainer = document.getElementById('cartItems');
             const cartTotal = document.getElementById('cartTotal');
-            cartItemsContainer.innerHTML = ''; // Clear previous items
+            cartItemsContainer.innerHTML = '';
             let total = 0;
 
-            cart.forEach(item => {
+            cart.forEach((item, index) => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${item.name} - $${item.price}`;
+                
+                const itemDetails = document.createElement('div');
+                itemDetails.classList.add('item-details');
+                itemDetails.textContent = `${item.name} - Rs.${item.price}`;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.onclick = function() {
+                    removeFromCart(index);
+                };
+                
+                listItem.appendChild(itemDetails);
+                listItem.appendChild(removeBtn);
+                
                 cartItemsContainer.appendChild(listItem);
                 total += item.price;
             });
@@ -39,15 +159,19 @@
             updateCartCount();
         }
 
-        // Update cart count in the header
         function updateCartCount() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             document.getElementById('cartCount').textContent = `Cart: ${cart.length}`;
         }
 
-        // Handle checkout process (pseudo logic)
+        function removeFromCart(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+        }
+
         document.getElementById('checkoutBtn').addEventListener('click', function() {
-            // Proceed with checkout process, e.g., redirect to a payment gateway
             alert('Checkout process started!');
         });
 
