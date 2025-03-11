@@ -72,11 +72,37 @@
 <div class="header-right d-flex align-items-center">
   
   <div class="search-box me-3">
-    <form class="search-form d-flex">
-      <input type="text" class="form-control" placeholder="Search products..." id="search-input">
-      <button type="submit" class="btn btn-link"><i class="bi bi-search"></i></button>
+    <form class="search-form d-flex" id="search-form">
+        <input type="text" class="form-control" placeholder="Search products..." id="search-input">
+        <button type="submit" class="btn btn-link"><i class="bi bi-search"></i></button>
     </form>
-  </div>
+</div>
+
+<script>
+  document.getElementById("search-form").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+      filterItems();
+  });
+  
+  document.getElementById("search-input").addEventListener("input", function() {
+      filterItems();
+  });
+  
+  function filterItems() {
+      let query = document.getElementById("search-input").value.trim().toLowerCase();
+      let items = document.querySelectorAll(".menu-item");
+  
+      items.forEach(item => {
+          let productName = item.querySelector("h4").innerText.toLowerCase();
+          if (productName.includes(query)) {
+              item.style.display = "block"; // Show matching items
+          } else {
+              item.style.display = "none"; // Hide non-matching items
+          }
+      });
+  }
+  </script>
+
   <div class="header-cart me-3">
     <a href="cart.html" class="header-cart-link position-relative">
       <i class="bi bi-cart3"></i>
@@ -217,12 +243,12 @@
               </div>
               <div class="col-lg-4 menu-item">
                 <div class="menu-item-box">
-                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
-                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
+                  <a href="assets/img/menu/s-l1600-9.jpg" class="glightbox">
+                    <img src="assets/img/menu/menu-item-6.jpg" class="menu-img img-fluid" alt="Laptop Coller">
                   </a>
-                  <h4>Keyboard</h4>
+                  <h4>Laptop Cooler</h4>
                   <p class="price">
-                    Rs.3,200
+                    Rs.1,500
                   </p>
                   <div class="menu-actions">
                     <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
@@ -234,101 +260,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-lg-4 menu-item">
-                <div class="menu-item-box">
-                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
-                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
-                  </a>
-                  <h4>Keyboard</h4>
-                  <p class="price">
-                    Rs.3,200
-                  </p>
-                  <div class="menu-actions">
-                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
-                      <i class="bi bi-cart-plus"></i> Add to Cart
-                    </button>
-                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 menu-item">
-                <div class="menu-item-box">
-                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
-                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
-                  </a>
-                  <h4>Keyboard</h4>
-                  <p class="price">
-                    Rs.3,200
-                  </p>
-                  <div class="menu-actions">
-                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
-                      <i class="bi bi-cart-plus"></i> Add to Cart
-                    </button>
-                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 menu-item">
-                <div class="menu-item-box">
-                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
-                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
-                  </a>
-                  <h4>Keyboard</h4>
-                  <p class="price">
-                    Rs.3,200
-                  </p>
-                  <div class="menu-actions">
-                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
-                      <i class="bi bi-cart-plus"></i> Add to Cart
-                    </button>
-                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 menu-item">
-                <div class="menu-item-box">
-                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
-                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
-                  </a>
-                  <h4>Keyboard</h4>
-                  <p class="price">
-                    Rs.3,200
-                  </p>
-                  <div class="menu-actions">
-                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
-                      <i class="bi bi-cart-plus"></i> Add to Cart
-                    </button>
-                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 menu-item">
-                <div class="menu-item-box">
-                  <a href="assets/img/menu/keyboard.jpg" class="glightbox">
-                    <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
-                  </a>
-                  <h4>Keyboard</h4>
-                  <p class="price">
-                    Rs.3,200
-                  </p>
-                  <div class="menu-actions">
-                    <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
-                      <i class="bi bi-cart-plus"></i> Add to Cart
-                    </button>
-                    <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
+              
               <div class="col-lg-4 menu-item">
                 <a href="assets/img/menu/t801-des-1.png" class="glightbox">
                   <img src="assets/img/menu/menu-item-4.png" class="menu-img img-fluid" alt="Mouse">
@@ -337,6 +269,14 @@
                 <p class="price">
                   Rs.1,500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
               <div class="col-lg-4 menu-item">
                 <a href="assets/img/menu/61Hi4xhM9ML._AC_UF350,350_QL80_.jpg" class="glightbox">
@@ -346,15 +286,34 @@
                 <p class="price">
                   Rs.1,300
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
               <div class="col-lg-4 menu-item">
-                <a href="assets/img/menu/s-l1600-9.jpg" class="glightbox">
-                  <img src="assets/img/menu/menu-item-6.jpg" class="menu-img img-fluid" alt="Laptop Coller">
+                <a href="assets/img/menu/keyboard.jpg" class="glightbox">
+                  <img src="assets/img/menu/menu-item-3.jpg" class="menu-img img-fluid" alt="Keyboard">
                 </a>
-                <h4>Laptop Cooler</h4>
+                <h4>Keyboard</h4>
                 <p class="price">
-                  Rs.1,500
+                  Rs.3,200
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
+
+                
+
               </div>
     
             </div>
@@ -376,6 +335,14 @@
                   <strike>Rs.14,500</strike> <br>
                   Rs.13,500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -385,6 +352,14 @@
                   <strike>Rs.15,500</strike> <br>
                   Rs.14,500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -393,6 +368,14 @@
                 <p class="price">
                   Rs.90,500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -401,6 +384,14 @@
                 <p class="price">
                   Rs.65
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -409,6 +400,14 @@
                 <p class="price">
                   Rs.15500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -417,6 +416,14 @@
                 <p class="price">
                   Rs.3,000
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -437,6 +444,14 @@
                 <p class="price">
                   Rs.5,700
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -445,6 +460,14 @@
                 <p class="price">
                   Rs.2,200
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -453,6 +476,14 @@
                 <p class="price">
                   Rs.1,500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -461,6 +492,14 @@
                 <p class="price">
                   Rs.500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -470,6 +509,14 @@
                 <p class="price">
                   Rs.500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -478,6 +525,14 @@
                 <p class="price">
                   Rs13500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -499,6 +554,14 @@
                 <p class="price">
                   Rs.91,000
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
 
               <div class="col-lg-4 menu-item">
@@ -508,6 +571,14 @@
                 <p class="price">
                   Rs.3,000
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
               
 
@@ -518,6 +589,14 @@
                 <p class="price">
                   Rs.13500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
               
 
@@ -528,6 +607,14 @@
                 <p class="price">
                   Rs.500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
               
 
@@ -538,6 +625,14 @@
                 <p class="price">
                   Rs.800
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
               
 
@@ -548,6 +643,14 @@
                 <p class="price">
                   Rs.500
                 </p>
+                <div class="menu-actions">
+                  <button class="btn btn-cart" onclick="addToCart('Keyboard', 3200)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-buy" onclick="buyNow('Keyboard', 3200)">
+                    Buy Now
+                  </button>
+                </div>
               </div>
               
 
@@ -721,46 +824,28 @@ updateCartCount();
         <div class="row gy-4">
           
 
-          <div class="col-md-6">
-            <div class="info-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="200">
-              <i class="icon bi bi-geo-alt flex-shrink-0"></i>
-              <div>
-                <h3>Address</h3>
-                <p>Putalisadak Computer Bazzar 3<sup>rd</sup>floor,Nepal,Kathmandu</p>
-              </div>
-            </div>
-          </div>
+          <div style="display: flex; justify-content: space-between; flex-wrap: wrap; padding: 20px;">
 
-          <div class="col-md-6">
-            <div class="info-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="300">
-              <i class="icon bi bi-telephone flex-shrink-0"></i>
-              <div>
-                <h3>Call Us</h3>
-                <p>01-4523161,4523057</p>
-              </div>
+            <div style="border: 2px solid rgb(255, 85, 85); padding: 15px; margin: 10px; width: 45%; border-radius: 5px; color: rgb(255, 85, 85);">
+                <h3 style="color: rgb(255, 85, 85);">📍 ADDRESS</h3>
+                <p>Putalisadak Computer Bazzar <sup>3rd</sup> floor, Nepal, Kathmandu</p>
             </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="info-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="400">
-              <i class="icon bi bi-envelope flex-shrink-0"></i>
-              <div>
-                <h3>Email Us</h3>
+        
+            <div style="border: 2px solid rgb(255, 85, 85); padding: 15px; margin: 10px; width: 45%; border-radius: 5px; color: rgb(255, 85, 85);">
+                <h3 style="color: rgb(255, 85, 85);">📞 CALL US</h3>
+                <p>01-4523161, 4523057</p>
+            </div>
+        
+            <div style="border: 2px solid rgb(255, 85, 85); padding: 15px; margin: 10px; width: 45%; border-radius: 5px; color: rgb(255, 85, 85);">
+                <h3 style="color: rgb(255, 85, 85);">📧 EMAIL US</h3>
                 <p>info@comtechgroup.com.np</p>
-              </div>
             </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="info-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="500">
-              <i class="icon bi bi-clock flex-shrink-0"></i>
-              <div>
-                <h3>Opening Hours<br></h3>
+        
+            <div style="border: 2px solid rgb(236, 42, 84); padding: 15px; margin: 10px; width: 45%; border-radius: 5px; color: rgb(255, 85, 85);">
+                <h3 style="color: rgb(255, 51, 51);">⏰ OPENING HOURS</h3>
                 <p><strong>Sunday-Friday:</strong> 10AM - 6PM; <strong>Saturday:</strong> Closed</p>
-              </div>
             </div>
-          </div>
-
+        
         </div>
 
       </div>
