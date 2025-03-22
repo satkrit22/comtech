@@ -54,8 +54,8 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid #2ba0ff;
-	background-color: #2b8eff;
+	border: 1px solid #2b83ff;
+	background-color: #2b79ff;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -65,7 +65,7 @@ button {
 	transition: transform 80ms ease-in;
 }
 button:hover {
-    background-color: #47a0ff; /* A lighter shade for hover effect */
+    background-color: #479aff; /* A lighter shade for hover effect */
     cursor: pointer;
     transform: scale(1.05); /* Slightly enlarge the button when hovered */
 }
@@ -175,9 +175,9 @@ input {
 }
 
 .overlay {
-	background: #4c6fb0;
-	background: -webkit-linear-gradient(to right, #3295eb, #41b3ff);
-	background: linear-gradient(to right, #2ba3ff, #41adff);
+	background: #b07c4c;
+	background: -webkit-linear-gradient(to right, #3270eb, #41a3ff);
+	background: linear-gradient(to right, #2b92ff, #41a3ff);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: 0 0;
@@ -247,20 +247,21 @@ input {
     
 <div class="container" id="container">
 	<div class="form-container sign-up-container">
-		<form action="#">
+		<form name="f1" action="signup.php" onsubmit="return validation()" method="post">
 			<h1>Create Account</h1>
-			<input type="text" placeholder="Name" required/>
-			<input type="email" placeholder="Email" required/>
-			<input type="password" placeholder="Password" required/>
+			<input type="text" placeholder="Name" name="name" required/>
+			<input type="email" placeholder="Email" name="email" required/>
+			<input type="password" placeholder="Password" name="password" required/>
+			<input type="password" placeholder="Re-Password" name="Re-password" required/>
 			<button>Sign Up</button>
 		</form>
 	</div>
 	<div class="form-container sign-in-container">
-		<form action="#">
+		
+		<form name="f1" action="signin.php" method="post" onsubmit="return valid()" >
 			<h1>Login Here:</h1>
-			<input type="email" placeholder="Email" required/>
-			<input type="password" placeholder="Password" required />
-			<a href="#">Forgot your password?</a>
+			<input type="email" placeholder="Email" name="email"  required/>
+			<input type="password" placeholder="Password" name="password" required />
 			<button>Login</button>
 		</form>
 	</div>
@@ -278,6 +279,29 @@ input {
 	</div>
 </div>
 <script>
+	function validation() {
+	  var email = document.f1.email.value;
+	  var password = document.f1.password.value;
+	  var confirmPassword = document.f1.re_password.value;
+	  var errorMessage = document.getElementById("error-message");
+
+	  // Check if the email or password fields are empty
+	  if (email.length === "" || password.length === "") {
+		alert("Email and Password fields are required.");
+		return false; 
+	  }
+
+	  // Check if the confirm password matches the password
+	  if (password !== confirmPassword) {
+		alert("Passwords do not match!");
+		return false; 
+	  }
+
+	  
+	  return true;
+	}
+  </script>
+<script>
     const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
 const container = document.getElementById('container');
@@ -290,6 +314,21 @@ signInButton.addEventListener('click', () => {
 	container.classList.remove("right-panel-active");
 });
 </script>
+<script>
+	function valid() {
+	  var email = document.f1.email.value;
+	  var password = document.f1.password.value;
+	  var confirmPassword = document.f1.re_password.value;
+	  var errorMessage = document.getElementById("error-message");
+
+	  // Check if the email or password fields are empty
+	  if (email.length === "" || password.length === "") {
+		alert("Email and Password fields are required.");
+		return false; 
+	  }
+	  return true;
+	}
+  </script>
 
 </body>
 </html>

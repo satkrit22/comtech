@@ -21,6 +21,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
         }
         #cartCount {
             background-color: #ff5722;
@@ -94,6 +95,32 @@
         .remove-btn:active {
             background-color: #a71d2a;
         }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+            transition: background-color 0.3s ease;
+        }
+        .quantity-btn:hover {
+            background-color: #218838;
+        }
+        .quantity-btn:active {
+            background-color: #1e7e34;
+        }
+        .quantity-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
         button {
             background-color: #28a745;
             color: white;
@@ -111,10 +138,14 @@
         button:active {
             background-color: #1e7e34;
         }
+        #checkoutBtn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
-    <header>
+    <header onclick="window.location.href='home.html';">
         <h1>Your Shopping Cart</h1>
         <div id="cartCount">Cart: 0</div>
     </header>
@@ -123,14 +154,31 @@
             <!-- Cart items will be listed here -->
         </ul>
         <p><strong>Total: Rs.<span id="cartTotal">0</span></strong></p>
-        <button id="checkoutBtn">Checkout</button>
+        <button id="checkoutBtn" disabled>Checkout</button>
     </main>
 
     <script>
+        // Function to add an item to the cart with quantity 1
+        function addItemToCart(item) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItemIndex = cart.findIndex(cartItem => cartItem.name === item.name);
+            if (existingItemIndex !== -1) {
+                // If item already exists in cart, just update the quantity
+                cart[existingItemIndex].quantity += 1;
+            } else {
+                // If item doesn't exist, add it with quantity 1
+                item.quantity = 1;
+                cart.push(item);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+        }
+
         function updateCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             const cartItemsContainer = document.getElementById('cartItems');
             const cartTotal = document.getElementById('cartTotal');
+            const checkoutBtn = document.getElementById('checkoutBtn');
             cartItemsContainer.innerHTML = '';
             let total = 0;
 
@@ -139,8 +187,33 @@
                 
                 const itemDetails = document.createElement('div');
                 itemDetails.classList.add('item-details');
-                itemDetails.textContent = `${item.name} - Rs.${item.price}`;
+                itemDetails.textContent = `${item.name} - Rs.${item.price} x ${item.quantity}`;
                 
+                const quantityControl = document.createElement('div');
+                quantityControl.classList.add('quantity-control');
+                
+                const decreaseBtn = document.createElement('button');
+                decreaseBtn.textContent = '-';
+                decreaseBtn.classList.add('quantity-btn');
+                decreaseBtn.onclick = function() {
+                    updateQuantity(index, item.quantity - 1);
+                };
+                
+                const quantityDisplay = document.createElement('span');
+                quantityDisplay.classList.add('quantity-display');
+                quantityDisplay.textContent = item.quantity;
+
+                const increaseBtn = document.createElement('button');
+                increaseBtn.textContent = '+';
+                increaseBtn.classList.add('quantity-btn');
+                increaseBtn.onclick = function() {
+                    updateQuantity(index, item.quantity + 1);
+                };
+                
+                quantityControl.appendChild(decreaseBtn);
+                quantityControl.appendChild(quantityDisplay);
+                quantityControl.appendChild(increaseBtn);
+
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = 'Remove';
                 removeBtn.classList.add('remove-btn');
@@ -149,19 +222,34 @@
                 };
                 
                 listItem.appendChild(itemDetails);
+                listItem.appendChild(quantityControl);
                 listItem.appendChild(removeBtn);
                 
                 cartItemsContainer.appendChild(listItem);
-                total += item.price;
+                total += item.price * item.quantity;
             });
 
             cartTotal.textContent = total.toFixed(2);
             updateCartCount();
+
+            // Disable checkout button if total is 0
+            checkoutBtn.disabled = total === 0;
         }
 
         function updateCartCount() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             document.getElementById('cartCount').textContent = `Cart: ${cart.length}`;
+        }
+
+        function updateQuantity(index, newQuantity) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (newQuantity <= 0) {
+                cart.splice(index, 1);
+            } else {
+                cart[index].quantity = newQuantity;
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
         }
 
         function removeFromCart(index) {
@@ -172,7 +260,17 @@
         }
 
         document.getElementById('checkoutBtn').addEventListener('click', function() {
-            alert('Checkout process started!');
+            if (this.disabled) return;  // Prevent if the button is disabled
+
+            // Check if the user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                // Redirect to signup if not logged in
+                window.location.href = 'signup.html';
+            } else {
+                // Proceed with checkout if logged in and total > 0
+                alert('Checkout process started!');
+            }
         });
 
         updateCart();
