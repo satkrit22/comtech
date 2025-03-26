@@ -874,52 +874,6 @@
             </div>
           </div>
         </section>
-      
-        <script>
-          // Function to update the cart count
-          function updateCartCount() {
-            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-            const cartCount = document.querySelector('.header-cart-count');
-            cartCount.textContent = cartItems.length;
-          }
-      
-          // Function to add items to cart
-          function let cart= JSON.parse(localStorage.getItem('cart')) || [];{
-            const existingItemIndex = cart.findIndex(cartItem => cartItem.name === name);
-      
-            if (existingItemIndex !== -1) {
-              // If item exists, increase its quantity by 1
-              cart[existingItemIndex].quantity += 1;
-            } else {
-              // If item is new, add it with quantity 1
-              cart.push({ name, price, quantity: 1 });
-            }
-      
-            // Store updated cart in localStorage
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartCount(); // Update cart UI on the page
-            showAlert(`${name} added to cart!`);
-          }   
-          // Function to handle the "Buy Now" action
-          function buyNow(name, price) {
-            // Redirect to checkout with this item
-            window.location.href = `afterlogin.html?items=${encodeURIComponent(JSON.stringify([{ name, price }]))}`;
-          }
-      
-          // Function to show an alert message
-          function showAlert(message) {
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success position-fixed top-0 end-0 m-3';
-            alert.textContent = message;
-            document.body.appendChild(alert);
-      
-            setTimeout(() => alert.remove(), 2000);
-          }
-      
-          // Initialize cart count on page load
-          updateCartCount();
-        </script>
-
 
     <!-- Testimonials Section -->
     <section id="testimonials" class="testimonials section light-background">

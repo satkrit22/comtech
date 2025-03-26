@@ -142,15 +142,16 @@
                     Rs.10,500
                   </p>
                   <div class="menu-actions">
-                    <button class="btn btn-cart" onclick="addToCart('Link PC', 13500)">
+                    <button class="btn btn-cart" onclick="addToCart('Link PC', 10500)">
                       <i class="bi bi-cart-plus"></i> Add to Cart
                     </button>
-                    <button class="btn btn-buy" onclick="buyNow('Link PC', 13500)">
+                    <button class="btn btn-buy" onclick="buyNow('Link PC', 10500)">
                       Buy Now
                     </button>
                   </div>
                 </div>
               </div>
+            
               
               <div class="col-lg-4 menu-item">
                 <div class="menu-item-box">
@@ -805,6 +806,13 @@
             </div>
           </div>
         </section>
+        <script>
+          window.history.forward();
+          function noBack() {
+              window.history.forward();
+          }
+          window.onload = noBack;
+      </script>
       
         <script>
           // Function to update the cart count
