@@ -27,10 +27,14 @@
             background-color: #ff5722;
             color: white;
             padding: 8px 15px;
-            border-radius: 20px;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
+            
+        }
+        .cartcount{
+            margin-left: 700px;
         }
         #cartCount:hover {
             background-color: #e64a19;
@@ -145,9 +149,10 @@
     </style>
 </head>
 <body>
-    <header onclick="window.location.href='afterlogin.html';">
-        <h1>Your Shopping Cart</h1>
-        <div id="cartCount">Cart: 0</div>
+    <header >
+        <h1 onclick="window.location.href='afterlogin.html';">Your Shopping Cart</h1>
+        <div id="cartCount" class="cartcount">Cart: 0</div>
+        <div id="cartCount" onclick="window.location.href='signout.php';" >LogOut</div>
     </header>
     <main>
         <ul id="cartItems">
@@ -163,8 +168,6 @@
         }
         window.onload = noBack;
     </script>
-
-
     <script>
         // Function to add an item to the cart with quantity 1
         function addItemToCart(item) {
