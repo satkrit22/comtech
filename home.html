@@ -146,7 +146,6 @@
   </div>
 </div>
   </header>
-
   <main class="main">
     <!-- Hero Section -->
     <section id="hero" class="hero section light-background">
@@ -188,7 +187,8 @@
           </div>
         </div>
       </div>
-    </section><!-- /About Section -->
+    </section>
+    <!-- /About Section -->
 
     <!-- Sales Section -->
     <section id="Sales" class="menu section">
@@ -237,8 +237,8 @@
                   <h4>Link PC</h4>
                   <p class="price"><strike>Rs.14,500</strike><br>Rs.10,500</p> </a>
                   <div class="menu-actions">
-                    <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-                    <button class="btn btn-buy">Buy Now</button>
+                    <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Link PC',10500)"></i> Add to Cart</button>
+                    <button class="btn btn-buy" onclick="buyNow('Link PC',10500)">Buy Now</button>
                   </div>
                 
                 </div>
@@ -254,8 +254,8 @@
                   <h4>Link PC+</h4>
                   <p class="price"><strike>Rs.14,500</strike><br>Rs.13,500</p></a>                
                   <div class="menu-actions">
-                    <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-                    <button class="btn btn-buy">Buy Now</button>
+                    <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Link Pc+',13500)"></i> Add to Cart</button>
+                    <button class="btn btn-buy" onclick="buyNow('Link Pc+',13500)">Buy Now</button>
                   </div>
                 
                 </div>
@@ -271,8 +271,8 @@
                   <h4>Laptop Cooler</h4>
                   <p class="price">Rs.1,500</p> </a>
                   <div class="menu-actions">
-                    <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-                    <button class="btn btn-buy">Buy Now</button>
+                    <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Laptop Cooler',1500)"></i> Add to Cart</button>
+                    <button class="btn btn-buy" onclick="buyNow('Laptop Cooler',1500)">Buy Now</button>
                   </div>
                 
                 </div>
@@ -288,8 +288,8 @@
                   <h4>Mouse</h4>
                   <p class="price">Rs.1,500</p> </a>
                   <div class="menu-actions">
-                    <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-                    <button class="btn btn-buy">Buy Now</button>
+                    <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Mouse',1500)"></i> Add to Cart</button>
+                    <button class="btn btn-buy" onclick="buyNow('Mouse',1500)">Buy Now</button>
                   </div>
                 
                 </div>
@@ -305,8 +305,8 @@
                   <h4>Clamper</h4>
                   <p class="price">Rs.1,300</p>
                   <div class="menu-actions">
-                    <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-                    <button class="btn btn-buy">Buy Now</button>
+                    <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Clamper',1300)"></i> Add to Cart</button>
+                    <button class="btn btn-buy" onclick="buyNow('Clamper',1300)">Buy Now</button>
                   </div>
                 
                 </div>
@@ -322,8 +322,8 @@
                   <h4>Keyboard</h4>
                   <p class="price">Rs.3,200</p> </a>
                   <div class="menu-actions">
-                    <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-                    <button class="btn btn-buy">Buy Now</button>
+                    <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Keyboard',3200)"></i> Add to Cart</button>
+                    <button class="btn btn-buy" onclick="buyNow('Keyboard',3200)">Buy Now</button>
                   </div>
                 
                 </div>
@@ -338,8 +338,8 @@
     <h4>Normal Server</h4>
     <p class="price">Rs.90,500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Normal Server',90500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Normal Server',90500)">Buy Now</button>
     </div>
   
   </div>
@@ -355,8 +355,8 @@
     <h4>Network Cable</h4>
     <p class="price">Rs.19,500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Network Cable',19500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Network Cable',19500)">Buy Now</button>
     </div>
   
   </div>
@@ -372,8 +372,8 @@
     <h4>Solid State Drive 128GB</h4>
     <p class="price">Rs.2,200</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('SSD 128GB',2200)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('SSD 128GB',2200)">Buy Now</button>
     </div>
   
   </div>
@@ -389,8 +389,8 @@
     <h4>Monitor</h4>
     <p class="price">Rs.15,500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Monitor',15500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Monitor',15500)">Buy Now</button>
     </div>
   
   </div>
@@ -404,10 +404,10 @@
     </a>
     <a href="productdetails/brandedkeymouse.html">
     <h4>Branded Keyboard & Mouse</h4>
-    <p class="price">Rs.3,000</p> </a>
+    <p class="price">Rs.3,200</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Dell Wired Keyboard & Mouse Combo',3200)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Dell Wired Keyboard & Mouse Combo',3200)">Buy Now</button>
     </div>
   
   </div>
@@ -423,8 +423,8 @@
     <h4>Power Supply</h4>
     <p class="price">Rs.1,500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Power Supply',1500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Power Supply',1500)">Buy Now</button>
     </div>
   
   </div>
@@ -440,8 +440,8 @@
     <h4>External Harddisk 1TB</h4>
     <p class="price">Rs.5,700</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('External Harddisk 1TB',5700)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('External Harddisk 1TB',5700)">Buy Now</button>
     </div>
   
   </div>
@@ -457,8 +457,8 @@
     <h4>Dell Inspirion 3430</h4>
     <p class="price">Rs.90,000</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Dell Inspirion 3430',90000)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Dell Inspirion 3430',90000)">Buy Now</button>
     </div>
   
   </div>
@@ -474,8 +474,8 @@
     <h4>NVME SSD 128GB</h4>
     <p class="price">Rs.3,000</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('NVME SSD 128GB',3000)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('NVME SSD 128GB',3000)">Buy Now</button>
     </div>
     
   </div>
@@ -490,8 +490,8 @@
     <h4>Headphone</h4>
     <p class="price">Rs.1,500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Headphone',1500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Headphone',1500)">Buy Now</button>
     </div>
   
   </div>
@@ -507,8 +507,8 @@
     <h4>Caddy</h4>
     <p class="price">Rs.500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Caddy',500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Caddy',500)">Buy Now</button>
     </div>
   
   </div>
@@ -524,8 +524,8 @@
     <h4>Wifi Dongle</h4>
     <p class="price">Rs.500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Wifi Dongle',500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Wifi Dongle',500)">Buy Now</button>
     </div>
   
   </div>
@@ -541,10 +541,9 @@
     <h4>Ethernet Adapter</h4>
     <p class="price">Rs.800</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Ethernet Adapter',800)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('Ethernet Adapter',800)">Buy Now</button>
     </div>
-  
   </div>
 </div>
 
@@ -558,8 +557,8 @@
     <h4>CPU Fan</h4>
     <p class="price">Rs.500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('CPU Fan',500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('CPU Fan',500)">Buy Now</button>
     </div>
   
   </div>
@@ -574,8 +573,8 @@
     <h4>HDMI to VGA Converter</h4>
     <p class="price">Rs.500</p> </a>
     <div class="menu-actions">
-      <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-buy">Buy Now</button>
+      <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('HDMI to VGA Converter',500)"></i> Add to Cart</button>
+      <button class="btn btn-buy" onclick="buyNow('HDMI to VGA Converter',500)">Buy Now</button>
     </div>
   
   </div>
@@ -602,8 +601,8 @@
         Rs.10,500
       </p> </a>
       <div class="menu-actions">
-        <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-        <button class="btn btn-buy">Buy Now</button>
+        <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Link PC',10500)"></i> Add to Cart</button>
+        <button class="btn btn-buy" onclick="buyNow('Link PC',10500)">Buy Now</button>
       </div>
     
     </div>
@@ -620,8 +619,8 @@
         Rs.13,500
       </p> </a>
       <div class="menu-actions">
-        <button class="btn btn-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-           <button class="btn btn-buy"> Buy Now</button>
+        <button class="btn btn-cart"><i class="bi bi-cart-plus" onclick="addToCart('Link PC+',13500)"></i> Add to Cart</button>
+           <button class="btn btn-buy" onclick="buyNow('Link PC+',13500)"> Buy Now</button>
       </div>
     
     </div>
@@ -636,8 +635,8 @@
       <p class="price">Rs.90,500</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart </button>
-        <button class="btn btn-buy">Buy Now</button>
+          <i class="bi bi-cart-plus" onclick="addToCart('Normal Server',90500)"></i> Add to Cart </button>
+        <button class="btn btn-buy" onclick="buyNow('Normal Server',90500)">Buy Now</button>
       </div>
     </div>
 
@@ -651,9 +650,9 @@
       <p class="price">Rs.19,500</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('Network Cable',19500)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Network Cable',19500)">
           Buy Now
         </button>
       </div>
@@ -669,9 +668,9 @@
       <p class="price">Rs.15,500</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('Monitor',15500)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Monitor',15500)">
           Buy Now
         </button>
       </div>
@@ -684,12 +683,12 @@
       </a>
       <a href="productdetails/brandedkeymouse.html">
       <h4>Branded Keyboard & Mouse</h4>
-      <p class="price">Rs.3,000</p> </a>
+      <p class="price">Rs.3,200</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('Dell Wired Keyboard & Mouse Combo',3200)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Dell Wired Keyboard & Mouse Combo',3200)">
           Buy Now
         </button>
       </div>
@@ -715,9 +714,9 @@
       <p class="price">Rs.5,700</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('External Harddisk 1TB',5700)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('External Harddisk 1TB',5700)">
           Buy Now
         </button>
       </div>
@@ -734,9 +733,9 @@
       <p class="price">Rs.2,200</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('SSD 128GB',2200)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('SSD 128GB',2200)">
           Buy Now
         </button>
       </div>
@@ -753,9 +752,9 @@
       <p class="price">Rs.1,500</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('Power Supply',1500)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Power Supply',1500)">
           Buy Now
         </button>
       </div>
@@ -771,9 +770,9 @@
       <p class="price">Rs.500</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('CPU Fan',500)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('CPU Fan',500)">
           Buy Now
         </button>
       </div>
@@ -789,11 +788,9 @@
       <p class="price">Rs.500</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('Wifi Dongle',500)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
-          Buy Now
-        </button>
+        <button class="btn btn-buy" onclick="buyNow('Wifi Dongle',500)">Buy Now</button>
       </div>
     </div>
 
@@ -808,9 +805,9 @@
       <p class="price">Rs.1,500</p> </a>
       <div class="menu-actions">
         <button class="btn btn-cart">
-          <i class="bi bi-cart-plus"></i> Add to Cart
+          <i class="bi bi-cart-plus" onclick="addToCart('Headphone',1500)"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Headphone',1500)">
           Buy Now
         </button>
       </div>
@@ -820,26 +817,27 @@
 </div>
 
 
-<div class="tab-pane fade" id="menu-dinner">
+<div class="tab-pane fade show active" id="menu-dinner">
   <div class="tab-header text-center">
     <h3>Laptop & Accessories</h3>
   </div>
 
-  <div class="row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;"> <!-- Grid layout with gap -->
+  <div class="row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
 
     <!-- Dell Vostro 3430 -->
     <div class="menu-item" style="padding: 10px;">
       <a href="assets/img/menu/Screenshot 2024-07-31 173629.png" class="glightbox">
-        <img src="assets/img/menu/3430_.jpg" class="menu-img img-fluid" alt="Dell Vostro 3430" style="width: 100%; height: 200px; object-fit: cover;">
+        <img src="assets/img/menu/3430_.jpg" alt="Dell Vostro 3430">
       </a>
-    <a href="productdetails/dellinspirion.html">
-      <h4>Dell Inspirion 3430</h4>
-      <p class="price">Rs.91,000</p> </a>
+      <a href="productdetails/dellinspirion.html">
+        <h4>Dell Inspirion 3430</h4>
+        <p class="price">Rs.91,000</p>
+      </a>
       <div class="menu-actions">
-        <button class="btn btn-cart">
+        <button class="btn btn-cart" onclick="addToCart('Dell Inspirion 3430', 91000)">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Dell Inspirion 3430', 91000)">
           Buy Now
         </button>
       </div>
@@ -848,16 +846,17 @@
     <!-- NVME SSD 128GB -->
     <div class="menu-item" style="padding: 10px;">
       <a href="assets/img/menu/Screenshot 2024-07-31 173756.png" class="glightbox">
-        <img src="assets/img/menu/HP_1TB_SSD.jpg" class="menu-img img-fluid" alt="NVME SSD 128GB" style="width: 100%; height: 200px; object-fit: cover;">
+        <img src="assets/img/menu/HP_1TB_SSD.jpg" alt="NVME SSD 128GB">
       </a>
-    <a href="productdetails/nvme.html">
-      <h4>NVME SSD 128GB</h4>
-      <p class="price">Rs.3,000</p> </a>
+      <a href="productdetails/nvme.html">
+        <h4>NVME SSD 128GB</h4>
+        <p class="price">Rs.3,000</p>
+      </a>
       <div class="menu-actions">
-        <button class="btn btn-cart">
+        <button class="btn btn-cart" onclick="addToCart('NVME SSD 128GB', 3000)">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('NVME SSD 128GB', 3000)">
           Buy Now
         </button>
       </div>
@@ -866,16 +865,17 @@
     <!-- Headphone -->
     <div class="menu-item" style="padding: 10px;">
       <a href="assets/img/menu/cdc9f6847ff74c048ccf21bb49c4594d.jpg" class="glightbox">
-        <img src="assets/img/menu/84cf6d5739a034f0b28023fb91453a2e.jpg" class="menu-img img-fluid" alt="Headphone" style="width: 100%; height: 200px; object-fit: cover;">
+        <img src="assets/img/menu/84cf6d5739a034f0b28023fb91453a2e.jpg" alt="Headphone">
       </a>
-    <a href="productdetails/heaphone.html">
-      <h4>Headphone</h4>
-      <p class="price">Rs.1,500</p> </a>
+      <a href="productdetails/heaphone.html">
+        <h4>Headphone</h4>
+        <p class="price">Rs.1,500</p>
+      </a>
       <div class="menu-actions">
-        <button class="btn btn-cart">
+        <button class="btn btn-cart" onclick="addToCart('Headphone', 1500)">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Headphone', 1500)">
           Buy Now
         </button>
       </div>
@@ -884,16 +884,17 @@
     <!-- Caddy -->
     <div class="menu-item" style="padding: 10px;">
       <a href="assets/img/menu/main-qimg-26a89bdf4057c2c0465906e709344d54.webp" class="glightbox">
-        <img src="assets/img/menu/hdd_caddy_1.jpg" class="menu-img img-fluid" alt="Caddy" style="width: 100%; height: 200px; object-fit: cover;">
+        <img src="assets/img/menu/hdd_caddy_1.jpg" alt="Caddy">
       </a>
-    <a href="productdetails/caddy.html">
-      <h4>Caddy</h4>
-      <p class="price">Rs.500</p> </a>
+      <a href="productdetails/caddy.html">
+        <h4>Caddy</h4>
+        <p class="price">Rs.500</p>
+      </a>
       <div class="menu-actions">
-        <button class="btn btn-cart">
+        <button class="btn btn-cart" onclick="addToCart('Caddy', 500)">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Caddy', 500)">
           Buy Now
         </button>
       </div>
@@ -902,17 +903,17 @@
     <!-- Ethernet Adapter -->
     <div class="menu-item" style="padding: 10px;">
       <a href="assets/img/menu/EU-4306_photo_05_USB-A_RJ45_Gigabit_Network_Adapter_Gigabit_USB3-2_1000x1000.jpg" class="glightbox">
-        <img src="assets/img/menu/71-E1Mu48WL._AC_SL1500_.jpg" class="menu-img img-fluid" alt="Ethernet Adapter" style="width: 100%; height: 200px; object-fit: cover;">
+        <img src="assets/img/menu/71-E1Mu48WL._AC_SL1500_.jpg" alt="Ethernet Adapter">
       </a>
-    <a href="productdetails/ethernetconverter.html">
-      <h4>Ethernet Adapter</h4>
-      <p class="price">Rs.800</p>
-    </a>
+      <a href="productdetails/ethernetconverter.html">
+        <h4>Ethernet Adapter</h4>
+        <p class="price">Rs.800</p>
+      </a>
       <div class="menu-actions">
-        <button class="btn btn-cart">
+        <button class="btn btn-cart" onclick="addToCart('Ethernet Adapter', 800)">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Ethernet Adapter', 800)">
           Buy Now
         </button>
       </div>
@@ -921,27 +922,70 @@
     <!-- Wifi Dongle -->
     <div class="menu-item" style="padding: 10px;">
       <a href="assets/img/menu/161839-l4iasj.jpg" class="glightbox">
-        <img src="assets/img/menu/4050158915.jpg" class="menu-img img-fluid" alt="Wifi Dongle" style="width: 100%; height: 200px; object-fit: cover;">
+        <img src="assets/img/menu/4050158915.jpg" alt="Wifi Dongle">
       </a>
-    <a href="productdetails/wifidongle.html">
-      <h4>Wifi Dongle</h4>
-      <p class="price">Rs.500</p>
-    </a>
+      <a href="productdetails/wifidongle.html">
+        <h4>Wifi Dongle</h4>
+        <p class="price">Rs.500</p>
+      </a>
       <div class="menu-actions">
-        <button class="btn btn-cart">
+        <button class="btn btn-cart" onclick="addToCart('Wifi Dongle', 500)">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </button>
-        <button class="btn btn-buy">
+        <button class="btn btn-buy" onclick="buyNow('Wifi Dongle', 500)">
           Buy Now
         </button>
       </div>
     </div>
-
   </div>
 </div>
-          </div>
-          
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function addToCart(name, price) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const index = cart.findIndex(item => item.name === name);
+      if (index !== -1) {
+        cart[index].quantity++;
+      } else {
+        cart.push({ name, price, quantity: 1 });
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+      showAlert(`${name} added to cart!`);
+    }
+
+    function buyNow(name, price) {
+      window.location.href = `cart.html?items=${encodeURIComponent(JSON.stringify([{ name, price }]))}`;
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const countElement = document.querySelector('.header-cart-count');
+      if (countElement) {
+        let totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        countElement.textContent = totalItems;
+      }
+    }
+
+    function showAlert(message) {
+      const alert = document.createElement('div');
+      alert.className = 'alert alert-success position-fixed top-0 end-0 m-3';
+      alert.style.zIndex = 1050;
+      alert.textContent = message;
+      document.body.appendChild(alert);
+      setTimeout(() => alert.remove(), 2000);
+    }
+
+    // Make functions globally accessible
+    window.addToCart = addToCart;
+    window.buyNow = buyNow;
+
+    updateCartCount();
+  });
+</script>
         </section>
+        
 
     <!-- Testimonials Section -->
     <section id="testimonials" class="testimonials section light-background">
