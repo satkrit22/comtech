@@ -6,12 +6,13 @@
 
     $conn = mysqli_connect($servername,$username,$password,$dbname);
 
-    $query = "CREATE TABLE users (
+    $query = "CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"; 
+    user_id INT NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    status ENUM('Pending', 'Processing', 'Completed') DEFAULT 'Pending' NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id))"; 
 if(mysqli_query($conn,$query)){
         echo "<script>alert('Data successfully enterd'); window.location.href = 'home.html'; </script>";
                 }

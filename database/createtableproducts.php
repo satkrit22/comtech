@@ -6,11 +6,13 @@
 
     $conn = mysqli_connect($servername,$username,$password,$dbname);
 
-    $query = "CREATE TABLE users (
+    $query = "CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    price INT NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    stock INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"; 
 if(mysqli_query($conn,$query)){
         echo "<script>alert('Data successfully enterd'); window.location.href = 'home.html'; </script>";

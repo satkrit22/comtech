@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=n, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>signup</title>
     <link href="assets/img/favicon.png" rel="icon">
     <style>
@@ -247,10 +247,10 @@ input {
     
 <div class="container" id="container">
 	<div class="form-container sign-up-container">
-		<form name="f1" action="signup.php" onsubmit="return validation()" method="post">
+		<form name="f1" action="/database/signup.php" onsubmit="return validation()" method="post">
 			<h1>Create Account</h1>
 			<input type="text" placeholder="Name" name="name" required/>
-			<input type="email" placeholder="Email" name="email" required/>
+			<input type="email" placeholder="Email" name="email" required/><input type="tel" placeholder="Phone Number" name="phone" id="phone" required pattern="^(98|97|96)[0-9]{8}$" title="Enter a valid 10-digit Nepali number starting with 98, 97, or 96" />	 
 			<input type="password" placeholder="Password" name="password" required/>
 			<input type="password" placeholder="Re-Password" name="Re-password" required/>
 			<button>Sign Up</button>
@@ -258,7 +258,7 @@ input {
 	</div>
 	<div class="form-container sign-in-container">
 		
-		<form name="f1" action="signin.php" method="post" onsubmit="return valid()" >
+		<form name="f1" action="/database/signin.php" method="post" onsubmit="return valid()" >
 			<h1>Login Here:</h1>
 			<input type="email" placeholder="Email" name="email"  required/>
 			<input type="password" placeholder="Password" name="password" required />
@@ -280,55 +280,76 @@ input {
 </div>
 <script>
 	function validation() {
-	  var email = document.f1.email.value;
-	  var password = document.f1.password.value;
-	  var confirmPassword = document.f1.re_password.value;
-	  var errorMessage = document.getElementById("error-message");
+		const name = document.f1.name.value.trim();
+		const email = document.f1.email.value.trim();
+		const phone = document.f1.phone.value.trim(); // Get phone value
+		const password = document.f1.password.value;
+		const confirmPassword = document.f1["Re-password"].value;
 
-	  // Check if the email or password fields are empty
-	  if (email.length === "" || password.length === "") {
-		alert("Email and Password fields are required.");
-		return false; 
-	  }
+		const nameRegex = /^[a-zA-Z]+$/;
+		const emailRegex = /^[a-zA-Z][a-zA-Z0-9._]*@gmail\.com$/;
+		const nepaliPhoneRegex = /^(98|97|96)[0-9]{8}$/;
 
-	  // Check if the confirm password matches the password
-	  if (password !== confirmPassword) {
-		alert("Passwords do not match!");
-		return false; 
-	  }
+		if (!nameRegex.test(name)) {
+			alert("Name should contain only letters (A-Z or a-z).");
+			return false;
+		}
 
-	  
-	  return true;
+		if (!emailRegex.test(email)) {
+			alert("Please enter a valid Gmail address that starts with a letter (e.g., satkrit@gmail.com).");
+			return false;
+		}
+
+		if (!nepaliPhoneRegex.test(phone)) {
+			alert("Please enter a valid 10-digit Nepali phone number starting with 98, 97, or 96.");
+			return false;
+		}
+		if (password === "" || confirmPassword === "") {
+			alert("Password fields cannot be empty.");
+			return false;
+		}
+
+		if (password !== confirmPassword) {
+			alert("Passwords do not match.");
+			return false;
+		}
+
+		return true;
 	}
-  </script>
-<script>
-    const signUpButton = document.getElementById('signUp');
-const signInButton = document.getElementById('signIn');
-const container = document.getElementById('container');
 
-signUpButton.addEventListener('click', () => {
-	container.classList.add("right-panel-active");
-});
-
-signInButton.addEventListener('click', () => {
-	container.classList.remove("right-panel-active");
-});
-</script>
-<script>
 	function valid() {
-	  var email = document.f1.email.value;
-	  var password = document.f1.password.value;
-	  var confirmPassword = document.f1.re_password.value;
-	  var errorMessage = document.getElementById("error-message");
+		const email = document.f1.email.value.trim();
+		const password = document.f1.password.value;
 
-	  // Check if the email or password fields are empty
-	  if (email.length === "" || password.length === "") {
-		alert("Email and Password fields are required.");
-		return false; 
-	  }
-	  return true;
+		const emailRegex = /^[a-zA-Z][a-zA-Z0-9._]*@gmail\.com$/;
+
+		if (!emailRegex.test(email)) {
+			alert("Please enter a valid Gmail address that starts with a letter.");
+			return false;
+		}
+
+		if (password === "") {
+			alert("Password field cannot be empty.");
+			return false;
+		}
+
+		return true;
 	}
-  </script>
+
+	const signUpButton = document.getElementById('signUp');
+	const signInButton = document.getElementById('signIn');
+	const container = document.getElementById('container');
+
+	signUpButton.addEventListener('click', () => {
+		container.classList.add("right-panel-active");
+	});
+
+	signInButton.addEventListener('click', () => {
+		container.classList.remove("right-panel-active");
+	});
+</script>
+
+
 
 </body>
 </html>
