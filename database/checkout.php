@@ -1,32 +1,61 @@
 <?php
 session_start();
-require 'config/db.php';
+require 'config/db.php';  // $conn defined here (MySQLi connection)
 
-$cart = $pdo->prepare("
-    SELECT product_id, quantity, price 
+$user_id = $_SESSION['user_id'];
+
+// Start transaction
+$conn->begin_transaction();
+
+// 1. Fetch cart items
+$sql = "
+    SELECT cart.product_id, cart.quantity, products.price 
     FROM cart 
     JOIN products ON cart.product_id = products.id 
     WHERE cart.user_id = ?
-");
-$cart->execute([$_SESSION['user_id']]);
-$items = $cart->fetchAll();
+";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-$total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $items));
+$items = [];
+while ($row = $result->fetch_assoc()) {
+    $items[] = $row;
+}
+$stmt->close();
 
-$pdo->beginTransaction();
-
-$stmt = $pdo->prepare("INSERT INTO orders (user_id, total) VALUES (?, ?)");
-$stmt->execute([$_SESSION['user_id'], $total]);
-$order_id = $pdo->lastInsertId();
-
+// 2. Calculate total
+$total = 0;
 foreach ($items as $item) {
-    $stmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$order_id, $item['product_id'], $item['quantity'], $item['price']]);
+    $total += $item['price'] * $item['quantity'];
 }
 
-$pdo->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$_SESSION['user_id']]);
-$pdo->commit();
+// 3. Insert into orders
+$stmt = $conn->prepare("INSERT INTO orders (user_id, total) VALUES (?, ?)");
+$stmt->bind_param("id", $user_id, $total);
+$stmt->execute();
+$order_id = $stmt->insert_id;
+$stmt->close();
+
+// 4. Insert into order_items
+$stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
+foreach ($items as $item) {
+    $stmt->bind_param("iiid", $order_id, $item['product_id'], $item['quantity'], $item['price']);
+    $stmt->execute();
+}
+$stmt->close();
+
+// 5. Delete cart items
+$stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->close();
+
+// 6. Commit transaction
+$conn->commit();
 
 echo "Order placed successfully!";
 
+$conn->close();
 ?>

@@ -15,6 +15,6 @@
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id))"; 
 if(mysqli_query($conn,$query)){
-        echo "<script>alert('Data successfully enterd'); window.location.href = 'home.html'; </script>";
+        echo "<script>alert('Data successfully enterd'); window.location.href = '/comtech/home.html'; </script>";
                 }
 ?>

@@ -32,7 +32,7 @@ if ($result->num_rows > 0) {
         // Password is correct, start session and redirect to the dashboard or products page
         session_start();
         $_SESSION['email'] = $user['Email'];
-        header('Location:afterlogin.html'); // Redirect to the user's dashboard
+        header('Location:home.html'); // Redirect to the user's dashboard
     } else {
         // Invalid password
         echo "<script>alert('Incorrect password. Please try again.');</script>";
@@ -40,7 +40,7 @@ if ($result->num_rows > 0) {
 } else {
     // Email not found
         
-    echo "<script>alert('Email does not exist. Please sign up.'); window.location.href = 'signup.html';</script>";
+    echo "<script>alert('Email does not exist. Please sign up.'); window.location.href = '/comtech/signup.html';</script>";
 }
 
 $stmt->close();
