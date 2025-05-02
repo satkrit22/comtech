@@ -247,7 +247,7 @@ input {
     
 <div class="container" id="container">
 	<div class="form-container sign-up-container">
-		<form name="f1" action="/comtech/database/signup.php" onsubmit="return validation()" method="post">
+<form name="signupForm" action="/comtech/database/signup.php" onsubmit="return validateSignup()" method="post">
 			<h1>Create Account</h1>
 			<input type="text" placeholder="Name" name="name" required/>
 			<input type="email" placeholder="Email" name="email" required/><input type="tel" placeholder="Phone Number" name="phone" id="phone" required pattern="^(98|97|96)[0-9]{8}$" title="Enter a valid 10-digit Nepali number starting with 98, 97, or 96" />	 
@@ -258,7 +258,7 @@ input {
 	</div>
 	<div class="form-container sign-in-container">
 		
-		<form name="f1" action="/comtech/database/signin.php" method="post" onsubmit="return valid()" >
+<form name="signinForm" action="/comtech/database/signin.php" method="post" onsubmit="return validateSignin()">
 			<h1>Login Here:</h1>
 			<input type="email" placeholder="Email" name="email"  required/>
 			<input type="password" placeholder="Password" name="password" required />
@@ -279,12 +279,13 @@ input {
 	</div>
 </div>
 <script>
-	function validation() {
-		const name = document.f1.name.value.trim();
-		const email = document.f1.email.value.trim();
-		const phone = document.f1.phone.value.trim(); // Get phone value
-		const password = document.f1.password.value;
-		const confirmPassword = document.f1["Re-password"].value;
+function validateSignup() {
+	const name = document.signupForm.name.value.trim();
+	const email = document.signupForm.email.value.trim();
+	const phone = document.signupForm.phone.value.trim();
+	const password = document.signupForm.password.value;
+	const confirmPassword = document.signupForm["Re-password"].value;
+
 
 		const nameRegex = /^[a-zA-Z]+$/;
 		const emailRegex = /^[a-zA-Z][a-zA-Z0-9._]*@gmail\.com$/;
@@ -317,9 +318,9 @@ input {
 		return true;
 	}
 
-	function valid() {
-		const email = document.f1.email.value.trim();
-		const password = document.f1.password.value;
+	function validateSignin() {
+	const email = document.signinForm.email.value.trim();
+	const password = document.signinForm.password.value;
 
 		const emailRegex = /^[a-zA-Z][a-zA-Z0-9._]*@gmail\.com$/;
 
