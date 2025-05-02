@@ -32,7 +32,7 @@ if ($result->num_rows > 0) {
         // Password is correct, start session and redirect to the dashboard or products page
         session_start();
         $_SESSION['email'] = $user['Email'];
-        header('Location:/comtech/afterlogin.html'); // Redirect to the user's dashboard
+        header('Location:/comtech/afterlogin.php'); // Redirect to the user's dashboard
     } else {
         // Invalid password
         echo "<script>alert('Incorrect password. Please try again.');</script>";

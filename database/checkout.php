@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'config/db.php';  // $conn defined here (MySQLi connection)
+require 'connect.php';  // $conn defined here (MySQLi connection)
 
 $user_id = $_SESSION['user_id'];
 
@@ -59,3 +59,83 @@ echo "Order placed successfully!";
 
 $conn->close();
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<style>
+    /* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f7fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Container */
+.confirmation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* Card */
+.confirmation-card {
+    background: #ffffff;
+    padding: 40px 60px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Typography */
+.confirmation-card h1 {
+    font-size: 2em;
+    color: #2d3436;
+    margin-bottom: 10px;
+}
+
+.confirmation-card p {
+    font-size: 1.1em;
+    color: #636e72;
+    margin-bottom: 30px;
+}
+
+/* Button */
+.btn {
+    text-decoration: none;
+    background: #0984e3;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.btn:hover {
+    background: #74b9ff;
+}
+</style>
+<body>
+    <div class="confirmation-container">
+        <div class="confirmation-card">
+            <h1>Thank You!</h1>
+            <p>Your order has been placed successfully.</p>
+            <a href="shop.php" class="btn">Continue Shopping</a>
+        </div>
+    </div>
+</body>
+</html>

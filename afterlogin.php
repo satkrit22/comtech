@@ -106,7 +106,7 @@ session_start();
   }
 </script>
   <div class="header-cart me-3">
-    <a href="cart.html" class="header-cart-link position-relative">
+    <a href="afterlogincart.php" class="header-cart-link position-relative">
       <i class="bi bi-cart3"></i>
       <span class="header-cart-count">0</span>
     </a>
@@ -117,6 +117,8 @@ session_start();
     </a>
     <ul class="dropdown-menu dropdown-menu-end">
       <li><a class="dropdown-item" href="/database/signout.php">Logout</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="myaccount.html">My Account</a></li>
   </div>
 </div>
   </header>
@@ -902,7 +904,7 @@ session_start();
     }
 
     function buyNow(name, price) {
-      window.location.href = `cart.html?items=${encodeURIComponent(JSON.stringify([{ name, price }]))}`;
+      window.location.href = `afterlogincart.php?items=${encodeURIComponent(JSON.stringify([{ name, price }]))}`;
     }
 
     function updateCartCount() {
