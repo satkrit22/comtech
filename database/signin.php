@@ -12,12 +12,8 @@ $conn = mysqli_connect($servername, $username, $password, $dbname);
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
-
-// Assuming you have already retrieved the email and password from POST request
 $email = $_POST['email'];
 $password = $_POST['password'];
-
-// Prepare the query to fetch user details based on email
 $sql = "SELECT * FROM users WHERE Email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $email);
@@ -29,17 +25,15 @@ if ($result->num_rows > 0) {
 
     // Verify the password using password_verify
     if (password_verify($password, $user['password'])) {
-        // Password is correct, start session and redirect to the dashboard or products page
-        session_start();
-        $_SESSION['email'] = $user['Email'];
-        header('Location:/comtech/afterlogin.php'); // Redirect to the user's dashboard
+        $_SESSION['user_id'] = $user['id']; 
+        header('Location:/comtech/database/productdisplay.php'); 
+        exit();
     } else {
         // Invalid password
         echo "<script>alert('Incorrect password. Please try again.');</script>";
     }
 } else {
     // Email not found
-        
     echo "<script>alert('Email does not exist. Please sign up.'); window.location.href = '/comtech/signup.html';</script>";
 }
 

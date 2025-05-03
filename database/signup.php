@@ -58,7 +58,7 @@ if (!$stmt_insert) {
 $stmt_insert->bind_param("ssss", $name, $email, $phone, $hashed_password);
 
 if ($stmt_insert->execute()) {
-    echo "<script>alert('Signup successful!'); window.location.href = '/comtech/signup.html';</script>";
+    echo "<script>alert('Signup successful!'); window.location.href = '/comtech/database/login.php';</script>";
 } else {
     echo "Error inserting user: " . $stmt_insert->error;
 }
