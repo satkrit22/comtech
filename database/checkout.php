@@ -61,6 +61,11 @@ if (isset($_POST['order'])) {
             $grand_total += ($item['price'] * $item['quantity']);
         }
 
+        // Add extra charge based on province
+        if (isset($_POST['state']) && $_POST['state'] !== 'Bagmati Province') {
+            $grand_total += 150;  // Add extra charge for non-Bagmati Province
+        }
+
         if (!$out_of_stock) {
             $stmt = $conn->prepare("
                 INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price)
@@ -95,12 +100,14 @@ if (isset($_POST['order'])) {
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Checkout - Comtech</title>
 <link rel="stylesheet" href="css/style.css">
+
 <style>
     body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -228,6 +235,35 @@ h3 {
 }
 
 </style>
+<script>
+// JavaScript to handle grand total update
+document.addEventListener('DOMContentLoaded', function () {
+    const provinceSelect = document.querySelector('select[name="state"]');
+    const grandTotalElement = document.querySelector('.grand-total span');
+    let initialGrandTotal = <?= number_format($grand_total, 2); ?>; // PHP value passed to JS
+    const extraCharge = 150; // Extra charge for provinces other than Bagmati
+
+    // Update the grand total based on selected province
+    function updateGrandTotal() {
+        const selectedProvince = provinceSelect.value;
+        let total = initialGrandTotal;
+
+        // Apply extra charge if the selected province is not Bagmati Province
+        if (selectedProvince !== 'Bagmati Province') {
+            total += extraCharge;
+        }
+
+        // Update the grand total displayed on the page
+        grandTotalElement.textContent = 'NPR. ' + total.toFixed(2);
+    }
+
+    // Event listener to trigger grand total update when province changes
+    provinceSelect.addEventListener('change', updateGrandTotal);
+
+    // Initialize grand total on page load
+    updateGrandTotal();
+});
+</script>
 </head>
 <body>
 
@@ -245,7 +281,7 @@ h3 {
         SELECT c.*, p.name, p.price 
         FROM cart c 
         JOIN products p ON c.product_id = p.id 
-        WHERE c.user_id = ?
+        WHERE c.user_id = ? 
       ");
       $stmt->bind_param("i", $user_id);
       $stmt->execute();
@@ -261,15 +297,9 @@ h3 {
          echo '<p class="empty">Your cart is empty!</p>';
       }
       $stmt->close();
-
-      // Apply extra delivery charge if the province is not Bagmati
-      if (isset($_POST['state']) && $_POST['state'] != "Bagmati Province") {
-         $grand_total += 150;  // Adding extra charge
-      }
       ?>
       <input type="hidden" name="total_products" value="<?= htmlspecialchars($total_products); ?>">
       <input type="hidden" name="total_price" value="<?= $grand_total; ?>">
-      <div class="grand-total">Grand Total : <span>NPR. <?= number_format($grand_total,2); ?></span></div>
    </div>
 
    <h3>Billing Details</h3>
@@ -302,14 +332,15 @@ h3 {
    <div class="inputBox">
       <span>Province :</span>
       <select name="state" required>
-         <option value="Province No. 1">Province No. 1</option>
-         <option value="Province No. 2">Province No. 2</option>
-         <option value="Bagmati Province">Bagmati Province</option>
-         <option value="Gandaki Province">Gandaki Province</option>
-         <option value="Lumbini Province">Lumbini Province</option>
-         <option value="Karnali Province">Karnali Province</option>
-         <option value="Sudurpashchim Province">Sudurpashchim Province</option>
-      </select>
+    <option value="Province No. 1">Province No. 1 (+150 delivery charge)</option>
+    <option value="Province No. 2">Province No. 2 (+150 delivery charge)</option>
+    <option value="Bagmati Province" selected>Bagmati Province</option>
+    <option value="Gandaki Province">Gandaki Province (+150 delivery charge)</option>
+    <option value="Lumbini Province">Lumbini Province (+150 delivery charge)</option>
+    <option value="Karnali Province">Karnali Province (+150 delivery charge)</option>
+    <option value="Sudurpashchim Province">Sudurpashchim Province (+150 delivery charge)</option>
+</select>
+
    </div>
    <div class="inputBox">
       <span>City :</span>
@@ -319,13 +350,12 @@ h3 {
       <span>Street :</span>
       <input type="text" name="street" placeholder="Street name" required>
    </div>
+   <div class="grand-total">Grand Total : <span>NPR. <?= number_format($grand_total, 2); ?></span></div>
+
    <button type="submit" name="order" class="btn <?= ($grand_total > 0) ? '' : 'disabled'; ?>" <?= ($grand_total > 0) ? '' : 'disabled'; ?>>Place Order</button>
-
 </form>
-
 
 </div>
 
 </body>
 </html>
-
