@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
     }
 
     // Check if the product exists in the 'products' table
-    $product_check = $conn->prepare("SELECT id, name, price, image FROM products WHERE id = ?");
+    $product_check = $conn->prepare("SELECT id, name, price, image, stock FROM products WHERE id = ?");
     $product_check->bind_param("i", $product_id);
     $product_check->execute();
     $product_check->store_result();
@@ -41,25 +41,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
         $product_check->close();
         exit();
     }
-
     // Fetch product details
-    $product_check->bind_result($product_id, $product_name, $product_price, $product_image);
+    $product_check->bind_result($product_id, $product_name, $product_price, $product_image, $stock);
     $product_check->fetch();
     $product_check->close();
+    if ($stock <= 0) {
+      echo "Sorry, this product is out of stock.";
+      exit();
+  }
 
-    // Prepared statement to prevent SQL injection
     $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
     $stmt->bind_param("ii", $user_id, $product_id);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        // Product exists in the cart, so update the quantity
-        $update = $conn->prepare("UPDATE cart SET quantity = quantity + 1 WHERE user_id = ? AND product_id = ?");
-        $update->bind_param("ii", $user_id, $product_id);
-        $update->execute();
-        $update->close();
-    } else {
+      $stmt->bind_result($current_quantity);
+      $stmt->fetch();
+  
+      if ($current_quantity >= $stock) {
+          echo "Cannot add more. Stock limit reached.";
+          $stmt->close();
+          exit();
+      }
+  
+      $stmt->close();
+  
+      // Update the quantity
+      $update = $conn->prepare("UPDATE cart SET quantity = quantity + 1 WHERE user_id = ? AND product_id = ?");
+      $update->bind_param("ii", $user_id, $product_id);
+      $update->execute();
+      $update->close();
+  }
+   else {
         // Product doesn't exist in the cart, so insert it
         $insert = $conn->prepare("INSERT INTO cart (user_id, product_id, name, price, image, quantity) VALUES (?, ?, ?, ?, ?, 1)");
         $insert->bind_param("iisss", $user_id, $product_id, $product_name, $product_price, $product_image);
@@ -92,7 +106,11 @@ if (isset($_GET['ajax'])) {
             echo "<p>" . htmlspecialchars($row['description']) . "</p>";
             echo "<p class='price'>NPR. " . number_format($row['price']) . "</p>";
             echo "<p class='stock'>Stock: " . intval($row['stock']) . "</p>";
-            echo "<button onclick='addToCart(" . intval($row['id']) . ")'>Add to Cart</button>";
+            if (intval($row['stock']) > 0) {
+              echo "<button onclick='addToCart(" . intval($row['id']) . ")'>Add to Cart</button>";
+          } else {
+              echo "<button disabled style='background: #ccc; cursor: not-allowed;'>Out of Stock</button>";
+          }          
             echo "</div>";
         }
     } else {
@@ -241,7 +259,32 @@ body {
 
 .product-box button:hover {
   background-color: #27ae60;
+}.cart-btn {
+  padding: 8px 15px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  position: relative;
 }
+
+.cart-btn:hover {
+  background-color: #2980b9;
+}
+
+#cart-count {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  position: absolute;
+  top: -5px;
+  right: -10px;
+}
+
 
 </style>
 </head>
@@ -257,7 +300,11 @@ body {
     </div>
     <div class="profile-cart">
         <a href="profile.php">Profile</a>
-        <a href="cart.php">Cart</a>
+        <button id="cart-button" class="cart-btn">
+  🛒 Cart <span id="cart-count">0</span>
+</button>
+
+
         <?php if (isset($_SESSION['user_id'])): ?>
             <a href="?logout=true">Logout</a>
         <?php else: ?>
@@ -280,7 +327,11 @@ if ($result && $result->num_rows > 0) {
         echo "<p>" . htmlspecialchars($row['description']) . "</p>";
         echo "<p class='price'>NPR. " . number_format($row['price']) . "</p>";
         echo "<p class='stock'>Stock: " . intval($row['stock']) . "</p>";
-        echo "<button onclick='addToCart(" . intval($row['id']) . ")'>Add to Cart</button>";
+        if (intval($row['stock']) > 0) {
+          echo "<button onclick='addToCart(" . intval($row['id']) . ")'>Add to Cart</button>";
+      } else {
+          echo "<button disabled style='background: #ccc; cursor: not-allowed;'>Out of Stock</button>";
+      }      
         echo "</div>";
     }
 } else {
@@ -301,30 +352,60 @@ input.addEventListener('input', () => {
     });
 });
 
-function addToCart(productId) {
-    fetch("productdisplay.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `add_to_cart=1&product_id=${encodeURIComponent(productId)}`
-    })
-    .then(response => {
-        if (response.status === 403) {
-            alert("You must be logged in to add items to the cart.");
-            window.location.href = "login.php";
-        } else {
-            return response.text();
-        }
-    })
+// Function to update the cart count dynamically
+function updateCartCount() {
+  fetch('get_cart_count.php') // Make a request to get the cart count
+    .then(response => response.json())
     .then(data => {
-        if (data) {
-            alert(data);
-        }
+      // Update the cart count in the navbar button
+      document.getElementById('cart-count').textContent = data.count || 0;
     })
-    .catch(err => {
-        console.error(err);
-        alert("Something went wrong.");
-    });
+    .catch(err => console.error('Failed to update cart count:', err));
 }
+
+// Call once when the page loads
+updateCartCount();
+
+// Call updateCartCount after adding an item to the cart
+function addToCart(productId) {
+  fetch("productdisplay.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `add_to_cart=1&product_id=${encodeURIComponent(productId)}`
+  })
+  .then(response => {
+    if (response.status === 403) {
+      alert("You must be logged in to add items to the cart.");
+      window.location.href = "login.php";
+    } else {
+      return response.text();
+    }
+  })
+  .then(data => {
+    if (data) {
+      alert(data);
+      updateCartCount(); // update cart count after adding product
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Something went wrong.");
+  });
+}
+
+// Update cart count when items are removed or updated in the cart
+document.querySelectorAll('.remove-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    updateCartCount(); // Update count after item is removed
+  });
+});
+
+document.querySelectorAll('form').forEach(form => {
+  form.addEventListener('submit', () => {
+    updateCartCount(); // Update count after quantity is updated
+  });
+});
+
 document.querySelectorAll('.product-box').forEach(box => {
   box.addEventListener('click', () => {
     // Remove 'active' class from all product boxes
@@ -333,6 +414,23 @@ document.querySelectorAll('.product-box').forEach(box => {
     box.classList.add('active');
   });
 });
+document.getElementById('cart-button').addEventListener('click', () => {
+  window.location.href = "cart.php";
+});
+
+// Optionally update cart count dynamically:
+function updateCartCount() {
+  fetch('get_cart_count.php') // You'll create this endpoint
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('cart-count').textContent = data.count;
+    })
+    .catch(err => console.error('Failed to update cart count:', err));
+}
+
+// Call once on page load
+updateCartCount();
+
 
 </script>
 

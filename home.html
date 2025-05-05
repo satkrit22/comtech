@@ -100,7 +100,7 @@
 
     items.forEach(item => {
       const productName = item.querySelector("h4").innerText.toLowerCase();
-      if (productName.includes(query)) {
+      if (productName.startsWith(query)) { // Prefix matching
         item.style.display = "block";
         anyMatch = true;
       } else {
@@ -110,8 +110,8 @@
 
     if (query) {
       if (tabs) tabs.style.display = "none";
-      if (tabContent) tabContent.style.display = "block"; // Keep tab-content open for showing matched items
-      if (sectionTitle) sectionTitle.style.display = "block"; // Keep "Our Selling Items" title visible
+      if (tabContent) tabContent.style.display = "block";
+      if (sectionTitle) sectionTitle.style.display = "block";
       if (searchBox) searchBox.style.display = "block";
       const salesSection = document.getElementById("Sales");
       if (salesSection) {
@@ -129,6 +129,7 @@
     }
   }
 </script>
+
   <div class="header-cart me-3">
     <a href="cart.html" class="header-cart-link position-relative">
       <i class="bi bi-cart3"></i>
@@ -237,10 +238,10 @@
                   <h4>Link PC</h4>
                   <p class="price"><strike>Rs.14,500</strike><br>Rs.10,500</p> </a>
                   <div class="menu-actions">
-                    <a href="/database/login.php" class="btn btn-cart">
+                    <a href="comtech/database/login.php" class="btn btn-cart">
                       <i class="bi bi-cart-plus"></i> Add to Cart
                     </a>
-                    <a href="/database/login.php" class="btn btn-buy">
+                    <a href="comtech/database/login.php" class="btn btn-buy">
                       Buy Now
                     </a>
                   </div>
@@ -258,10 +259,10 @@
                   <h4>Link PC+</h4>
                   <p class="price"><strike>Rs.14,500</strike><br>Rs.13,500</p></a>                
                   <div class="menu-actions">
-                    <a href="/database/login.php" class="btn btn-cart">
+                    <a href="comtech/database/login.php" class="btn btn-cart">
                       <i class="bi bi-cart-plus"></i> Add to Cart
                     </a>
-                    <a href="/database/login.php" class="btn btn-buy">
+                    <a href="comtech/database/login.php" class="btn btn-buy">
                       Buy Now
                     </a>
                   </div>
@@ -279,10 +280,10 @@
                   <h4>Laptop Cooler</h4>
                   <p class="price">Rs.1,500</p> </a>
                   <div class="menu-actions">
-                    <a href="/database/login.php" class="btn btn-cart">
+                    <a href="comtech/database/login.php" class="btn btn-cart">
                       <i class="bi bi-cart-plus"></i> Add to Cart
                     </a>
-                    <a href="/database/login.php" class="btn btn-buy">
+                    <a href="comtech/database/login.php" class="btn btn-buy">
                       Buy Now
                     </a>
                   </div>
@@ -300,10 +301,10 @@
                   <h4>Mouse</h4>
                   <p class="price">Rs.1,500</p> </a>
                   <div class="menu-actions">
-                    <a href="/database/login.php" class="btn btn-cart">
+                    <a href="comtech/database/login.php" class="btn btn-cart">
                       <i class="bi bi-cart-plus"></i> Add to Cart
                     </a>
-                    <a href="/database/login.php" class="btn btn-buy">
+                    <a href="comtech/database/login.php" class="btn btn-buy">
                       Buy Now
                     </a>
                   </div>
@@ -321,10 +322,10 @@
                   <h4>Clamper</h4>
                   <p class="price">Rs.1,300</p>
                   <div class="menu-actions">
-                    <a href="/database/login.php" class="btn btn-cart">
+                    <a href="comtech/database/login.php" class="btn btn-cart">
                       <i class="bi bi-cart-plus"></i> Add to Cart
                     </a>
-                    <a href="/database/login.php" class="btn btn-buy">
+                    <a href="comtech/database/login.php" class="btn btn-buy">
                       Buy Now
                     </a>
                   </div>
@@ -342,10 +343,10 @@
                   <h4>Keyboard</h4>
                   <p class="price">Rs.3,200</p> </a>
                   <div class="menu-actions">
-                    <a href="/database/login.php" class="btn btn-cart">
+                    <a href="comtech/database/login.php" class="btn btn-cart">
                       <i class="bi bi-cart-plus"></i> Add to Cart
                     </a>
-                    <a href="/database/login.php" class="btn btn-buy">
+                    <a href="comtech/database/login.php" class="btn btn-buy">
                       Buy Now
                     </a>
                   </div>
@@ -362,10 +363,10 @@
               <h4>Normal Server</h4>
               <p class="price">Rs.90,500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -383,10 +384,10 @@
               <h4>Network Cable</h4>
               <p class="price">Rs.19,500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -404,10 +405,10 @@
               <h4>Solid State Drive 128GB</h4>
               <p class="price">Rs.2,200</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -425,10 +426,10 @@
               <h4>Monitor</h4>
               <p class="price">Rs.15,500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -446,10 +447,10 @@
               <h4>Branded Keyboard & Mouse</h4>
               <p class="price">Rs.3,200</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -467,10 +468,10 @@
               <h4>Power Supply</h4>
               <p class="price">Rs.1,500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -488,10 +489,10 @@
               <h4>External Harddisk 1TB</h4>
               <p class="price">Rs.5,700</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -509,10 +510,10 @@
               <h4>Dell Inspirion 3430</h4>
               <p class="price">Rs.90,000</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -530,10 +531,10 @@
               <h4>NVME SSD 128GB</h4>
               <p class="price">Rs.3,000</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -550,10 +551,10 @@
               <h4>Headphone</h4>
               <p class="price">Rs.1,500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -571,10 +572,10 @@
               <h4>Caddy</h4>
               <p class="price">Rs.500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -592,10 +593,10 @@
               <h4>Wifi Dongle</h4>
               <p class="price">Rs.500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -613,10 +614,10 @@
               <h4>Ethernet Adapter</h4>
               <p class="price">Rs.800</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -633,10 +634,10 @@
               <h4>CPU Fan</h4>
               <p class="price">Rs.500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -653,10 +654,10 @@
               <h4>HDMI to VGA Converter</h4>
               <p class="price">Rs.500</p> </a>
               <div class="menu-actions">
-                <a href="/database/login.php" class="btn btn-cart">
+                <a href="comtech/database/login.php" class="btn btn-cart">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </a>
-                <a href="/database/login.php" class="btn btn-buy">
+                <a href="comtech/database/login.php" class="btn btn-buy">
                   Buy Now
                 </a>
               </div>
@@ -687,10 +688,10 @@
                   </p>
                 </a>
                 <div class="menu-actions">
-                  <a href="/database/login.php" class="btn btn-cart">
+                  <a href="comtech/database/login.php" class="btn btn-cart">
                     <i class="bi bi-cart-plus"></i> Add to Cart
                   </a>
-                  <a href="/database/login.php" class="btn btn-buy">
+                  <a href="comtech/database/login.php" class="btn btn-buy">
                     Buy Now
                   </a>
                 </div>
@@ -709,10 +710,10 @@
                   </p>
                 </a>
                 <div class="menu-actions">
-                  <a href="/database/login.php" class="btn btn-cart">
+                  <a href="comtech/database/login.php" class="btn btn-cart">
                     <i class="bi bi-cart-plus"></i> Add to Cart
                   </a>
-                  <a href="/database/login.php" class="btn btn-buy">
+                  <a href="comtech/database/login.php" class="btn btn-buy">
                     Buy Now
                   </a>
                 </div>
@@ -728,10 +729,10 @@
                   <p class="price">Rs.90,500</p>
                 </a>
                 <div class="menu-actions">
-                  <a href="/database/login.php" class="btn btn-cart">
+                  <a href="comtech/database/login.php" class="btn btn-cart">
                     <i class="bi bi-cart-plus"></i> Add to Cart
                   </a>
-                  <a href="/database/login.php" class="btn btn-buy">
+                  <a href="comtech/database/login.php" class="btn btn-buy">
                     Buy Now
                   </a>
                 </div>
@@ -747,10 +748,10 @@
                   <p class="price">Rs.19,500</p>
                 </a>
                 <div class="menu-actions">
-                  <a href="/database/login.php" class="btn btn-cart">
+                  <a href="comtech/database/login.php" class="btn btn-cart">
                     <i class="bi bi-cart-plus"></i> Add to Cart
                   </a>
-                  <a href="/database/login.php" class="btn btn-buy">
+                  <a href="comtech/database/login.php" class="btn btn-buy">
                     Buy Now
                   </a>
                 </div>
@@ -766,10 +767,10 @@
                   <p class="price">Rs.15,500</p>
                 </a>
                 <div class="menu-actions">
-                  <a href="/database/login.php" class="btn btn-cart">
+                  <a href="comtech/database/login.php" class="btn btn-cart">
                     <i class="bi bi-cart-plus"></i> Add to Cart
                   </a>
-                  <a href="/database/login.php" class="btn btn-buy">
+                  <a href="comtech/database/login.php" class="btn btn-buy">
                     Buy Now
                   </a>
                 </div>
@@ -785,10 +786,10 @@
                   <p class="price">Rs.3,200</p>
                 </a>
                 <div class="menu-actions">
-                  <a href="/database/login.php" class="btn btn-cart">
+                  <a href="comtech/database/login.php" class="btn btn-cart">
                     <i class="bi bi-cart-plus"></i> Add to Cart
                   </a>
-                  <a href="/database/login.php" class="btn btn-buy">
+                  <a href="comtech/database/login.php" class="btn btn-buy">
                     Buy Now
                   </a>
                 </div>
@@ -815,10 +816,10 @@
         <p class="price">Rs.5,700</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -834,10 +835,10 @@
         <p class="price">Rs.2,200</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -853,10 +854,10 @@
         <p class="price">Rs.1,500</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -872,10 +873,10 @@
         <p class="price">Rs.500</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -891,10 +892,10 @@
         <p class="price">Rs.500</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -910,10 +911,10 @@
         <p class="price">Rs.1,500</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -940,10 +941,10 @@
         <p class="price">Rs.91,000</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -959,10 +960,10 @@
         <p class="price">Rs.3,000</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -978,10 +979,10 @@
         <p class="price">Rs.1,500</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -997,10 +998,10 @@
         <p class="price">Rs.500</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -1016,10 +1017,10 @@
         <p class="price">Rs.800</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>
@@ -1035,10 +1036,10 @@
         <p class="price">Rs.500</p>
       </a>
       <div class="menu-actions">
-        <a href="/database/login.php" class="btn btn-cart">
+        <a href="comtech/database/login.php" class="btn btn-cart">
           <i class="bi bi-cart-plus"></i> Add to Cart
         </a>
-        <a href="/database/login.php" class="btn btn-buy">
+        <a href="comtech/database/login.php" class="btn btn-buy">
           Buy Now
         </a>
       </div>

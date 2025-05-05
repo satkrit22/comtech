@@ -96,7 +96,7 @@ if (isset($_POST['order'])) {
         $message = 'Your cart is empty.';
     }
 
-    echo "<script>alert('$message'); window.location='checkout.php';</script>";
+    echo "<script>alert('$message'); window.location='productdisplay.php';</script>";
     exit();
 }
 ?>
@@ -236,31 +236,28 @@ h3 {
 
 </style>
 <script>
-// JavaScript to handle grand total update
 document.addEventListener('DOMContentLoaded', function () {
     const provinceSelect = document.querySelector('select[name="state"]');
-    const grandTotalElement = document.querySelector('.grand-total span');
-    let initialGrandTotal = <?= number_format($grand_total, 2); ?>; // PHP value passed to JS
-    const extraCharge = 150; // Extra charge for provinces other than Bagmati
+    const grandTotalElement = document.getElementById('grand-total-value');
+    const deliveryChargeLine = document.getElementById('delivery-charge-line');
+    const extraCharge = 150;
+    let initialGrandTotal = <?= $grand_total ?>;
 
-    // Update the grand total based on selected province
     function updateGrandTotal() {
         const selectedProvince = provinceSelect.value;
         let total = initialGrandTotal;
 
-        // Apply extra charge if the selected province is not Bagmati Province
         if (selectedProvince !== 'Bagmati Province') {
             total += extraCharge;
+            deliveryChargeLine.style.display = 'flex';
+            grandTotalElement.textContent = 'NPR. ' + total.toFixed(2);
+        } else {
+            deliveryChargeLine.style.display = 'none';
+            grandTotalElement.textContent = 'NPR. ' + total.toFixed(2);
         }
-
-        // Update the grand total displayed on the page
-        grandTotalElement.textContent = 'NPR. ' + total.toFixed(2);
     }
 
-    // Event listener to trigger grand total update when province changes
     provinceSelect.addEventListener('change', updateGrandTotal);
-
-    // Initialize grand total on page load
     updateGrandTotal();
 });
 </script>
@@ -330,15 +327,15 @@ document.addEventListener('DOMContentLoaded', function () {
       <input type="text" name="country" value="Nepal" readonly required>
    </div>
    <div class="inputBox">
-      <span>Province :</span>
+   <span>Province <small style="color: gray;">(+150 extra for non-Bagmati)</small> :</span>
       <select name="state" required>
-    <option value="Province No. 1">Province No. 1 (+150 delivery charge)</option>
-    <option value="Province No. 2">Province No. 2 (+150 delivery charge)</option>
+    <option value="Province No. 1">Province No. 1</option>
+    <option value="Province No. 2">Province No. 2</option>
     <option value="Bagmati Province" selected>Bagmati Province</option>
-    <option value="Gandaki Province">Gandaki Province (+150 delivery charge)</option>
-    <option value="Lumbini Province">Lumbini Province (+150 delivery charge)</option>
-    <option value="Karnali Province">Karnali Province (+150 delivery charge)</option>
-    <option value="Sudurpashchim Province">Sudurpashchim Province (+150 delivery charge)</option>
+    <option value="Gandaki Province">Gandaki Province</option>
+    <option value="Lumbini Province">Lumbini Province</option>
+    <option value="Karnali Province">Karnali Province</option>
+    <option value="Sudurpashchim Province">Sudurpashchim Province</option>
 </select>
 
    </div>
@@ -350,7 +347,12 @@ document.addEventListener('DOMContentLoaded', function () {
       <span>Street :</span>
       <input type="text" name="street" placeholder="Street name" required>
    </div>
-   <div class="grand-total">Grand Total : <span>NPR. <?= number_format($grand_total, 2); ?></span></div>
+   <input type="hidden" name="total_price" value="<?= $grand_total; ?>">
+</div>
+
+<p id="delivery-charge-line" style="display:none; text-align: right; font-weight: bold;">Delivery Charge : <span>NPR. 150.00</span></p>
+
+<div class="grand-total">Grand Total : <span id="grand-total-value">NPR. <?= number_format($grand_total, 2); ?></span></div>
 
    <button type="submit" name="order" class="btn <?= ($grand_total > 0) ? '' : 'disabled'; ?>" <?= ($grand_total > 0) ? '' : 'disabled'; ?>>Place Order</button>
 </form>

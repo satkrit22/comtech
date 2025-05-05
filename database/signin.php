@@ -34,7 +34,7 @@ if ($result->num_rows > 0) {
     }
 } else {
     // Email not found
-    echo "<script>alert('Email does not exist. Please sign up.'); window.location.href = '/comtech/signup.html';</script>";
+    echo "<script>alert('Email does not exist. Please sign up.'); window.location.href = '/comtech/database/login.php';</script>";
 }
 
 $stmt->close();
