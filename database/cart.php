@@ -177,8 +177,9 @@ if (count($cart_items) > 0) {
         echo "<td>NPR. " . number_format($item['price'], 2) . "</td>";
         echo "<td><form method='post'>
                 <input type='hidden' name='cart_id' value='{$item['cart_id']}'>
-                <input type='number' class='qty' name='qty' min='1' max='99' value='{$item['quantity']}'>
-                <button type='submit' name='update_qty'>Update</button>
+                <input type='number' class='qty' name='qty' min='1' max='99' value='{$item['quantity']}' onchange='this.form.submit()'>
+<input type='hidden' name='update_qty' value='1'>
+
               </form></td>";
         echo "<td>NPR. " . number_format($subtotal, 2) . "</td>";
         echo "<td><a class='remove-btn' href='cart.php?remove={$item['cart_id']}' onclick=\"return confirm('Remove item?')\">Remove</a></td>";

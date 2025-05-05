@@ -80,8 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
         $insert->execute();
         $insert->close();
     }
-
-    $stmt->close();
     echo "Product added to cart!";
     exit();
 }
@@ -131,6 +129,8 @@ if (isset($_GET['logout'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <meta charset="UTF-8">
 <title>ComTech Products</title>
 <style>
@@ -259,31 +259,66 @@ body {
 
 .product-box button:hover {
   background-color: #27ae60;
-}.cart-btn {
-  padding: 8px 15px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  position: relative;
+}
+.navbar .logo {
+  font-size: 28px;
+  font-weight: bold;
 }
 
-.cart-btn:hover {
+.navbar .logo a {
+  color: #2c3e50;
+  text-decoration: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-cart {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.icon-link, .logout-btn, .login-btn {
+  color: #2c3e50;
+  font-size: 18px;
+  text-decoration: none;
+  padding: 8px;
+  transition: color 0.3s;
+}
+
+.icon-link:hover, .logout-btn:hover, .login-btn:hover {
+  color: #e74c3c;
+}
+
+.cart-btn {
   background-color: #2980b9;
+  border: none;
+  padding: 10px;
+  color: white;
+  border-radius: 50%;
+  position: relative;
+  font-size: 16px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-btn i {
+  font-size: 18px;
 }
 
 #cart-count {
   background-color: red;
   color: white;
   border-radius: 50%;
-  padding: 2px 6px;
   font-size: 12px;
+  padding: 2px 6px;
   position: absolute;
   top: -5px;
-  right: -10px;
+  right: -5px;
 }
+
 
 
 </style>
@@ -299,19 +334,17 @@ body {
         <input type="text" id="search-input" placeholder="Search products...">
     </div>
     <div class="profile-cart">
-        <a href="profile.php">Profile</a>
-        <button id="cart-button" class="cart-btn">
-  🛒 Cart <span id="cart-count">0</span>
-</button>
-
-
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <a href="?logout=true">Logout</a>
-        <?php else: ?>
-            <a href="login.php">Login</a>
-        <?php endif; ?>
-    </div>
+  <?php if (isset($_SESSION['user_id'])): ?>
+      <a href="profile.php" title="Profile" class="icon-link"><i class="fas fa-user-circle"></i></a>
+      <button id="cart-button" class="cart-btn" title="View Cart">
+        <i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span>
+      </button>
+      <a href="?logout=true" class="logout-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+  <?php else: ?>
+      <a href="login.php" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+  <?php endif; ?>
 </div>
+  </div>
 
 <!-- Product Display -->
 <div class="container" id="product-container">
@@ -340,6 +373,22 @@ if ($result && $result->num_rows > 0) {
 $conn->close();
 ?>
 </div>
+<div id="notification" style="
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  display: none;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+">
+  <i class="fas fa-check-circle"></i> Product added to cart!
+</div>
 
 <script>
 const input = document.getElementById('search-input');
@@ -366,7 +415,6 @@ function updateCartCount() {
 // Call once when the page loads
 updateCartCount();
 
-// Call updateCartCount after adding an item to the cart
 function addToCart(productId) {
   fetch("productdisplay.php", {
     method: "POST",
@@ -377,14 +425,16 @@ function addToCart(productId) {
     if (response.status === 403) {
       alert("You must be logged in to add items to the cart.");
       window.location.href = "login.php";
-    } else {
-      return response.text();
+      return;
     }
+    return response.text();
   })
   .then(data => {
-    if (data) {
-      alert(data);
-      updateCartCount(); // update cart count after adding product
+    if (data && data.includes("Product added to cart")) {
+      showNotification(); 
+      updateCartCount(); 
+    } else {
+      alert(data); 
     }
   })
   .catch(err => {
@@ -392,6 +442,7 @@ function addToCart(productId) {
     alert("Something went wrong.");
   });
 }
+
 
 // Update cart count when items are removed or updated in the cart
 document.querySelectorAll('.remove-btn').forEach(button => {
@@ -430,6 +481,14 @@ function updateCartCount() {
 
 // Call once on page load
 updateCartCount();
+function showNotification() {
+  const notif = document.getElementById("notification");
+  notif.style.display = "flex";
+  setTimeout(() => {
+    notif.style.display = "none";
+  }, 2000);
+}
+
 
 
 </script>
