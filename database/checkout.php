@@ -57,10 +57,8 @@ if (isset($_POST['order'])) {
             $total_products .= $item['name'] . ' (' . $item['price'] . ' x ' . $item['quantity'] . ') - ';
             $grand_total += ($item['price'] * $item['quantity']);
         }
-
-        // Add extra charge based on province (if not Bagmati)
-        if ($state !== 'Bagmati Province') {
-            $grand_total += 150;  // Add extra charge for non-Bagmati Province
+        if ($state === 'Other') {
+            $grand_total += 200; 
         }
 
         if (!$out_of_stock) {
@@ -244,27 +242,40 @@ document.addEventListener('DOMContentLoaded', function () {
     const provinceSelect = document.querySelector('select[name="state"]');
     const grandTotalElement = document.getElementById('grand-total-value');
     const deliveryChargeLine = document.getElementById('delivery-charge-line');
-    const extraCharge = 150;
-    let initialGrandTotal = <?= $grand_total ?>;
+    const extraCharge = 200;
+    let initialGrandTotal = <?= $total ?>;
 
     function updateGrandTotal() {
         const selectedProvince = provinceSelect.value;
         let total = initialGrandTotal;
 
-        if (selectedProvince !== 'Bagmati Province') {
+        if (selectedProvince === 'Other') {
             total += extraCharge;
             deliveryChargeLine.style.display = 'flex';
-            grandTotalElement.textContent = 'NPR. ' + total.toFixed(2);
         } else {
             deliveryChargeLine.style.display = 'none';
-            grandTotalElement.textContent = 'NPR. ' + total.toFixed(2);
         }
+
+        grandTotalElement.textContent = 'NPR. ' + total.toFixed(2);
     }
 
     provinceSelect.addEventListener('change', updateGrandTotal);
     updateGrandTotal();
+    document.querySelector('form').addEventListener('submit', function (e) {
+        let total = initialGrandTotal;
+        const selectedProvince = provinceSelect.value;
+        if (selectedProvince === 'Other') {
+            total += extraCharge;
+        }
+
+        const confirmMsg = `Your total including delivery charge is NPR ${total.toFixed(2)}. Confirm order?`;
+        if (!confirm(confirmMsg)) {
+            e.preventDefault();
+        }
+    });
 });
 </script>
+
 </head>
 <body>
 
@@ -289,32 +300,31 @@ document.addEventListener('DOMContentLoaded', function () {
             <span>Payment Method</span>
             <select name="method" required>
                 <option value="Cash on Delivery">Cash on Delivery</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Debit Card">Debit Card</option>
+                <option value="Credit Card">Esewa</option>
             </select>
         </div>
+       
 
         <h3>Shipping Address</h3>
         <div class="inputBox">
-            <span>Street</span>
-            <input type="text" name="street" required>
+            <span>Country</span>
+            <input type="text" name="country" required>
         </div>
         <div class="inputBox">
             <span>City</span>
             <input type="text" name="city" required>
         </div>
         <div class="inputBox">
-            <span>State</span>
-            <select name="state" required>
-                <option value="Bagmati Province">Bagmati Province</option>
-                <!-- Add other provinces here -->
-            </select>
+            <span>Street</span>
+            <input type="text" name="street" required>
         </div>
         <div class="inputBox">
-            <span>Country</span>
-            <input type="text" name="country" required>
+            <span>Delivery</span>
+            <select name="state" required>
+                <option value="Bagmati Province">Inside Valley</option>
+                <option value="Other">Outside Valley(+NPR.200 delivery charge)</option> 
+            </select>
         </div>
-
         <h3>Order Summary</h3>
         <div class="display-orders">
             <?php
@@ -337,9 +347,8 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
 
         <div id="delivery-charge-line" style="display: none; flex-direction: row;">
-            <div class="grand-total" style="margin-top: 10px;">Delivery charge: NPR 150</div>
+            <div class="grand-total" style="margin-top: 10px;">Delivery charge: NPR 200</div>
         </div>
-
         <button class="btn" name="order">Place Order</button>
     </form>
 </div>
