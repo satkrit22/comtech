@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'includes/db_connect.php';
+require_once 'db.php';
 require_once 'includes/functions.php';
 
 // Check if admin is logged in
@@ -25,7 +25,7 @@ $stats = getDashboardStats($conn);
     <title>Admin Dashboard | Comtech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin.css">
 </head>
 <body>
     <div class="admin-container">
@@ -239,7 +239,7 @@ $stats = getDashboardStats($conn);
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="assets/js/admin.js"></script>
+    <script src="/comtech/assets/js/admin.js"></script>
     <script>
         // Sales Chart
         const ctx = document.getElementById('salesChart').getContext('2d');

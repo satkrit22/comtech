@@ -13,17 +13,16 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
-// Sample logic to fetch orders from the database
-$query = "SELECT * FROM orders ORDER BY created_at DESC";
+// Sample logic to fetch categories from the database
+$query = "SELECT * FROM categories";
 $result = mysqli_query($conn, $query);
 ?>
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders | Comtech Admin</title>
+    <title>Categories | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -464,16 +463,6 @@ $result = mysqli_query($conn, $query);
             color: white;
         }
 
-        .btn-info {
-            background-color: var(--info);
-            color: white;
-        }
-
-        .btn-info:hover {
-            background-color: #2980b9;
-            color: white;
-        }
-
         .btn-warning {
             background-color: var(--warning);
             color: white;
@@ -680,100 +669,93 @@ $result = mysqli_query($conn, $query);
             margin-top: 20px;
         }
 
-        /* Order Specific Styles */
-        .order-filters {
+        /* Category Specific Styles */
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-right: 10px;
         }
 
-        .order-filter-item {
-            min-width: 150px;
-        }
-
-        .customer-info {
+        .category-info {
             display: flex;
             align-items: center;
         }
 
-        .customer-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-
-        .customer-name {
+        .category-name {
             font-weight: 500;
         }
 
-        .customer-email {
+        .category-description {
             font-size: 0.75rem;
             color: var(--text-secondary);
+            margin-top: 2px;
         }
 
-        .order-id {
+        .category-count {
             font-weight: 600;
             color: var(--primary);
         }
 
-        .order-date {
-            color: var(--text-secondary);
-        }
-
-        .order-total {
-            font-weight: 600;
-        }
-
-        .order-status {
-            display: inline-flex;
-            align-items: center;
+        .status-badge {
+            display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
-        }
-
-        .order-status i {
-            font-size: 8px;
-            margin-right: 5px;
-        }
-
-        .order-status.pending {
-            background-color: rgba(243, 156, 18, 0.1);
-            color: var(--warning);
-        }
-
-        .order-status.processing {
-            background-color: rgba(52, 152, 219, 0.1);
-            color: var(--info);
-        }
-
-        .order-status.shipped {
-            background-color: rgba(155, 89, 182, 0.1);
-            color: #9b59b6;
-        }
-
-        .order-status.completed {
             background-color: rgba(46, 204, 113, 0.1);
             color: var(--success);
         }
 
-        .order-status.cancelled {
+        .status-badge.inactive {
             background-color: rgba(231, 76, 60, 0.1);
             color: var(--danger);
         }
 
-        /* Date Range Picker */
-        .date-range-picker {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 35px;
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background-color: var(--card-bg);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .category-card-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .category-card-body {
+            padding: 15px;
+        }
+
+        .category-card-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         /* Responsive */
@@ -811,137 +793,95 @@ $result = mysqli_query($conn, $query);
                 width: 100%;
             }
             
-            .order-filters {
-                flex-direction: column;
-            }
-            
-            .order-filter-item {
-                width: 100%;
+            .category-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
         <?php include 'includes/sidebar.php'; ?>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Navigation -->
             <?php include 'includes/topnav.php'; ?>
 
-            <!-- Page Header -->
             <div class="page-header">
                 <div>
-                    <h1 class="page-title">Orders</h1>
+                    <h1 class="page-title">Categories</h1>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Orders</li>
+                        <li class="breadcrumb-item active">Categories</li>
                     </ul>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Order
-                    </button>
+                    <a href="add-category.php" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Category
+                    </a>
                 </div>
             </div>
 
-            <!-- Order Filters -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="order-filters">
-                        <div class="order-filter-item">
-                            <label for="status-filter" class="form-label">Status</label>
-                            <select id="status-filter" class="form-select">
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">All Categories</h2>
+                    <div class="card-tools">
+                        <div class="table-search">
+                            <input type="text" class="form-control table-search-input" placeholder="Search categories...">
+                            <i class="fas fa-search"></i>
                         </div>
-                        <div class="order-filter-item">
-                            <label for="date-filter" class="form-label">Date Range</label>
-                            <input type="text" id="date-filter" class="form-control date-range-picker" placeholder="Select date range">
-                        </div>
-                        <div class="order-filter-item">
-                            <label for="customer-filter" class="form-label">Customer</label>
-                            <input type="text" id="customer-filter" class="form-control" placeholder="Search customer">
-                        </div>
-                        <div class="order-filter-item" style="align-self: flex-end;">
-                            <button class="btn btn-primary">
-                                <i class="fas fa-filter"></i> Filter
+                        <div class="btn-group">
+                            <button class="btn btn-light active">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="btn btn-light">
+                                <i class="fas fa-th-large"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Orders Table -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">All Orders</h2>
-                    <div class="card-tools">
-                        <div class="table-search">
-                            <input type="text" class="form-control table-search-input" placeholder="Search orders...">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <button class="btn btn-light">
-                            <i class="fas fa-download"></i> Export
-                        </button>
-                    </div>
-                </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table order-table">
+                        <table class="table category-table">
                             <thead>
                                 <tr>
-                                    <th class="sortable">Order ID</th>
-                                    <th>Customer</th>
-                                    <th class="sortable">Date</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th class="sortable">Products</th>
                                     <th>Status</th>
-                                    <th class="sortable">Total</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php 
-                                // If no orders yet, show sample data
+                                // If no categories yet, show sample data
                                 if (mysqli_num_rows($result) == 0) {
-                                    $sampleOrders = [
-                                        ['order_id' => 'ORD-1001', 'customer_name' => 'John Doe', 'customer_email' => 'john@example.com', 'date' => '2023-05-15', 'status' => 'Completed', 'total' => '129.99'],
-                                        ['order_id' => 'ORD-1002', 'customer_name' => 'Jane Smith', 'customer_email' => 'jane@example.com', 'date' => '2023-05-14', 'status' => 'Processing', 'total' => '89.50'],
-                                        ['order_id' => 'ORD-1003', 'customer_name' => 'Robert Johnson', 'customer_email' => 'robert@example.com', 'date' => '2023-05-13', 'status' => 'Pending', 'total' => '210.75'],
-                                        ['order_id' => 'ORD-1004', 'customer_name' => 'Emily Davis', 'customer_email' => 'emily@example.com', 'date' => '2023-05-12', 'status' => 'Cancelled', 'total' => '45.00'],
-                                        ['order_id' => 'ORD-1005', 'customer_name' => 'Michael Wilson', 'customer_email' => 'michael@example.com', 'date' => '2023-05-11', 'status' => 'Shipped', 'total' => '175.25'],
+                                    $sampleCategories = [
+                                        ['category_id' => '1', 'name' => 'Electronics', 'description' => 'Electronic devices and gadgets', 'icon' => 'fas fa-laptop', 'product_count' => '25', 'status' => 'Active'],
+                                        ['category_id' => '2', 'name' => 'Clothing', 'description' => 'Apparel and fashion items', 'icon' => 'fas fa-tshirt', 'product_count' => '42', 'status' => 'Active'],
+                                        ['category_id' => '3', 'name' => 'Home & Kitchen', 'description' => 'Home appliances and kitchenware', 'icon' => 'fas fa-home', 'product_count' => '18', 'status' => 'Active'],
+                                        ['category_id' => '4', 'name' => 'Books', 'description' => 'Books and educational materials', 'icon' => 'fas fa-book', 'product_count' => '30', 'status' => 'Active'],
+                                        ['category_id' => '5', 'name' => 'Sports', 'description' => 'Sports equipment and accessories', 'icon' => 'fas fa-futbol', 'product_count' => '0', 'status' => 'Inactive'],
                                     ];
                                     
-                                    foreach ($sampleOrders as $order) {
+                                    foreach ($sampleCategories as $category) {
                                         echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
                                         echo '<td>
-                                            <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
+                                            <div class="category-info">
+                                                <div class="category-icon"><i class="' . $category['icon'] . '"></i></div>
                                                 <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
+                                                    <div class="category-name">' . $category['name'] . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
+                                        echo '<td>' . $category['description'] . '</td>';
+                                        echo '<td class="category-count">' . $category['product_count'] . '</td>';
+                                        echo '<td><span class="status-badge ' . (strtolower($category['status']) === 'inactive' ? 'inactive' : '') . '">' . $category['status'] . '</span></td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-category.php?id=' . $category['category_id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-category.php?id=' . $category['category_id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -949,30 +889,25 @@ $result = mysqli_query($conn, $query);
                                         echo '</tr>';
                                     }
                                 } else {
-                                    while ($order = mysqli_fetch_assoc($result)) {
+                                    while ($category = mysqli_fetch_assoc($result)) {
                                         echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
                                         echo '<td>
-                                            <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
+                                            <div class="category-info">
+                                                <div class="category-icon"><i class="' . ($category['icon'] ?? 'fas fa-folder') . '"></i></div>
                                                 <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
+                                                    <div class="category-name">' . $category['name'] . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
+                                        echo '<td>' . $category['description'] . '</td>';
+                                        echo '<td class="category-count">' . ($category['product_count'] ?? '0') . '</td>';
+                                        echo '<td><span class="status-badge ' . (strtolower($category['status'] ?? 'active') === 'inactive' ? 'inactive' : '') . '">' . ($category['status'] ?? 'Active') . '</span></td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-category.php?id=' . $category['category_id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-category.php?id=' . $category['category_id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -1002,6 +937,56 @@ $result = mysqli_query($conn, $query);
                     </div>
                 </div>
             </div>
+
+            &lt;!-- Category Grid View (Hidden by default) -->
+            <div class="category-grid mt-4" style="display: none;">
+                <?php
+                $sampleCategories = [
+                    ['category_id' => '1', 'name' => 'Electronics', 'description' => 'Electronic devices and gadgets', 'icon' => 'fas fa-laptop', 'product_count' => '25', 'status' => 'Active'],
+                    ['category_id' => '2', 'name' => 'Clothing', 'description' => 'Apparel and fashion items', 'icon' => 'fas fa-tshirt', 'product_count' => '42', 'status' => 'Active'],
+                    ['category_id' => '3', 'name' => 'Home & Kitchen', 'description' => 'Home appliances and kitchenware', 'icon' => 'fas fa-home', 'product_count' => '18', 'status' => 'Active'],
+                    ['category_id' => '4', 'name' => 'Books', 'description' => 'Books and educational materials', 'icon' => 'fas fa-book', 'product_count' => '30', 'status' => 'Active'],
+                    ['category_id' => '5', 'name' => 'Sports', 'description' => 'Sports equipment and accessories', 'icon' => 'fas fa-futbol', 'product_count' => '0', 'status' => 'Inactive'],
+                ];
+                
+                foreach ($sampleCategories as $category) {
+                    echo '<div class="category-card">
+                        <div class="category-card-header">
+                            <div class="category-icon"><i class="' . $category['icon'] . '"></i></div>
+                            <div>
+                                <div class="category-name">' . $category['name'] . '</div>
+                                <div class="category-description">' . $category['description'] . '</div>
+                            </div>
+                        </div>
+                        <div class="category-card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="form-label">Products</div>
+                                    <div class="category-count">' . $category['product_count'] . '</div>
+                                </div>
+                                <div>
+                                    <div class="form-label">Status</div>
+                                    <span class="status-badge ' . (strtolower($category['status']) === 'inactive' ? 'inactive' : '') . '">' . $category['status'] . '</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="category-card-footer">
+                            <a href="view-category.php?id=' . $category['category_id'] . '" class="btn btn-light btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <div class="btn-group">
+                                <a href="edit-category.php?id=' . $category['category_id'] . '" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="delete-category.php?id=' . $category['category_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>';
+                }
+                ?>
+            </div>
         </main>
     </div>
 
@@ -1012,7 +997,7 @@ $result = mysqli_query($conn, $query);
             if (tableSearch) {
                 tableSearch.addEventListener('keyup', function() {
                     const searchTerm = this.value.toLowerCase();
-                    const table = document.querySelector('.order-table');
+                    const table = document.querySelector('.category-table');
                     const rows = table.querySelectorAll('tbody tr');
                     
                     rows.forEach(row => {
@@ -1049,10 +1034,10 @@ $result = mysqli_query($conn, $query);
                         const bValue = b.children[index].textContent.trim();
                         
                         // Check if values are numbers
-                        if (!isNaN(aValue.replace('$', '')) && !isNaN(bValue.replace('$', ''))) {
+                        if (!isNaN(aValue) && !isNaN(bValue)) {
                             return direction === 'asc' 
-                                ? parseFloat(aValue.replace('$', '')) - parseFloat(bValue.replace('$', ''))
-                                : parseFloat(bValue.replace('$', '')) - parseFloat(aValue.replace('$', ''));
+                                ? parseFloat(aValue) - parseFloat(bValue)
+                                : parseFloat(bValue) - parseFloat(aValue);
                         }
                         
                         // Sort as strings
@@ -1071,7 +1056,7 @@ $result = mysqli_query($conn, $query);
             const deleteButtons = document.querySelectorAll('.delete-btn');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    if (!confirm('Are you sure you want to delete this order?')) {
+                    if (!confirm('Are you sure you want to delete this category?')) {
                         e.preventDefault();
                     }
                 });
@@ -1082,6 +1067,28 @@ $result = mysqli_query($conn, $query);
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function() {
                     document.querySelector('.sidebar').classList.toggle('show');
+                });
+            }
+            
+            // Toggle view (list/grid)
+            const viewButtons = document.querySelectorAll('.btn-group .btn');
+            const tableView = document.querySelector('.table-responsive');
+            const gridView = document.querySelector('.category-grid');
+            
+            if (viewButtons.length && tableView && gridView) {
+                viewButtons.forEach((button, index) => {
+                    button.addEventListener('click', function() {
+                        viewButtons.forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        if (index === 0) { // List view
+                            tableView.style.display = 'block';
+                            gridView.style.display = 'none';
+                        } else { // Grid view
+                            tableView.style.display = 'none';
+                            gridView.style.display = 'grid';
+                        }
+                    });
                 });
             }
         });

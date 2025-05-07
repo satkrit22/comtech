@@ -13,17 +13,17 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
-// Sample logic to fetch orders from the database
-$query = "SELECT * FROM orders ORDER BY created_at DESC";
+// Sample logic to fetch products from the database
+$query = "SELECT * FROM products";
 $result = mysqli_query($conn, $query);
 ?>
 
-<!DOCTYPE html>
+&lt;!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders | Comtech Admin</title>
+    <title>Products | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -464,16 +464,6 @@ $result = mysqli_query($conn, $query);
             color: white;
         }
 
-        .btn-info {
-            background-color: var(--info);
-            color: white;
-        }
-
-        .btn-info:hover {
-            background-color: #2980b9;
-            color: white;
-        }
-
         .btn-warning {
             background-color: var(--warning);
             color: white;
@@ -680,100 +670,81 @@ $result = mysqli_query($conn, $query);
             margin-top: 20px;
         }
 
-        /* Order Specific Styles */
-        .order-filters {
+        /* Product Specific Styles */
+        .product-filters {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        .order-filter-item {
+        .product-filter-item {
             min-width: 150px;
         }
 
-        .customer-info {
+        .product-info {
             display: flex;
             align-items: center;
         }
 
-        .customer-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        .product-image-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
             margin-right: 10px;
             object-fit: cover;
         }
 
-        .customer-name {
+        .product-name {
             font-weight: 500;
         }
 
-        .customer-email {
+        .product-sku {
             font-size: 0.75rem;
-            color: var(--text-secondary);
+            color: var(--text-muted);
         }
 
-        .order-id {
+        .product-category-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
+            background-color: rgba(67, 97, 238, 0.1);
             color: var(--primary);
         }
 
-        .order-date {
-            color: var(--text-secondary);
-        }
-
-        .order-total {
+        .product-price {
             font-weight: 600;
         }
 
-        .order-status {
-            display: inline-flex;
-            align-items: center;
+        .product-stock-qty {
+            font-weight: 600;
+        }
+
+        .product-stock-qty.in-stock {
+            color: var(--success);
+        }
+
+        .product-stock-qty.low-stock {
+            color: var(--warning);
+        }
+
+        .product-stock-qty.out-of-stock {
+            color: var(--danger);
+        }
+
+        .badge {
+            display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .order-status i {
-            font-size: 8px;
-            margin-right: 5px;
-        }
-
-        .order-status.pending {
-            background-color: rgba(243, 156, 18, 0.1);
-            color: var(--warning);
-        }
-
-        .order-status.processing {
-            background-color: rgba(52, 152, 219, 0.1);
-            color: var(--info);
-        }
-
-        .order-status.shipped {
-            background-color: rgba(155, 89, 182, 0.1);
-            color: #9b59b6;
-        }
-
-        .order-status.completed {
+        .status-badge {
             background-color: rgba(46, 204, 113, 0.1);
             color: var(--success);
-        }
-
-        .order-status.cancelled {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: var(--danger);
-        }
-
-        /* Date Range Picker */
-        .date-range-picker {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 35px;
         }
 
         /* Responsive */
@@ -811,11 +782,11 @@ $result = mysqli_query($conn, $query);
                 width: 100%;
             }
             
-            .order-filters {
+            .product-filters {
                 flex-direction: column;
             }
             
-            .order-filter-item {
+            .product-filter-item {
                 width: 100%;
             }
         }
@@ -823,54 +794,57 @@ $result = mysqli_query($conn, $query);
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
         <?php include 'includes/sidebar.php'; ?>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Navigation -->
             <?php include 'includes/topnav.php'; ?>
 
-            <!-- Page Header -->
             <div class="page-header">
                 <div>
-                    <h1 class="page-title">Orders</h1>
+                    <h1 class="page-title">Products</h1>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Orders</li>
+                        <li class="breadcrumb-item active">Products</li>
                     </ul>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Order
-                    </button>
+                    <a href="add-product.php" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Product
+                    </a>
                 </div>
             </div>
 
-            <!-- Order Filters -->
+            
             <div class="card mb-4">
                 <div class="card-body">
-                    <div class="order-filters">
-                        <div class="order-filter-item">
-                            <label for="status-filter" class="form-label">Status</label>
-                            <select id="status-filter" class="form-select">
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
+                    <div class="product-filters">
+                        <div class="product-filter-item">
+                            <label for="category-filter" class="form-label">Category</label>
+                            <select id="category-filter" class="form-select">
+                                <option value="">All Categories</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="accessories">Accessories</option>
+                                <option value="home">Home & Kitchen</option>
                             </select>
                         </div>
-                        <div class="order-filter-item">
-                            <label for="date-filter" class="form-label">Date Range</label>
-                            <input type="text" id="date-filter" class="form-control date-range-picker" placeholder="Select date range">
+                        <div class="product-filter-item">
+                            <label for="stock-filter" class="form-label">Stock Status</label>
+                            <select id="stock-filter" class="form-select">
+                                <option value="">All</option>
+                                <option value="in-stock">In Stock</option>
+                                <option value="low-stock">Low Stock</option>
+                                <option value="out-of-stock">Out of Stock</option>
+                            </select>
                         </div>
-                        <div class="order-filter-item">
-                            <label for="customer-filter" class="form-label">Customer</label>
-                            <input type="text" id="customer-filter" class="form-control" placeholder="Search customer">
+                        <div class="product-filter-item">
+                            <label for="price-filter" class="form-label">Price Range</label>
+                            <div class="d-flex gap-2">
+                                <input type="number" id="price-min" class="form-control" placeholder="Min">
+                                <input type="number" id="price-max" class="form-control" placeholder="Max">
+                            </div>
                         </div>
-                        <div class="order-filter-item" style="align-self: flex-end;">
+                        <div class="product-filter-item" style="align-self: flex-end;">
                             <button class="btn btn-primary">
                                 <i class="fas fa-filter"></i> Filter
                             </button>
@@ -878,70 +852,72 @@ $result = mysqli_query($conn, $query);
                     </div>
                 </div>
             </div>
-
-            <!-- Orders Table -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">All Orders</h2>
+                    <h2 class="card-title">All Products</h2>
                     <div class="card-tools">
                         <div class="table-search">
-                            <input type="text" class="form-control table-search-input" placeholder="Search orders...">
+                            <input type="text" class="form-control table-search-input" placeholder="Search products...">
                             <i class="fas fa-search"></i>
                         </div>
-                        <button class="btn btn-light">
-                            <i class="fas fa-download"></i> Export
-                        </button>
+                        <div class="btn-group">
+                            <button class="btn btn-light active">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="btn btn-light">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table order-table">
+                        <table class="table product-table">
                             <thead>
                                 <tr>
-                                    <th class="sortable">Order ID</th>
-                                    <th>Customer</th>
-                                    <th class="sortable">Date</th>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th class="sortable">Price</th>
+                                    <th class="sortable">Stock</th>
                                     <th>Status</th>
-                                    <th class="sortable">Total</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php 
-                                // If no orders yet, show sample data
+                                // If no products yet, show sample data
                                 if (mysqli_num_rows($result) == 0) {
-                                    $sampleOrders = [
-                                        ['order_id' => 'ORD-1001', 'customer_name' => 'John Doe', 'customer_email' => 'john@example.com', 'date' => '2023-05-15', 'status' => 'Completed', 'total' => '129.99'],
-                                        ['order_id' => 'ORD-1002', 'customer_name' => 'Jane Smith', 'customer_email' => 'jane@example.com', 'date' => '2023-05-14', 'status' => 'Processing', 'total' => '89.50'],
-                                        ['order_id' => 'ORD-1003', 'customer_name' => 'Robert Johnson', 'customer_email' => 'robert@example.com', 'date' => '2023-05-13', 'status' => 'Pending', 'total' => '210.75'],
-                                        ['order_id' => 'ORD-1004', 'customer_name' => 'Emily Davis', 'customer_email' => 'emily@example.com', 'date' => '2023-05-12', 'status' => 'Cancelled', 'total' => '45.00'],
-                                        ['order_id' => 'ORD-1005', 'customer_name' => 'Michael Wilson', 'customer_email' => 'michael@example.com', 'date' => '2023-05-11', 'status' => 'Shipped', 'total' => '175.25'],
+                                    $sampleProducts = [
+                                        ['product_id' => '101', 'product_name' => 'Smartphone X', 'product_sku' => 'PHN-001', 'category' => 'Electronics', 'price' => '799.99', 'stock' => '25', 'status' => 'Active'],
+                                        ['product_id' => '102', 'product_name' => 'Laptop Pro', 'product_sku' => 'LPT-002', 'category' => 'Electronics', 'price' => '1299.99', 'stock' => '10', 'status' => 'Active'],
+                                        ['product_id' => '103', 'product_name' => 'Wireless Headphones', 'product_sku' => 'AUD-003', 'category' => 'Accessories', 'price' => '149.99', 'stock' => '50', 'status' => 'Active'],
+                                        ['product_id' => '104', 'product_name' => 'Smart Watch', 'product_sku' => 'WCH-004', 'category' => 'Wearables', 'price' => '249.99', 'stock' => '15', 'status' => 'Active'],
+                                        ['product_id' => '105', 'product_name' => 'Bluetooth Speaker', 'product_sku' => 'AUD-005', 'category' => 'Audio', 'price' => '89.99', 'stock' => '0', 'status' => 'Out of Stock'],
                                     ];
                                     
-                                    foreach ($sampleOrders as $order) {
+                                    foreach ($sampleProducts as $product) {
+                                        $stockClass = $product['stock'] > 20 ? 'in-stock' : ($product['stock'] > 0 ? 'low-stock' : 'out-of-stock');
+                                        
                                         echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
                                         echo '<td>
-                                            <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
+                                            <div class="product-info">
+                                                <img src="https://via.placeholder.com/40" alt="Product" class="product-image-small">
                                                 <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
+                                                    <div class="product-name">' . $product['product_name'] . '</div>
+                                                    <div class="product-sku">' . $product['product_sku'] . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
+                                        echo '<td><span class="product-category-badge">' . $product['category'] . '</span></td>';
+                                        echo '<td class="product-price">$' . $product['price'] . '</td>';
+                                        echo '<td class="product-stock-qty ' . $stockClass . '">' . $product['stock'] . '</td>';
+                                        echo '<td><span class="badge status-badge">' . $product['status'] . '</span></td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -949,30 +925,29 @@ $result = mysqli_query($conn, $query);
                                         echo '</tr>';
                                     }
                                 } else {
-                                    while ($order = mysqli_fetch_assoc($result)) {
+                                    while ($product = mysqli_fetch_assoc($result)) {
+                                        $stockClass = $product['stock'] > 20 ? 'in-stock' : ($product['stock'] > 0 ? 'low-stock' : 'out-of-stock');
+                                        
                                         echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
                                         echo '<td>
-                                            <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
+                                            <div class="product-info">
+                                                <img src="' . ($product['image'] ?? 'https://via.placeholder.com/40') . '" alt="Product" class="product-image-small">
                                                 <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
+                                                    <div class="product-name">' . $product['product_name'] . '</div>
+                                                    <div class="product-sku">' . $product['product_sku'] . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
+                                        echo '<td><span class="product-category-badge">' . $product['category'] . '</span></td>';
+                                        echo '<td class="product-price">$' . $product['price'] . '</td>';
+                                        echo '<td class="product-stock-qty ' . $stockClass . '">' . $product['stock'] . '</td>';
+                                        echo '<td><span class="badge status-badge">' . ($product['stock'] > 0 ? 'Active' : 'Out of Stock') . '</span></td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -1012,7 +987,7 @@ $result = mysqli_query($conn, $query);
             if (tableSearch) {
                 tableSearch.addEventListener('keyup', function() {
                     const searchTerm = this.value.toLowerCase();
-                    const table = document.querySelector('.order-table');
+                    const table = document.querySelector('.product-table');
                     const rows = table.querySelectorAll('tbody tr');
                     
                     rows.forEach(row => {
@@ -1071,7 +1046,7 @@ $result = mysqli_query($conn, $query);
             const deleteButtons = document.querySelectorAll('.delete-btn');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    if (!confirm('Are you sure you want to delete this order?')) {
+                    if (!confirm('Are you sure you want to delete this product?')) {
                         e.preventDefault();
                     }
                 });
@@ -1082,6 +1057,17 @@ $result = mysqli_query($conn, $query);
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function() {
                     document.querySelector('.sidebar').classList.toggle('show');
+                });
+            }
+            
+            // Toggle view (list/grid)
+            const viewButtons = document.querySelectorAll('.btn-group .btn');
+            if (viewButtons.length) {
+                viewButtons.forEach((button, index) => {
+                    button.addEventListener('click', function() {
+                        viewButtons.forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                    });
                 });
             }
         });
