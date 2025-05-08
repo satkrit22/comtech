@@ -62,7 +62,32 @@ if (isset($_POST['order'])) {
         }
 
         if (!$out_of_stock) {
-            // Insert order into the orders table
+            // If eSewa is selected, redirect to eSewa payment gateway
+            if ($method === 'Esewa') {
+                $transaction_uuid = uniqid();  // Generate a unique transaction ID
+
+                // Prepare data for redirection
+                $esewa_data = [
+                    'amount' => $grand_total,
+                    'tax_amount' => 10,  // Tax value if needed
+                    'total_amount' => $grand_total + 10,
+                    'transaction_uuid' => $transaction_uuid,
+                    'product_code' => 'EPAYTEST',  // Your product/service code
+                    'success_url' => 'https://developer.esewa.com.np/success',
+                    'failure_url' => 'https://developer.esewa.com.np/failure',
+                    'signature' => 'i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME='  // Replace with your eSewa signature
+                ];
+
+                // Redirect to eSewa
+                echo '<form id="esewa-form" action="https://rc-epay.esewa.com.np/auth" method="POST">';
+                foreach ($esewa_data as $key => $value) {
+                    echo '<input type="hidden" name="' . $key . '" value="' . htmlspecialchars($value) . '">';
+                }
+                echo '<script>document.getElementById("esewa-form").submit();</script>';
+                exit();
+            }
+
+            // Insert order into the orders table (if not eSewa)
             $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("issssssi", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
             $stmt->execute();
@@ -119,6 +144,7 @@ while ($item = $cart_result->fetch_assoc()) {
 $stmt->close();
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,542 +153,17 @@ $stmt->close();
     <title>Checkout - Comtech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #007bff;
-            --primary-dark: #0062cc;
-            --primary-light: #e6f2ff;
-            --secondary: #6c757d;
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #17a2b8;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --white: #ffffff;
-            --body-bg: #f4f6f8;
-            --border-radius: 12px;
-            --input-radius: 8px;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--body-bg);
-            color: var(--dark);
-            line-height: 1.6;
-            padding: 0;
-            min-height: 100vh;
-        }
-
-        /* Navbar */
-        .navbar {
-            background: linear-gradient(135deg, var(--primary), #0099ff);
-            color: var(--white);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
-        }
-
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--white);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-brand i {
-            margin-right: 10px;
-            font-size: 1.8rem;
-        }
-
-        .navbar-nav {
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-nav a {
-            color: var(--white);
-            margin-left: 25px;
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            transition: var(--transition);
-            padding: 8px 15px;
-            border-radius: 50px;
-        }
-
-        .navbar-nav a i {
-            margin-right: 8px;
-        }
-
-        .navbar-nav a:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .page-header {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        .page-header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 10px;
-        }
-
-        .page-header p {
-            color: var(--secondary);
-            font-size: 1.1rem;
-        }
-
-        .page-header::after {
-            content: '';
-            position: absolute;
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(to right, var(--primary), #0099ff);
-            border-radius: 2px;
-        }
-
-        .checkout-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-
-        .card-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--primary-light);
-        }
-
-        .card-header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            margin: 0;
-        }
-
-        .card-header h2 i {
-            margin-right: 10px;
-            color: var(--primary);
-            font-size: 1.4rem;
-        }
-
-        .card-body {
-            padding: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 0.95rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e1e5eb;
-            border-radius: var(--input-radius);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            color: var(--dark);
-            transition: var(--transition);
-            background-color: var(--light);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
-            outline: none;
-            background-color: var(--white);
-        }
-
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .form-section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e1e5eb;
-            display: flex;
-            align-items: center;
-        }
-
-        .form-section-title i {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 25px;
-            background-color: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            font-size: 1rem;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
-        }
-
-        .btn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
-        }
-
-        .btn-block {
-            display: block;
-            width: 100%;
-        }
-
-        .btn-lg {
-            padding: 15px 30px;
-            font-size: 1.1rem;
-        }
-
-        .order-summary {
-            margin-bottom: 30px;
-        }
-
-        .order-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #e1e5eb;
-        }
-
-        .order-item:last-child {
-            border-bottom: none;
-        }
-
-        .order-item-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-right: 15px;
-            background-color: var(--light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .order-item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .order-item-details {
-            flex: 1;
-        }
-
-        .order-item-name {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-        }
-
-        .order-item-price {
-            color: var(--secondary);
-            font-size: 0.9rem;
-        }
-
-        .order-item-quantity {
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 5px 10px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .order-totals {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e1e5eb;
-        }
-
-        .order-total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-        }
-
-        .order-total-row.grand-total {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #e1e5eb;
-        }
-
-        .delivery-charge {
-            color: var(--danger);
-            font-weight: 500;
-        }
-
-        .payment-methods {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .payment-method {
-            display: none;
-        }
-
-        .payment-method + label {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            border: 2px solid #e1e5eb;
-            border-radius: var(--input-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .payment-method + label i {
-            margin-right: 10px;
-            font-size: 1.2rem;
-            color: var(--secondary);
-            transition: var(--transition);
-        }
-
-        .payment-method:checked + label {
-            border-color: var(--primary);
-            background-color: var(--primary-light);
-        }
-
-        .payment-method:checked + label i {
-            color: var(--primary);
-        }
-
-        .empty-cart {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .empty-cart i {
-            font-size: 4rem;
-            color: var(--secondary);
-            opacity: 0.3;
-            margin-bottom: 20px;
-        }
-
-        .empty-cart p {
-            color: var(--secondary);
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: var(--input-radius);
-            margin-bottom: 20px;
-            border-left: 4px solid;
-        }
-
-        .alert-info {
-            background-color: var(--primary-light);
-            border-color: var(--primary);
-            color: var(--primary-dark);
-        }
-
-        .alert-warning {
-            background-color: rgba(255, 193, 7, 0.1);
-            border-color: var(--warning);
-            color: #856404;
-        }
-
-        .delivery-option {
-            margin-top: 10px;
-        }
-
-        .delivery-option label {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .delivery-option input[type="radio"] {
-            margin-right: 10px;
-        }
-
-        .delivery-option .delivery-price {
-            margin-left: auto;
-            font-weight: 600;
-            color: var(--primary-dark);
-        }
-
-        .delivery-option .delivery-description {
-            font-size: 0.85rem;
-            color: var(--secondary);
-            margin-left: 25px;
-            margin-top: 2px;
-        }
-
-        @media (max-width: 992px) {
-            .checkout-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 15px 20px;
-            }
-
-            .navbar-brand {
-                font-size: 1.3rem;
-            }
-
-            .navbar-nav a {
-                margin-left: 15px;
-                padding: 6px 12px;
-                font-size: 0.9rem;
-            }
-
-            .container {
-                padding: 0 15px;
-                margin: 30px auto;
-            }
-
-            .page-header h1 {
-                font-size: 1.8rem;
-            }
-
-            .card-header {
-                padding: 15px 20px;
-            }
-
-            .card-body {
-                padding: 20px;
-            }
-
-            .payment-methods {
-                flex-direction: column;
-            }
-
-            .payment-method + label {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .navbar {
-                flex-direction: column;
-                padding: 15px;
-            }
-
-            .navbar-brand {
-                margin-bottom: 10px;
-            }
-
-            .navbar-nav {
-                width: 100%;
-                justify-content: space-around;
-            }
-
-            .navbar-nav a {
-                margin: 0;
-                font-size: 0.8rem;
-                padding: 6px 10px;
-            }
-
-            .page-header h1 {
-                font-size: 1.5rem;
-            }
-
-            .page-header p {
-                font-size: 0.9rem;
-            }
-
-            .btn-lg {
-                padding: 12px 25px;
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="checkout.css">
 </head>
 <body>
 
 <!-- Navbar -->
 <div class="navbar">
-    <a href="index.php" class="navbar-brand">
-        <i class="fas fa-laptop-code"></i>
-        Comtech
-    </a>
+<a href="index.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
+    <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
+    Comtech
+</a>
+
     <div class="navbar-nav">
         <a href="productdisplay.php"><i class="fas fa-shopping-bag"></i> Shop</a>
         <a href="profile.php"><i class="fas fa-user"></i> Profile</a>
@@ -741,17 +242,64 @@ $stmt->close();
                         </div>
 
                         <div class="form-section">
-                            <div class="form-section-title">
-                                <i class="fas fa-credit-card"></i> Payment Method
-                            </div>
-                            <div class="payment-methods">
-                                <input type="radio" id="cod" name="method" value="Cash on Delivery" class="payment-method" checked>
-                                <label for="cod"><i class="fas fa-money-bill-wave"></i> Cash on Delivery</label>
-                                
-                                <input type="radio" id="esewa" name="method" value="Esewa" class="payment-method">
-                                <label for="esewa"><i class="fas fa-wallet"></i> Esewa</label>
-                            </div>
-                        </div>
+    <div class="form-section-title">
+        <i class="fas fa-credit-card"></i> Payment Method
+    </div>
+    <div class="payment-methods">
+        <!-- Cash on Delivery (COD) -->
+        <input type="radio" id="cod" name="method" value="Cash on Delivery" class="payment-method" checked>
+        <label for="cod"><i class="fas fa-money-bill-wave"></i> Cash on Delivery</label>
+        
+        <!-- eSewa -->
+        <input type="radio" id="esewa" name="method" value="Esewa" class="payment-method">
+        <label for="esewa"><i class="fas fa-wallet"></i> eSewa</label>
+        
+        <!-- eSewa Form (Hidden by Default) -->
+        <div id="esewa-form" style="display: none;">
+            <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+                <input type="text" id="amount" name="amount" value="100" required>
+                <input type="text" id="tax_amount" name="tax_amount" value="10" required>
+                <input type="text" id="total_amount" name="total_amount" value="110" required>
+                <input type="text" id="transaction_uuid" name="transaction_uuid" value="241028" required>
+                <input type="text" id="product_code" name="product_code" value="EPAYTEST" required>
+                <input type="text" id="product_service_charge" name="product_service_charge" value="0" required>
+                <input type="text" id="product_delivery_charge" name="product_delivery_charge" value="0" required>
+                <input type="text" id="success_url" name="success_url" value="https://developer.esewa.com.np/success" required>
+                <input type="text" id="failure_url" name="failure_url" value="https://developer.esewa.com.np/failure" required>
+                <input type="text" id="signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code" required>
+                <input type="text" id="signature" name="signature" value="i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME=" required>
+                <input value="Submit" type="submit">
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to handle showing the eSewa form -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const esewaRadioButton = document.getElementById('esewa');
+    const codRadioButton = document.getElementById('cod');
+    const esewaForm = document.getElementById('esewa-form');
+
+    // Initially, eSewa form should be hidden
+    esewaForm.style.display = 'none';
+
+    // Event listener for when eSewa is selected
+    esewaRadioButton.addEventListener('change', function () {
+        if (esewaRadioButton.checked) {
+            esewaForm.style.display = 'block'; // Show eSewa form
+        }
+    });
+
+    // Event listener for when COD is selected
+    codRadioButton.addEventListener('change', function () {
+        if (codRadioButton.checked) {
+            esewaForm.style.display = 'none'; // Hide eSewa form
+        }
+    });
+});
+</script>
+
                     </div>
                 </div>
 
