@@ -159,11 +159,10 @@ $stmt->close();
 
 <!-- Navbar -->
 <div class="navbar">
-<a href="index.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
-    <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
-    Comtech
-</a>
-
+    <a href="index.php" class="navbar-brand">
+        <i class="fas fa-laptop-code"></i>
+        Comtech
+    </a>
     <div class="navbar-nav">
         <a href="productdisplay.php"><i class="fas fa-shopping-bag"></i> Shop</a>
         <a href="profile.php"><i class="fas fa-user"></i> Profile</a>
@@ -302,8 +301,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     </div>
                 </div>
-
-                <!-- Order Summary -->
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fas fa-shopping-cart"></i> Order Summary</h2>

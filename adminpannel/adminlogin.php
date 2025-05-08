@@ -38,7 +38,7 @@ if ($result->num_rows === 1) {
         $_SESSION['admin_logged_in'] = true;
         
         // Redirect to admin panel
-        header("Location: adminpannel.html");
+        header("Location: index.php");
         exit;
     }
 }

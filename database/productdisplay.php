@@ -151,11 +151,10 @@ if (isset($_GET['logout'])) {
     <!-- Header -->
     <header class="header">
         <nav class="navbar">
-        <a href="index.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
-    <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
-    Comtech
-</a>
-
+            <a href="index.php" class="logo">
+                <i class="fas fa-laptop-code"></i>
+                Comtech
+            </a>
             
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>

@@ -9,21 +9,17 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// Get admin info
 $admin_id = $_SESSION['admin_id'];
 $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
-// Sample logic to fetch orders from the database
-$query = "SELECT * FROM orders ORDER BY created_at DESC";
+$query = "SELECT * FROM users";
 $result = mysqli_query($conn, $query);
 ?>
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders | Comtech Admin</title>
+    <title>Users | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -464,16 +460,6 @@ $result = mysqli_query($conn, $query);
             color: white;
         }
 
-        .btn-info {
-            background-color: var(--info);
-            color: white;
-        }
-
-        .btn-info:hover {
-            background-color: #2980b9;
-            color: white;
-        }
-
         .btn-warning {
             background-color: var(--warning);
             color: white;
@@ -680,100 +666,159 @@ $result = mysqli_query($conn, $query);
             margin-top: 20px;
         }
 
-        /* Order Specific Styles */
-        .order-filters {
+        /* User Specific Styles */
+        .user-filters {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        .order-filter-item {
+        .user-filter-item {
             min-width: 150px;
         }
 
-        .customer-info {
+        .user-info {
             display: flex;
             align-items: center;
         }
 
-        .customer-avatar {
-            width: 32px;
-            height: 32px;
+        .user-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             margin-right: 10px;
             object-fit: cover;
         }
 
-        .customer-name {
+        .user-name {
             font-weight: 500;
         }
 
-        .customer-email {
+        .user-email {
             font-size: 0.75rem;
-            color: var(--text-secondary);
+            color: var(--text-muted);
         }
 
-        .order-id {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .order-date {
-            color: var(--text-secondary);
-        }
-
-        .order-total {
-            font-weight: 600;
-        }
-
-        .order-status {
-            display: inline-flex;
-            align-items: center;
+        .user-role {
+            display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .order-status i {
-            font-size: 8px;
-            margin-right: 5px;
-        }
-
-        .order-status.pending {
-            background-color: rgba(243, 156, 18, 0.1);
-            color: var(--warning);
-        }
-
-        .order-status.processing {
-            background-color: rgba(52, 152, 219, 0.1);
-            color: var(--info);
-        }
-
-        .order-status.shipped {
-            background-color: rgba(155, 89, 182, 0.1);
-            color: #9b59b6;
-        }
-
-        .order-status.completed {
-            background-color: rgba(46, 204, 113, 0.1);
-            color: var(--success);
-        }
-
-        .order-status.cancelled {
+        .user-role.admin {
             background-color: rgba(231, 76, 60, 0.1);
             color: var(--danger);
         }
 
-        /* Date Range Picker */
-        .date-range-picker {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 35px;
+        .user-role.manager {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .user-role.editor {
+            background-color: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+        }
+
+        .user-role.customer {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .user-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .user-status.active {
+            background-color: var(--success);
+        }
+
+        .user-status.inactive {
+            background-color: var(--danger);
+        }
+
+        /* User Cards */
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .user-card {
+            background-color: var(--card-bg);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .user-card-header {
+            background-color: var(--primary);
+            height: 80px;
+            position: relative;
+        }
+
+        .user-card-avatar {
+            position: absolute;
+            bottom: -30px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--card-bg);
+            background-color: var(--card-bg);
+        }
+
+        .user-card-body {
+            padding: 40px 20px 20px;
+        }
+
+        .user-card-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .user-card-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .user-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .user-card-info-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .user-card-info-item i {
+            width: 20px;
+            margin-right: 10px;
+            color: var(--text-muted);
+        }
+
+        .user-card-actions {
+            display: flex;
+            gap: 10px;
         }
 
         /* Responsive */
@@ -811,11 +856,11 @@ $result = mysqli_query($conn, $query);
                 width: 100%;
             }
             
-            .order-filters {
+            .user-filters {
                 flex-direction: column;
             }
             
-            .order-filter-item {
+            .user-filter-item {
                 width: 100%;
             }
         }
@@ -823,54 +868,49 @@ $result = mysqli_query($conn, $query);
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
         <?php include 'includes/sidebar.php'; ?>
-
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Navigation -->
             <?php include 'includes/topnav.php'; ?>
-
-            <!-- Page Header -->
             <div class="page-header">
                 <div>
-                    <h1 class="page-title">Orders</h1>
+                    <h1 class="page-title">Users</h1>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Orders</li>
+                        <li class="breadcrumb-item active">Users</li>
                     </ul>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Order
-                    </button>
+                    <a href="add-user.php" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </a>
                 </div>
             </div>
-
-            <!-- Order Filters -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <div class="order-filters">
-                        <div class="order-filter-item">
-                            <label for="status-filter" class="form-label">Status</label>
-                            <select id="status-filter" class="form-select">
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
+                    <div class="user-filters">
+                        <div class="user-filter-item">
+                            <label for="role-filter" class="form-label">Role</label>
+                            <select id="role-filter" class="form-select">
+                                <option value="">All Roles</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="editor">Editor</option>
+                                <option value="customer">Customer</option>
                             </select>
                         </div>
-                        <div class="order-filter-item">
-                            <label for="date-filter" class="form-label">Date Range</label>
+                        <div class="user-filter-item">
+                            <label for="status-filter" class="form-label">Status</label>
+                            <select id="status-filter" class="form-select">
+                                <option value="">All</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="user-filter-item">
+                            <label for="date-filter" class="form-label">Registration Date</label>
                             <input type="text" id="date-filter" class="form-control date-range-picker" placeholder="Select date range">
                         </div>
-                        <div class="order-filter-item">
-                            <label for="customer-filter" class="form-label">Customer</label>
-                            <input type="text" id="customer-filter" class="form-control" placeholder="Search customer">
-                        </div>
-                        <div class="order-filter-item" style="align-self: flex-end;">
+                        <div class="user-filter-item" style="align-self: flex-end;">
                             <button class="btn btn-primary">
                                 <i class="fas fa-filter"></i> Filter
                             </button>
@@ -878,70 +918,68 @@ $result = mysqli_query($conn, $query);
                     </div>
                 </div>
             </div>
-
-            <!-- Orders Table -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">All Orders</h2>
+                    <h2 class="card-title">All Users</h2>
                     <div class="card-tools">
                         <div class="table-search">
-                            <input type="text" class="form-control table-search-input" placeholder="Search orders...">
+                            <input type="text" class="form-control table-search-input" placeholder="Search users...">
                             <i class="fas fa-search"></i>
                         </div>
-                        <button class="btn btn-light">
-                            <i class="fas fa-download"></i> Export
-                        </button>
+                        <div class="btn-group">
+                            <button class="btn btn-light active">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="btn btn-light">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table order-table">
+                        <table class="table user-table">
                             <thead>
                                 <tr>
-                                    <th class="sortable">Order ID</th>
-                                    <th>Customer</th>
-                                    <th class="sortable">Date</th>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th class="sortable">Registered</th>
                                     <th>Status</th>
-                                    <th class="sortable">Total</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php 
-                                // If no orders yet, show sample data
+                                // If no users yet, show sample data
                                 if (mysqli_num_rows($result) == 0) {
-                                    $sampleOrders = [
-                                        ['order_id' => 'ORD-1001', 'customer_name' => 'John Doe', 'customer_email' => 'john@example.com', 'date' => '2023-05-15', 'status' => 'Completed', 'total' => '129.99'],
-                                        ['order_id' => 'ORD-1002', 'customer_name' => 'Jane Smith', 'customer_email' => 'jane@example.com', 'date' => '2023-05-14', 'status' => 'Processing', 'total' => '89.50'],
-                                        ['order_id' => 'ORD-1003', 'customer_name' => 'Robert Johnson', 'customer_email' => 'robert@example.com', 'date' => '2023-05-13', 'status' => 'Pending', 'total' => '210.75'],
-                                        ['order_id' => 'ORD-1004', 'customer_name' => 'Emily Davis', 'customer_email' => 'emily@example.com', 'date' => '2023-05-12', 'status' => 'Cancelled', 'total' => '45.00'],
-                                        ['order_id' => 'ORD-1005', 'customer_name' => 'Michael Wilson', 'customer_email' => 'michael@example.com', 'date' => '2023-05-11', 'status' => 'Shipped', 'total' => '175.25'],
+                                    $sampleUsers = [
+                                        ['user_id' => '1', 'username' => 'admin', 'email' => 'admin@example.com', 'role' => 'Admin', 'registered' => '2023-01-15', 'status' => 'Active'],
+                                        ['user_id' => '2', 'username' => 'john_doe', 'email' => 'john@example.com', 'role' => 'Manager', 'registered' => '2023-02-20', 'status' => 'Active'],
+                                        ['user_id' => '3', 'username' => 'jane_smith', 'email' => 'jane@example.com', 'role' => 'Editor', 'registered' => '2023-03-10', 'status' => 'Active'],
+                                        ['user_id' => '4', 'username' => 'robert_johnson', 'email' => 'robert@example.com', 'role' => 'Customer', 'registered' => '2023-04-05', 'status' => 'Inactive'],
+                                        ['user_id' => '5', 'username' => 'emily_davis', 'email' => 'emily@example.com', 'role' => 'Customer', 'registered' => '2023-05-01', 'status' => 'Active'],
                                     ];
                                     
-                                    foreach ($sampleOrders as $order) {
+                                    foreach ($sampleUsers as $user) {
                                         echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
                                         echo '<td>
-                                            <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
+                                            <div class="user-info">
+                                                <img src="https://ui-avatars.com/api/?name=' . str_replace('_', '+', $user['username']) . '&background=4361ee&color=fff" alt="User" class="user-avatar">
                                                 <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
+                                                    <div class="user-name">' . $user['username'] . '</div>
+                                                    <div class="user-email">' . $user['email'] . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
+                                        echo '<td><span class="user-role ' . strtolower($user['role']) . '">' . $user['role'] . '</span></td>';
+                                        echo '<td>' . $user['registered'] . '</td>';
+                                        echo '<td><span class="user-status ' . strtolower($user['status']) . '"></span> ' . $user['status'] . '</td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-user.php?id=' . $user['user_id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-user.php?id=' . $user['user_id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -949,30 +987,26 @@ $result = mysqli_query($conn, $query);
                                         echo '</tr>';
                                     }
                                 } else {
-                                    while ($order = mysqli_fetch_assoc($result)) {
+                                    while ($user = mysqli_fetch_assoc($result)) {
                                         echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
                                         echo '<td>
-                                            <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
+                                            <div class="user-info">
+                                                <img src="https://ui-avatars.com/api/?name=' . str_replace(' ', '+', $user['username']) . '&background=4361ee&color=fff" alt="User" class="user-avatar">
                                                 <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
+                                                    <div class="user-name">' . $user['username'] . '</div>
+                                                    <div class="user-email">' . $user['email'] . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
+                                        echo '<td><span class="user-role ' . strtolower($user['role']) . '">' . $user['role'] . '</span></td>';
+                                        echo '<td>' . ($user['registered'] ?? date('Y-m-d')) . '</td>';
+                                        echo '<td><span class="user-status ' . strtolower($user['status'] ?? 'active') . '"></span> ' . ($user['status'] ?? 'Active') . '</td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-user.php?id=' . $user['user_id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-user.php?id=' . $user['user_id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -1002,6 +1036,47 @@ $result = mysqli_query($conn, $query);
                     </div>
                 </div>
             </div>
+
+            <div class="user-grid mt-4" style="display: none;">
+                <?php
+                $sampleUsers = [
+                    ['user_id' => '1', 'username' => 'admin', 'email' => 'admin@example.com', 'role' => 'Admin', 'registered' => '2023-01-15', 'status' => 'Active'],
+                    ['user_id' => '2', 'username' => 'john_doe', 'email' => 'john@example.com', 'role' => 'Manager', 'registered' => '2023-02-20', 'status' => 'Active'],
+                    ['user_id' => '3', 'username' => 'jane_smith', 'email' => 'jane@example.com', 'role' => 'Editor', 'registered' => '2023-03-10', 'status' => 'Active'],
+                    ['user_id' => '4', 'username' => 'robert_johnson', 'email' => 'robert@example.com', 'role' => 'Customer', 'registered' => '2023-04-05', 'status' => 'Inactive'],
+                ];
+                
+                foreach ($sampleUsers as $user) {
+                    echo '<div class="user-card">
+                        <div class="user-card-header"></div>
+                        <img src="https://ui-avatars.com/api/?name=' . str_replace('_', '+', $user['username']) . '&background=4361ee&color=fff" alt="User" class="user-card-avatar">
+                        <div class="user-card-body">
+                            <h3 class="user-card-name">' . $user['username'] . '</h3>
+                            <div class="user-card-role">' . $user['role'] . '</div>
+                            <div class="user-card-info">
+                                <div class="user-card-info-item">
+                                    <i class="fas fa-envelope"></i> ' . $user['email'] . '
+                                </div>
+                                <div class="user-card-info-item">
+                                    <i class="fas fa-calendar"></i> Joined ' . $user['registered'] . '
+                                </div>
+                                <div class="user-card-info-item">
+                                    <i class="fas fa-circle ' . ($user['status'] == 'Active' ? 'text-success' : 'text-danger') . '"></i> ' . $user['status'] . '
+                                </div>
+                            </div>
+                            <div class="user-card-actions">
+                                <a href="edit-user.php?id=' . $user['user_id'] . '" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="delete-user.php?id=' . $user['user_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>';
+                }
+                ?>
+            </div>
         </main>
     </div>
 
@@ -1012,7 +1087,7 @@ $result = mysqli_query($conn, $query);
             if (tableSearch) {
                 tableSearch.addEventListener('keyup', function() {
                     const searchTerm = this.value.toLowerCase();
-                    const table = document.querySelector('.order-table');
+                    const table = document.querySelector('.user-table');
                     const rows = table.querySelectorAll('tbody tr');
                     
                     rows.forEach(row => {
@@ -1048,13 +1123,6 @@ $result = mysqli_query($conn, $query);
                         const aValue = a.children[index].textContent.trim();
                         const bValue = b.children[index].textContent.trim();
                         
-                        // Check if values are numbers
-                        if (!isNaN(aValue.replace('$', '')) && !isNaN(bValue.replace('$', ''))) {
-                            return direction === 'asc' 
-                                ? parseFloat(aValue.replace('$', '')) - parseFloat(bValue.replace('$', ''))
-                                : parseFloat(bValue.replace('$', '')) - parseFloat(aValue.replace('$', ''));
-                        }
-                        
                         // Sort as strings
                         return direction === 'asc'
                             ? aValue.localeCompare(bValue)
@@ -1071,7 +1139,7 @@ $result = mysqli_query($conn, $query);
             const deleteButtons = document.querySelectorAll('.delete-btn');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    if (!confirm('Are you sure you want to delete this order?')) {
+                    if (!confirm('Are you sure you want to delete this user?')) {
                         e.preventDefault();
                     }
                 });
@@ -1082,6 +1150,28 @@ $result = mysqli_query($conn, $query);
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function() {
                     document.querySelector('.sidebar').classList.toggle('show');
+                });
+            }
+            
+            // Toggle view (list/grid)
+            const viewButtons = document.querySelectorAll('.btn-group .btn');
+            const tableView = document.querySelector('.table-responsive');
+            const gridView = document.querySelector('.user-grid');
+            
+            if (viewButtons.length && tableView && gridView) {
+                viewButtons.forEach((button, index) => {
+                    button.addEventListener('click', function() {
+                        viewButtons.forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        if (index === 0) { // List view
+                            tableView.style.display = 'block';
+                            gridView.style.display = 'none';
+                        } else { // Grid view
+                            tableView.style.display = 'none';
+                            gridView.style.display = 'grid';
+                        }
+                    });
                 });
             }
         });
