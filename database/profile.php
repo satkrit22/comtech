@@ -52,10 +52,10 @@ $stmt->close();
 
 <!-- Navbar -->
 <div class="navbar">
-    <a href="index.php" class="navbar-brand">
-    <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="height: 40px;">
-        Comtech
-    </a>
+<a href="productdisplay.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
+    <img src="assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
+    Comtech
+</a>
     <div class="navbar-nav">
         <a href="productdisplay.php"><i class="fas fa-shopping-bag"></i> Shop</a>
         <a href="cart.php"><i class="fas fa-shopping-cart"></i> Cart</a>
