@@ -13,12 +13,63 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
-// Sample logic to fetch products from the database
-$query = "SELECT * FROM products";
+// Pagination
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$start = ($page - 1) * $limit;
+
+// Build the query
+$where = "1=1"; // Default condition that's always true
+
+// Apply filters if set
+if (isset($_GET['category']) && !empty($_GET['category'])) {
+    $category = mysqli_real_escape_string($conn, $_GET['category']);
+    $where .= " AND p.category_id = '$category'";
+}
+
+if (isset($_GET['stock_status']) && !empty($_GET['stock_status'])) {
+    $stock_status = mysqli_real_escape_string($conn, $_GET['stock_status']);
+    if ($stock_status == 'in-stock') {
+        $where .= " AND p.stock > 0";
+    } elseif ($stock_status == 'out-of-stock') {
+        $where .= " AND p.stock = 0";
+    } elseif ($stock_status == 'low-stock') {
+        $where .= " AND p.stock > 0 AND p.stock <= 10";
+    }
+}
+
+if (isset($_GET['price_min']) && !empty($_GET['price_min'])) {
+    $price_min = (float)$_GET['price_min'];
+    $where .= " AND p.price >= $price_min";
+}
+
+if (isset($_GET['price_max']) && !empty($_GET['price_max'])) {
+    $price_max = (float)$_GET['price_max'];
+    $where .= " AND p.price <= $price_max";
+}
+
+// Count total records for pagination
+$count_query = "SELECT COUNT(*) as total FROM products p WHERE $where";
+$count_result = mysqli_query($conn, $count_query);
+$count_row = mysqli_fetch_assoc($count_result);
+$total_records = $count_row['total'];
+$total_pages = ceil($total_records / $limit);
+
+// Get products with pagination
+$query = "SELECT p.*, c.name as category_name 
+          FROM products p 
+          LEFT JOIN categories c ON p.category_id = c.id 
+          WHERE $where 
+          ORDER BY p.created_at DESC 
+          LIMIT $start, $limit";
 $result = mysqli_query($conn, $query);
+
+// Get all categories for filter dropdown
+$categories_query = "SELECT * FROM categories ORDER BY name";
+$categories_result = mysqli_query($conn, $categories_query);
 ?>
 
-&lt;!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -26,771 +77,7 @@ $result = mysqli_query($conn, $query);
     <title>Products | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Core Admin Dashboard Styles */
-        :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #6c757d;
-            --success: #2ecc71;
-            --info: #3498db;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --body-bg: #f5f7fb;
-            --card-bg: #ffffff;
-            --border-color: #e9ecef;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --text-muted: #adb5bd;
-            --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
-            --shadow: 0 .5rem 1rem rgba(0,0,0,.15);
-            --card-border-radius: 8px;
-            --btn-border-radius: 4px;
-            --input-border-radius: 4px;
-            --sidebar-width: 250px;
-            --sidebar-collapsed-width: 70px;
-            --sidebar-bg: #1e1e2d;
-            --sidebar-color: #a2a3b7;
-            --sidebar-hover-bg: #282839;
-            --sidebar-active-bg: #282839;
-            --sidebar-active-color: #ffffff;
-            --topnav-height: 60px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: var(--body-bg);
-            color: var(--text-primary);
-            line-height: 1.5;
-            font-size: 14px;
-        }
-
-        a {
-            text-decoration: none;
-            color: var(--primary);
-        }
-
-        a:hover {
-            color: var(--primary-dark);
-        }
-
-        /* Layout */
-        .admin-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            margin-left: var(--sidebar-width);
-            transition: margin-left 0.3s ease;
-        }
-
-        .sidebar-collapsed .main-content {
-            margin-left: var(--sidebar-collapsed-width);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            color: var(--sidebar-color);
-            z-index: 1000;
-            transition: width 0.3s ease;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .sidebar-collapsed .sidebar {
-            width: var(--sidebar-collapsed-width);
-        }
-
-        .sidebar-header {
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .logo a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .logo h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0;
-            white-space: nowrap;
-        }
-
-        .logo span {
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-
-        .sidebar-toggle {
-            background: transparent;
-            border: none;
-            color: var(--sidebar-color);
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
-        }
-
-        .sidebar-toggle:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-menu {
-            padding: 15px 0;
-        }
-
-        .sidebar-menu ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 5px;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            color: var(--sidebar-color);
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .sidebar-menu a:hover {
-            background-color: var(--sidebar-hover-bg);
-            color: white;
-        }
-
-        .sidebar-menu li.active a {
-            background-color: var(--sidebar-active-bg);
-            color: var(--sidebar-active-color);
-            border-left: 3px solid var(--primary);
-        }
-
-        .sidebar-menu i {
-            margin-right: 10px;
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-collapsed .sidebar-menu span {
-            display: none;
-        }
-
-        /* Top Navigation */
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: var(--topnav-height);
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .top-nav-left, .top-nav-right {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-container {
-            position: relative;
-            width: 300px;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 8px 15px 8px 35px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--input-border-radius);
-            background-color: var(--light);
-        }
-
-        .search-container i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .nav-item {
-            position: relative;
-            margin-left: 15px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background-color: var(--light);
-            color: var(--primary);
-        }
-
-        .badge-counter {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: var(--danger);
-            color: white;
-            font-size: 0.7rem;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .admin-profile {
-            position: relative;
-        }
-
-        .profile-btn {
-            display: flex;
-            align-items: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: var(--btn-border-radius);
-            transition: all 0.3s ease;
-        }
-
-        .profile-btn:hover {
-            background-color: var(--light);
-        }
-
-        .profile-btn span {
-            margin-right: 8px;
-            font-weight: 500;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: var(--card-bg);
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow);
-            min-width: 180px;
-            z-index: 1000;
-            display: none;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--light);
-            color: var(--primary);
-        }
-
-        .dropdown-item i {
-            margin-right: 10px;
-            font-size: 1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background-color: var(--border-color);
-            margin: 5px 0;
-        }
-
-        /* Page Header */
-        .page-header {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .breadcrumb {
-            display: flex;
-            list-style: none;
-            margin-top: 5px;
-        }
-
-        .breadcrumb-item {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-
-        .breadcrumb-item:not(:last-child)::after {
-            content: '/';
-            margin: 0 5px;
-            color: var(--text-muted);
-        }
-
-        .breadcrumb-item.active {
-            color: var(--primary);
-        }
-
-        /* Cards */
-        .card {
-            background-color: var(--card-bg);
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: rgba(0, 0, 0, 0.01);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-title {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .card-tools {
-            display: flex;
-            gap: 10px;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .card-footer {
-            padding: 15px 20px;
-            border-top: 1px solid var(--border-color);
-            background-color: rgba(0, 0, 0, 0.01);
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border-radius: var(--btn-border-radius);
-            font-weight: 500;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            color: white;
-        }
-
-        .btn-warning {
-            background-color: var(--warning);
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background-color: #e67e22;
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-            color: white;
-        }
-
-        .btn-light {
-            background-color: var(--light);
-            color: var(--text-primary);
-            border-color: var(--border-color);
-        }
-
-        .btn-light:hover {
-            background-color: #e2e6ea;
-            color: var(--text-primary);
-        }
-
-        .btn i {
-            margin-right: 5px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 5px;
-        }
-
-        /* Forms */
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--input-border-radius);
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            transition: border-color 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--input-border-radius);
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            transition: border-color 0.3s ease;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-        }
-
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* Tables */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 0;
-        }
-
-        .table th,
-        .table td {
-            padding: 12px 15px;
-            vertical-align: middle;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .table th {
-            font-weight: 600;
-            color: var(--text-primary);
-            background-color: rgba(0, 0, 0, 0.02);
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .table tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.01);
-        }
-
-        /* Search */
-        .table-search {
-            position: relative;
-            width: 250px;
-        }
-
-        .table-search-input {
-            padding-left: 35px;
-        }
-
-        .table-search i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .page-item {
-            margin: 0 2px;
-        }
-
-        .page-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 32px;
-            min-width: 32px;
-            padding: 0 10px;
-            border-radius: var(--btn-border-radius);
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-
-        .page-link:hover {
-            background-color: var(--light);
-            color: var(--primary);
-            border-color: var(--border-color);
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .page-item.disabled .page-link {
-            color: var(--text-muted);
-            pointer-events: none;
-            background-color: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        /* Utilities */
-        .d-flex {
-            display: flex;
-        }
-
-        .align-items-center {
-            align-items: center;
-        }
-
-        .justify-content-between {
-            justify-content: space-between;
-        }
-
-        .gap-2 {
-            gap: 10px;
-        }
-
-        .mb-4 {
-            margin-bottom: 20px;
-        }
-
-        .mt-4 {
-            margin-top: 20px;
-        }
-
-        /* Product Specific Styles */
-        .product-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .product-filter-item {
-            min-width: 150px;
-        }
-
-        .product-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .product-image-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 4px;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-
-        .product-name {
-            font-weight: 500;
-        }
-
-        .product-sku {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .product-category-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary);
-        }
-
-        .product-price {
-            font-weight: 600;
-        }
-
-        .product-stock-qty {
-            font-weight: 600;
-        }
-
-        .product-stock-qty.in-stock {
-            color: var(--success);
-        }
-
-        .product-stock-qty.low-stock {
-            color: var(--warning);
-        }
-
-        .product-stock-qty.out-of-stock {
-            color: var(--danger);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-badge {
-            background-color: rgba(46, 204, 113, 0.1);
-            color: var(--success);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-            
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .card-tools {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            
-            .table-search {
-                width: 100%;
-            }
-            
-            .product-filters {
-                flex-direction: column;
-            }
-            
-            .product-filter-item {
-                width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="product.css">
 </head>
 <body>
     <div class="admin-container">
@@ -814,42 +101,50 @@ $result = mysqli_query($conn, $query);
                 </div>
             </div>
 
+            <?php if (isset($_SESSION['alert'])): ?>
+            <div class="alert alert-<?php echo $_SESSION['alert']['type']; ?>">
+                <?php echo $_SESSION['alert']['message']; ?>
+                <?php unset($_SESSION['alert']); ?>
+            </div>
+            <?php endif; ?>
             
             <div class="card mb-4">
                 <div class="card-body">
-                    <div class="product-filters">
+                    <form action="" method="GET" class="product-filters">
                         <div class="product-filter-item">
                             <label for="category-filter" class="form-label">Category</label>
-                            <select id="category-filter" class="form-select">
+                            <select id="category-filter" name="category" class="form-select">
                                 <option value="">All Categories</option>
-                                <option value="electronics">Electronics</option>
-                                <option value="clothing">Clothing</option>
-                                <option value="accessories">Accessories</option>
-                                <option value="home">Home & Kitchen</option>
+                                <?php while ($category = mysqli_fetch_assoc($categories_result)): ?>
+                                <option value="<?php echo $category['id']; ?>" <?php echo isset($_GET['category']) && $_GET['category'] == $category['id'] ? 'selected' : ''; ?>>
+                                    <?php echo $category['name']; ?>
+                                </option>
+                                <?php endwhile; ?>
                             </select>
                         </div>
                         <div class="product-filter-item">
                             <label for="stock-filter" class="form-label">Stock Status</label>
-                            <select id="stock-filter" class="form-select">
+                            <select id="stock-filter" name="stock_status" class="form-select">
                                 <option value="">All</option>
-                                <option value="in-stock">In Stock</option>
-                                <option value="low-stock">Low Stock</option>
-                                <option value="out-of-stock">Out of Stock</option>
+                                <option value="in-stock" <?php echo isset($_GET['stock_status']) && $_GET['stock_status'] == 'in-stock' ? 'selected' : ''; ?>>In Stock</option>
+                                <option value="low-stock" <?php echo isset($_GET['stock_status']) && $_GET['stock_status'] == 'low-stock' ? 'selected' : ''; ?>>Low Stock</option>
+                                <option value="out-of-stock" <?php echo isset($_GET['stock_status']) && $_GET['stock_status'] == 'out-of-stock' ? 'selected' : ''; ?>>Out of Stock</option>
                             </select>
                         </div>
                         <div class="product-filter-item">
                             <label for="price-filter" class="form-label">Price Range</label>
                             <div class="d-flex gap-2">
-                                <input type="number" id="price-min" class="form-control" placeholder="Min">
-                                <input type="number" id="price-max" class="form-control" placeholder="Max">
+                                <input type="number" id="price-min" name="price_min" class="form-control" placeholder="Min" value="<?php echo isset($_GET['price_min']) ? $_GET['price_min'] : ''; ?>">
+                                <input type="number" id="price-max" name="price_max" class="form-control" placeholder="Max" value="<?php echo isset($_GET['price_max']) ? $_GET['price_max'] : ''; ?>">
                             </div>
                         </div>
                         <div class="product-filter-item" style="align-self: flex-end;">
-                            <button class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter"></i> Filter
                             </button>
+                            <a href="products.php" class="btn btn-light">Reset</a>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
             <div class="card">
@@ -861,17 +156,17 @@ $result = mysqli_query($conn, $query);
                             <i class="fas fa-search"></i>
                         </div>
                         <div class="btn-group">
-                            <button class="btn btn-light active">
+                            <button class="btn btn-light active" id="list-view-btn">
                                 <i class="fas fa-list"></i>
                             </button>
-                            <button class="btn btn-light">
+                            <button class="btn btn-light" id="grid-view-btn">
                                 <i class="fas fa-th-large"></i>
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive" id="list-view">
                         <table class="table product-table">
                             <thead>
                                 <tr>
@@ -885,39 +180,31 @@ $result = mysqli_query($conn, $query);
                             </thead>
                             <tbody>
                                 <?php 
-                                // If no products yet, show sample data
-                                if (mysqli_num_rows($result) == 0) {
-                                    $sampleProducts = [
-                                        ['product_id' => '101', 'product_name' => 'Smartphone X', 'product_sku' => 'PHN-001', 'category' => 'Electronics', 'price' => '799.99', 'stock' => '25', 'status' => 'Active'],
-                                        ['product_id' => '102', 'product_name' => 'Laptop Pro', 'product_sku' => 'LPT-002', 'category' => 'Electronics', 'price' => '1299.99', 'stock' => '10', 'status' => 'Active'],
-                                        ['product_id' => '103', 'product_name' => 'Wireless Headphones', 'product_sku' => 'AUD-003', 'category' => 'Accessories', 'price' => '149.99', 'stock' => '50', 'status' => 'Active'],
-                                        ['product_id' => '104', 'product_name' => 'Smart Watch', 'product_sku' => 'WCH-004', 'category' => 'Wearables', 'price' => '249.99', 'stock' => '15', 'status' => 'Active'],
-                                        ['product_id' => '105', 'product_name' => 'Bluetooth Speaker', 'product_sku' => 'AUD-005', 'category' => 'Audio', 'price' => '89.99', 'stock' => '0', 'status' => 'Out of Stock'],
-                                    ];
-                                    
-                                    foreach ($sampleProducts as $product) {
-                                        $stockClass = $product['stock'] > 20 ? 'in-stock' : ($product['stock'] > 0 ? 'low-stock' : 'out-of-stock');
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($product = mysqli_fetch_assoc($result)) {
+                                        $stockClass = $product['stock'] > 10 ? 'in-stock' : ($product['stock'] > 0 ? 'low-stock' : 'out-of-stock');
+                                        $status = $product['stock'] > 0 ? 'Active' : 'Out of Stock';
                                         
                                         echo '<tr>';
                                         echo '<td>
                                             <div class="product-info">
-                                                <img src="https://via.placeholder.com/40" alt="Product" class="product-image-small">
+                                                <img src="' . $product['image'] . '" alt="Product" class="product-image-small">
                                                 <div>
-                                                    <div class="product-name">' . $product['product_name'] . '</div>
-                                                    <div class="product-sku">' . $product['product_sku'] . '</div>
+                                                    <div class="product-name">' . $product['name'] . '</div>
+                                                    <div class="product-sku">ID: ' . $product['id'] . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td><span class="product-category-badge">' . $product['category'] . '</span></td>';
-                                        echo '<td class="product-price">$' . $product['price'] . '</td>';
+                                        echo '<td><span class="product-category-badge">' . $product['category_name'] . '</span></td>';
+                                        echo '<td class="product-price">$' . number_format($product['price'], 2) . '</td>';
                                         echo '<td class="product-stock-qty ' . $stockClass . '">' . $product['stock'] . '</td>';
-                                        echo '<td><span class="badge status-badge">' . $product['status'] . '</span></td>';
+                                        echo '<td><span class="badge status-badge">' . $status . '</span></td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="edit-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-product.php?id=' . $product['id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-product.php?id=' . $product['id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -925,55 +212,66 @@ $result = mysqli_query($conn, $query);
                                         echo '</tr>';
                                     }
                                 } else {
-                                    while ($product = mysqli_fetch_assoc($result)) {
-                                        $stockClass = $product['stock'] > 20 ? 'in-stock' : ($product['stock'] > 0 ? 'low-stock' : 'out-of-stock');
-                                        
-                                        echo '<tr>';
-                                        echo '<td>
-                                            <div class="product-info">
-                                                <img src="' . ($product['image'] ?? 'https://via.placeholder.com/40') . '" alt="Product" class="product-image-small">
-                                                <div>
-                                                    <div class="product-name">' . $product['product_name'] . '</div>
-                                                    <div class="product-sku">' . $product['product_sku'] . '</div>
-                                                </div>
-                                            </div>
-                                        </td>';
-                                        echo '<td><span class="product-category-badge">' . $product['category'] . '</span></td>';
-                                        echo '<td class="product-price">$' . $product['price'] . '</td>';
-                                        echo '<td class="product-stock-qty ' . $stockClass . '">' . $product['stock'] . '</td>';
-                                        echo '<td><span class="badge status-badge">' . ($product['stock'] > 0 ? 'Active' : 'Out of Stock') . '</span></td>';
-                                        echo '<td>
-                                            <div class="btn-group">
-                                                <a href="edit-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="delete-product.php?id=' . $product['product_id'] . '" class="btn btn-sm btn-danger delete-btn">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
-                                        </td>';
-                                        echo '</tr>';
-                                    }
+                                    echo '<tr><td colspan="6" class="text-center">No products found</td></tr>';
                                 }
                                 ?>
                             </tbody>
                         </table>
                     </div>
+                    
+                    <div id="grid-view" style="display: none;">
+                        <div class="row">
+                            <?php
+                            // Reset the result set pointer
+                            mysqli_data_seek($result, 0);
+                            
+                            if (mysqli_num_rows($result) > 0) {
+                                while ($product = mysqli_fetch_assoc($result)) {
+                                    $stockClass = $product['stock'] > 10 ? 'in-stock' : ($product['stock'] > 0 ? 'low-stock' : 'out-of-stock');
+                                    $status = $product['stock'] > 0 ? 'Active' : 'Out of Stock';
+                                    
+                                    echo '<div class="col-md-4 col-lg-3 mb-4">
+                                        <div class="card product-card">
+                                            <img src="' . $product['image'] . '" class="card-img-top" alt="' . $product['name'] . '">
+                                            <div class="card-body">
+                                                <h5 class="card-title">' . $product['name'] . '</h5>
+                                                <p class="card-text product-category-badge">' . $product['category_name'] . '</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="product-price">$' . number_format($product['price'], 2) . '</span>
+                                                    <span class="product-stock-qty ' . $stockClass . '">' . $product['stock'] . ' in stock</span>
+                                                </div>
+                                                <div class="btn-group mt-3 w-100">
+                                                    <a href="edit-product.php?id=' . $product['id'] . '" class="btn btn-sm btn-warning">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a href="delete-product.php?id=' . $product['id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>';
+                                }
+                            } else {
+                                echo '<div class="col-12 text-center">No products found</div>';
+                            }
+                            ?>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>Showing 1 to 5 of 5 entries</div>
-                        <ul class="pagination">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item active">
-                                <a class="page-link" href="#">1</a>
-                            </li>
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
+                        <div>Showing <?php echo $start + 1; ?> to <?php echo min($start + mysqli_num_rows($result), $total_records); ?> of <?php echo $total_records; ?> entries</div>
+                        <?php
+                        // Build URL parameters for pagination
+                        $url_params = '';
+                        if (isset($_GET['category'])) $url_params .= '&category=' . $_GET['category'];
+                        if (isset($_GET['stock_status'])) $url_params .= '&stock_status=' . $_GET['stock_status'];
+                        if (isset($_GET['price_min'])) $url_params .= '&price_min=' . $_GET['price_min'];
+                        if (isset($_GET['price_max'])) $url_params .= '&price_max=' . $_GET['price_max'];
+                        
+                        echo generatePagination($page, $total_pages, $url_params);
+                        ?>
                     </div>
                 </div>
             </div>
@@ -1061,15 +359,24 @@ $result = mysqli_query($conn, $query);
             }
             
             // Toggle view (list/grid)
-            const viewButtons = document.querySelectorAll('.btn-group .btn');
-            if (viewButtons.length) {
-                viewButtons.forEach((button, index) => {
-                    button.addEventListener('click', function() {
-                        viewButtons.forEach(btn => btn.classList.remove('active'));
-                        this.classList.add('active');
-                    });
-                });
-            }
+            const listViewBtn = document.getElementById('list-view-btn');
+            const gridViewBtn = document.getElementById('grid-view-btn');
+            const listView = document.getElementById('list-view');
+            const gridView = document.getElementById('grid-view');
+            
+            listViewBtn.addEventListener('click', function() {
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+                listView.style.display = 'block';
+                gridView.style.display = 'none';
+            });
+            
+            gridViewBtn.addEventListener('click', function() {
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+                gridView.style.display = 'block';
+                listView.style.display = 'none';
+            });
         });
     </script>
 </body>

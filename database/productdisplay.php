@@ -113,7 +113,7 @@ if (isset($_GET['ajax'])) {
             } else {
                 echo '<button class="out-of-stock-btn" disabled><i class="fas fa-times-circle"></i> Out of Stock</button>';
             }
-            echo '<button class="quick-view-btn" onclick="quickView(' . intval($row['id']) . ')"><i class="fas fa-eye"></i></button>';
+            // echo '<button class="quick-view-btn" onclick="quickView(' . intval($row['id']) . ')"><i class="fas fa-eye"></i></button>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -152,7 +152,7 @@ if (isset($_GET['logout'])) {
     <header class="header">
         <nav class="navbar">
         <a href="productdisplay.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
-    <img src="assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
+    <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
     Comtech
 </a>
 
@@ -284,16 +284,6 @@ if (isset($_GET['logout'])) {
                 }
             });
         }
-
-        // Quick view functionality
-        function quickView(productId) {
-            // This would typically open a modal with product details
-            // For now, we'll just log to console
-            console.log(`Quick view for product ID: ${productId}`);
-            // You could implement a fetch request to get detailed product info
-            // and display it in a modal
-        }
-
         // Show notification
         function showNotification() {
             const notification = document.getElementById('notification');

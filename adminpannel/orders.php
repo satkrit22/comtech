@@ -1,7 +1,16 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'includes/functions.php';
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "comtech";
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+// Check connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -13,8 +22,61 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
-// Sample logic to fetch orders from the database
-$query = "SELECT * FROM orders ORDER BY created_at DESC";
+// Handle order status updates
+if (isset($_POST['update_status']) && isset($_POST['order_id']) && isset($_POST['status'])) {
+    $order_id = $_POST['order_id'];
+    $status = $_POST['status'];
+    
+    $update_query = "UPDATE orders SET status = '$status' WHERE id = $order_id";
+    if (mysqli_query($conn, $update_query)) {
+        $status_message = "Order status updated successfully.";
+    } else {
+        $error_message = "Error updating order status: " . mysqli_error($conn);
+    }
+}
+
+// Pagination
+$limit = 10; // Number of records per page
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$start = ($page - 1) * $limit;
+
+// Build the query
+$where = "1=1"; // Default condition that's always true
+
+// Apply filters if set
+if (isset($_GET['status']) && !empty($_GET['status'])) {
+    $status = mysqli_real_escape_string($conn, $_GET['status']);
+    $where .= " AND status = '$status'";
+}
+
+if (isset($_GET['date_range']) && !empty($_GET['date_range'])) {
+    $date_range = explode(' - ', $_GET['date_range']);
+    if (count($date_range) == 2) {
+        $start_date = mysqli_real_escape_string($conn, $date_range[0]);
+        $end_date = mysqli_real_escape_string($conn, $date_range[1]);
+        $where .= " AND DATE(created_at) BETWEEN '$start_date' AND '$end_date'";
+    }
+}
+
+if (isset($_GET['customer']) && !empty($_GET['customer'])) {
+    $customer = mysqli_real_escape_string($conn, $_GET['customer']);
+    $where .= " AND (name LIKE '%$customer%' OR email LIKE '%$customer%')";
+}
+
+// Count total records for pagination
+$count_query = "SELECT COUNT(*) as total FROM orders WHERE $where";
+$count_result = mysqli_query($conn, $count_query);
+$count_row = mysqli_fetch_assoc($count_result);
+$total_records = $count_row['total'];
+$total_pages = ceil($total_records / $limit);
+
+// Get orders with pagination
+$query = "SELECT o.*, u.Name as customer_name, u.Email as customer_email 
+          FROM orders o 
+          LEFT JOIN users u ON o.user_id = u.id 
+          WHERE $where 
+          ORDER BY o.created_at DESC 
+          LIMIT $start, $limit";
 $result = mysqli_query($conn, $query);
 ?>
 
@@ -26,800 +88,7 @@ $result = mysqli_query($conn, $query);
     <title>Orders | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Core Admin Dashboard Styles */
-        :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #6c757d;
-            --success: #2ecc71;
-            --info: #3498db;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --body-bg: #f5f7fb;
-            --card-bg: #ffffff;
-            --border-color: #e9ecef;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --text-muted: #adb5bd;
-            --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
-            --shadow: 0 .5rem 1rem rgba(0,0,0,.15);
-            --card-border-radius: 8px;
-            --btn-border-radius: 4px;
-            --input-border-radius: 4px;
-            --sidebar-width: 250px;
-            --sidebar-collapsed-width: 70px;
-            --sidebar-bg: #1e1e2d;
-            --sidebar-color: #a2a3b7;
-            --sidebar-hover-bg: #282839;
-            --sidebar-active-bg: #282839;
-            --sidebar-active-color: #ffffff;
-            --topnav-height: 60px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: var(--body-bg);
-            color: var(--text-primary);
-            line-height: 1.5;
-            font-size: 14px;
-        }
-
-        a {
-            text-decoration: none;
-            color: var(--primary);
-        }
-
-        a:hover {
-            color: var(--primary-dark);
-        }
-
-        /* Layout */
-        .admin-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            margin-left: var(--sidebar-width);
-            transition: margin-left 0.3s ease;
-        }
-
-        .sidebar-collapsed .main-content {
-            margin-left: var(--sidebar-collapsed-width);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            color: var(--sidebar-color);
-            z-index: 1000;
-            transition: width 0.3s ease;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .sidebar-collapsed .sidebar {
-            width: var(--sidebar-collapsed-width);
-        }
-
-        .sidebar-header {
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .logo a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .logo h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0;
-            white-space: nowrap;
-        }
-
-        .logo span {
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-
-        .sidebar-toggle {
-            background: transparent;
-            border: none;
-            color: var(--sidebar-color);
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
-        }
-
-        .sidebar-toggle:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-menu {
-            padding: 15px 0;
-        }
-
-        .sidebar-menu ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 5px;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            color: var(--sidebar-color);
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .sidebar-menu a:hover {
-            background-color: var(--sidebar-hover-bg);
-            color: white;
-        }
-
-        .sidebar-menu li.active a {
-            background-color: var(--sidebar-active-bg);
-            color: var(--sidebar-active-color);
-            border-left: 3px solid var(--primary);
-        }
-
-        .sidebar-menu i {
-            margin-right: 10px;
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-collapsed .sidebar-menu span {
-            display: none;
-        }
-
-        /* Top Navigation */
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: var(--topnav-height);
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .top-nav-left, .top-nav-right {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-container {
-            position: relative;
-            width: 300px;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 8px 15px 8px 35px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--input-border-radius);
-            background-color: var(--light);
-        }
-
-        .search-container i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .nav-item {
-            position: relative;
-            margin-left: 15px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background-color: var(--light);
-            color: var(--primary);
-        }
-
-        .badge-counter {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: var(--danger);
-            color: white;
-            font-size: 0.7rem;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .admin-profile {
-            position: relative;
-        }
-
-        .profile-btn {
-            display: flex;
-            align-items: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: var(--btn-border-radius);
-            transition: all 0.3s ease;
-        }
-
-        .profile-btn:hover {
-            background-color: var(--light);
-        }
-
-        .profile-btn span {
-            margin-right: 8px;
-            font-weight: 500;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: var(--card-bg);
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow);
-            min-width: 180px;
-            z-index: 1000;
-            display: none;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--light);
-            color: var(--primary);
-        }
-
-        .dropdown-item i {
-            margin-right: 10px;
-            font-size: 1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background-color: var(--border-color);
-            margin: 5px 0;
-        }
-
-        /* Page Header */
-        .page-header {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .breadcrumb {
-            display: flex;
-            list-style: none;
-            margin-top: 5px;
-        }
-
-        .breadcrumb-item {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-
-        .breadcrumb-item:not(:last-child)::after {
-            content: '/';
-            margin: 0 5px;
-            color: var(--text-muted);
-        }
-
-        .breadcrumb-item.active {
-            color: var(--primary);
-        }
-
-        /* Cards */
-        .card {
-            background-color: var(--card-bg);
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: rgba(0, 0, 0, 0.01);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-title {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .card-tools {
-            display: flex;
-            gap: 10px;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .card-footer {
-            padding: 15px 20px;
-            border-top: 1px solid var(--border-color);
-            background-color: rgba(0, 0, 0, 0.01);
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border-radius: var(--btn-border-radius);
-            font-weight: 500;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            color: white;
-        }
-
-        .btn-info {
-            background-color: var(--info);
-            color: white;
-        }
-
-        .btn-info:hover {
-            background-color: #2980b9;
-            color: white;
-        }
-
-        .btn-warning {
-            background-color: var(--warning);
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background-color: #e67e22;
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-            color: white;
-        }
-
-        .btn-light {
-            background-color: var(--light);
-            color: var(--text-primary);
-            border-color: var(--border-color);
-        }
-
-        .btn-light:hover {
-            background-color: #e2e6ea;
-            color: var(--text-primary);
-        }
-
-        .btn i {
-            margin-right: 5px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 5px;
-        }
-
-        /* Forms */
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--input-border-radius);
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            transition: border-color 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--input-border-radius);
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            transition: border-color 0.3s ease;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-        }
-
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* Tables */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 0;
-        }
-
-        .table th,
-        .table td {
-            padding: 12px 15px;
-            vertical-align: middle;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .table th {
-            font-weight: 600;
-            color: var(--text-primary);
-            background-color: rgba(0, 0, 0, 0.02);
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .table tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.01);
-        }
-
-        /* Search */
-        .table-search {
-            position: relative;
-            width: 250px;
-        }
-
-        .table-search-input {
-            padding-left: 35px;
-        }
-
-        .table-search i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .page-item {
-            margin: 0 2px;
-        }
-
-        .page-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 32px;
-            min-width: 32px;
-            padding: 0 10px;
-            border-radius: var(--btn-border-radius);
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-
-        .page-link:hover {
-            background-color: var(--light);
-            color: var(--primary);
-            border-color: var(--border-color);
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .page-item.disabled .page-link {
-            color: var(--text-muted);
-            pointer-events: none;
-            background-color: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        /* Utilities */
-        .d-flex {
-            display: flex;
-        }
-
-        .align-items-center {
-            align-items: center;
-        }
-
-        .justify-content-between {
-            justify-content: space-between;
-        }
-
-        .gap-2 {
-            gap: 10px;
-        }
-
-        .mb-4 {
-            margin-bottom: 20px;
-        }
-
-        .mt-4 {
-            margin-top: 20px;
-        }
-
-        /* Order Specific Styles */
-        .order-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .order-filter-item {
-            min-width: 150px;
-        }
-
-        .customer-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .customer-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-
-        .customer-name {
-            font-weight: 500;
-        }
-
-        .customer-email {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        .order-id {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .order-date {
-            color: var(--text-secondary);
-        }
-
-        .order-total {
-            font-weight: 600;
-        }
-
-        .order-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .order-status i {
-            font-size: 8px;
-            margin-right: 5px;
-        }
-
-        .order-status.pending {
-            background-color: rgba(243, 156, 18, 0.1);
-            color: var(--warning);
-        }
-
-        .order-status.processing {
-            background-color: rgba(52, 152, 219, 0.1);
-            color: var(--info);
-        }
-
-        .order-status.shipped {
-            background-color: rgba(155, 89, 182, 0.1);
-            color: #9b59b6;
-        }
-
-        .order-status.completed {
-            background-color: rgba(46, 204, 113, 0.1);
-            color: var(--success);
-        }
-
-        .order-status.cancelled {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: var(--danger);
-        }
-
-        /* Date Range Picker */
-        .date-range-picker {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 35px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-            
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .card-tools {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            
-            .table-search {
-                width: 100%;
-            }
-            
-            .order-filters {
-                flex-direction: column;
-            }
-            
-            .order-filter-item {
-                width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="orders.css">
 </head>
 <body>
     <div class="admin-container">
@@ -847,35 +116,47 @@ $result = mysqli_query($conn, $query);
                 </div>
             </div>
 
+            <?php if (isset($status_message)): ?>
+            <div class="alert alert-success">
+                <?php echo $status_message; ?>
+            </div>
+            <?php endif; ?>
+
+            <?php if (isset($error_message)): ?>
+            <div class="alert alert-danger">
+                <?php echo $error_message; ?>
+            </div>
+            <?php endif; ?>
+
             <!-- Order Filters -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <div class="order-filters">
+                    <form action="" method="GET" class="order-filters">
                         <div class="order-filter-item">
                             <label for="status-filter" class="form-label">Status</label>
-                            <select id="status-filter" class="form-select">
+                            <select id="status-filter" name="status" class="form-select">
                                 <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="pending" <?php echo (isset($_GET['status']) && $_GET['status'] == 'pending') ? 'selected' : ''; ?>>Pending</option>
+                                <option value="processing" <?php echo (isset($_GET['status']) && $_GET['status'] == 'processing') ? 'selected' : ''; ?>>Processing</option>
+                                <option value="completed" <?php echo (isset($_GET['status']) && $_GET['status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
+                                <option value="cancelled" <?php echo (isset($_GET['status']) && $_GET['status'] == 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
                             </select>
                         </div>
                         <div class="order-filter-item">
                             <label for="date-filter" class="form-label">Date Range</label>
-                            <input type="text" id="date-filter" class="form-control date-range-picker" placeholder="Select date range">
+                            <input type="text" id="date-filter" name="date_range" class="form-control date-range-picker" placeholder="Select date range" value="<?php echo isset($_GET['date_range']) ? $_GET['date_range'] : ''; ?>">
                         </div>
                         <div class="order-filter-item">
                             <label for="customer-filter" class="form-label">Customer</label>
-                            <input type="text" id="customer-filter" class="form-control" placeholder="Search customer">
+                            <input type="text" id="customer-filter" name="customer" class="form-control" placeholder="Search customer" value="<?php echo isset($_GET['customer']) ? $_GET['customer'] : ''; ?>">
                         </div>
                         <div class="order-filter-item" style="align-self: flex-end;">
-                            <button class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter"></i> Filter
                             </button>
+                            <a href="orders.php" class="btn btn-light">Reset</a>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
 
@@ -888,7 +169,7 @@ $result = mysqli_query($conn, $query);
                             <input type="text" class="form-control table-search-input" placeholder="Search orders...">
                             <i class="fas fa-search"></i>
                         </div>
-                        <button class="btn btn-light">
+                        <button class="btn btn-light" id="export-btn">
                             <i class="fas fa-download"></i> Export
                         </button>
                     </div>
@@ -908,40 +189,38 @@ $result = mysqli_query($conn, $query);
                             </thead>
                             <tbody>
                                 <?php 
-                                // If no orders yet, show sample data
-                                if (mysqli_num_rows($result) == 0) {
-                                    $sampleOrders = [
-                                        ['order_id' => 'ORD-1001', 'customer_name' => 'John Doe', 'customer_email' => 'john@example.com', 'date' => '2023-05-15', 'status' => 'Completed', 'total' => '129.99'],
-                                        ['order_id' => 'ORD-1002', 'customer_name' => 'Jane Smith', 'customer_email' => 'jane@example.com', 'date' => '2023-05-14', 'status' => 'Processing', 'total' => '89.50'],
-                                        ['order_id' => 'ORD-1003', 'customer_name' => 'Robert Johnson', 'customer_email' => 'robert@example.com', 'date' => '2023-05-13', 'status' => 'Pending', 'total' => '210.75'],
-                                        ['order_id' => 'ORD-1004', 'customer_name' => 'Emily Davis', 'customer_email' => 'emily@example.com', 'date' => '2023-05-12', 'status' => 'Cancelled', 'total' => '45.00'],
-                                        ['order_id' => 'ORD-1005', 'customer_name' => 'Michael Wilson', 'customer_email' => 'michael@example.com', 'date' => '2023-05-11', 'status' => 'Shipped', 'total' => '175.25'],
-                                    ];
-                                    
-                                    foreach ($sampleOrders as $order) {
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($order = mysqli_fetch_assoc($result)) {
+                                        // Format date
+                                        $date = date('Y-m-d', strtotime($order['created_at']));
+                                        
+                                        // Get customer name and email
+                                        $customer_name = !empty($order['customer_name']) ? $order['customer_name'] : $order['name'];
+                                        $customer_email = !empty($order['customer_email']) ? $order['customer_email'] : $order['email'];
+                                        
                                         echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
+                                        echo '<td class="order-id">' . $order['id'] . '</td>';
                                         echo '<td>
                                             <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
+                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($customer_name) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
                                                 <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
+                                                    <div class="customer-name">' . $customer_name . '</div>
+                                                    <div class="customer-email">' . $customer_email . '</div>
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
+                                        echo '<td class="order-date">' . $date . '</td>';
+                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . ucfirst($order['status']) . '</span></td>';
+                                        echo '<td class="order-total">$' . number_format($order['total_price'], 2) . '</td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
+                                                <a href="order-details.php?id=' . $order['id'] . '" class="btn btn-sm btn-info">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-order.php?id=' . $order['id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-order.php?id=' . $order['id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -949,36 +228,8 @@ $result = mysqli_query($conn, $query);
                                         echo '</tr>';
                                     }
                                 } else {
-                                    while ($order = mysqli_fetch_assoc($result)) {
-                                        echo '<tr>';
-                                        echo '<td class="order-id">' . $order['order_id'] . '</td>';
-                                        echo '<td>
-                                            <div class="customer-info">
-                                                <img src="https://ui-avatars.com/api/?name=' . urlencode($order['customer_name']) . '&background=4361ee&color=fff" alt="Customer" class="customer-avatar">
-                                                <div>
-                                                    <div class="customer-name">' . $order['customer_name'] . '</div>
-                                                    <div class="customer-email">' . $order['customer_email'] . '</div>
-                                                </div>
-                                            </div>
-                                        </td>';
-                                        echo '<td class="order-date">' . $order['date'] . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . $order['status'] . '</span></td>';
-                                        echo '<td class="order-total">$' . $order['total'] . '</td>';
-                                        echo '<td>
-                                            <div class="btn-group">
-                                                <a href="order-details.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="edit-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="delete-order.php?id=' . $order['order_id'] . '" class="btn btn-sm btn-danger delete-btn">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
-                                        </td>';
-                                        echo '</tr>';
-                                    }
+                                    // If no orders found
+                                    echo '<tr><td colspan="6" class="text-center">No orders found</td></tr>';
                                 }
                                 ?>
                             </tbody>
@@ -987,22 +238,91 @@ $result = mysqli_query($conn, $query);
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>Showing 1 to 5 of 5 entries</div>
+                        <div>
+                            Showing <?php echo $start + 1; ?> to <?php echo min($start + mysqli_num_rows($result), $total_records); ?> of <?php echo $total_records; ?> entries
+                        </div>
                         <ul class="pagination">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $page - 1; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : ''; ?><?php echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : ''; ?>" tabindex="-1">Previous</a>
                             </li>
-                            <li class="page-item active">
-                                <a class="page-link" href="#">1</a>
-                            </li>
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">Next</a>
+                            
+                            <?php
+                            // Determine the range of page numbers to display
+                            $start_page = max(1, $page - 2);
+                            $end_page = min($total_pages, $page + 2);
+                            
+                            // Always show first page button
+                            if ($start_page > 1) {
+                                echo '<li class="page-item"><a class="page-link" href="?page=1';
+                                echo isset($_GET['status']) ? '&status=' . $_GET['status'] : '';
+                                echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : '';
+                                echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : '';
+                                echo '">1</a></li>';
+                                if ($start_page > 2) {
+                                    echo '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                                }
+                            }
+                            
+                            // Display the page numbers
+                            for ($i = $start_page; $i <= $end_page; $i++) {
+                                echo '<li class="page-item ' . (($page == $i) ? 'active' : '') . '"><a class="page-link" href="?page=' . $i;
+                                echo isset($_GET['status']) ? '&status=' . $_GET['status'] : '';
+                                echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : '';
+                                echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : '';
+                                echo '">' . $i . '</a></li>';
+                            }
+                            
+                            // Always show last page button
+                            if ($end_page < $total_pages) {
+                                if ($end_page < $total_pages - 1) {
+                                    echo '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                                }
+                                echo '<li class="page-item"><a class="page-link" href="?page=' . $total_pages;
+                                echo isset($_GET['status']) ? '&status=' . $_GET['status'] : '';
+                                echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : '';
+                                echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : '';
+                                echo '">' . $total_pages . '</a></li>';
+                            }
+                            ?>
+                            
+                            <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $page + 1; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : ''; ?><?php echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : ''; ?>">Next</a>
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Order Status Modal -->
+    <div class="modal" id="statusModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Order Status</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="order_id" id="order_id">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" name="update_status" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1082,6 +402,47 @@ $result = mysqli_query($conn, $query);
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function() {
                     document.querySelector('.sidebar').classList.toggle('show');
+                });
+            }
+            
+            // Status update modal
+            const statusButtons = document.querySelectorAll('.status-btn');
+            statusButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    const currentStatus = this.getAttribute('data-status');
+                    document.getElementById('order_id').value = orderId;
+                    document.getElementById('status').value = currentStatus;
+                    $('#statusModal').modal('show');
+                });
+            });
+            
+            // Export functionality
+            document.getElementById('export-btn').addEventListener('click', function() {
+                window.location.href = 'export-orders.php<?php 
+                    $params = [];
+                    if (isset($_GET['status'])) $params[] = 'status=' . $_GET['status'];
+                    if (isset($_GET['date_range'])) $params[] = 'date_range=' . $_GET['date_range'];
+                    if (isset($_GET['customer'])) $params[] = 'customer=' . $_GET['customer'];
+                    echo !empty($params) ? '?' . implode('&', $params) : '';
+                ?>';
+            });
+            
+            // Initialize date range picker if available
+            if (typeof daterangepicker !== 'undefined') {
+                $('.date-range-picker').daterangepicker({
+                    autoUpdateInput: false,
+                    locale: {
+                        cancelLabel: 'Clear'
+                    }
+                });
+                
+                $('.date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+                    $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                });
+                
+                $('.date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+                    $(this).val('');
                 });
             }
         });

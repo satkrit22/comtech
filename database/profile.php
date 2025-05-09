@@ -53,7 +53,7 @@ $stmt->close();
 <!-- Navbar -->
 <div class="navbar">
 <a href="productdisplay.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
-    <img src="assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
+    <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
     Comtech
 </a>
     <div class="navbar-nav">
