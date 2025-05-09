@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
-require_once 'functions.php';
+require_once '../includes/functions.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -145,7 +145,7 @@ $result = mysqli_query($conn, $query);
                         <i class="fas fa-cog"></i> Settings
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="/comtech/logout.php" class="dropdown-item">
+                    <a href="/comtech/adminpannel/logout.php" class="dropdown-item">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>

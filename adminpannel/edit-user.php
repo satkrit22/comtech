@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
-require_once 'includes/functions.php';
+require_once 'functions.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -79,19 +79,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Edit User | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/users.css">
+    <link rel="stylesheet" href="users.css">
 </head>
 <body>
     <div class="admin-container">
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'sidebar.php'; ?>
         <main class="main-content">
-            <?php include 'includes/topnav.php'; ?>
+            <?php include 'topnav.php'; ?>
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Edit User</h1>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="users.php">Users</a></li>
+                        <li class="breadcrumb-item"><a href="/comtech/adminpannel/users.php">Users</a></li>
                         <li class="breadcrumb-item active">Edit User</li>
                     </ul>
                 </div>

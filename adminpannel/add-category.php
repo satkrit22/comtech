@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
-require_once 'includes/functions.php';
+require_once 'functions.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -79,7 +79,7 @@ $icons = [
     <title>Add Category | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/categories.css">
+    <link rel="stylesheet" href="categories.css">
     <style>
         .icon-grid {
             display: grid;
@@ -127,10 +127,10 @@ $icons = [
 </head>
 <body>
     <div class="admin-container">
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'sidebar.php'; ?>
 
         <main class="main-content">
-            <?php include 'includes/topnav.php'; ?>
+            <?php include 'topnav.php'; ?>
 
             <div class="page-header">
                 <div>

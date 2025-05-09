@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
-require_once 'includes/functions.php';
+require_once 'functions.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle image upload
     $image = '';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-        $upload_dir = 'uploads/products/';
+        $upload_dir = 'comtech/assets/img/menu';
         
         // Create directory if it doesn't exist
         if (!file_exists($upload_dir)) {
@@ -79,10 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="admin-container">
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'sidebar.php'; ?>
 
         <main class="main-content">
-            <?php include 'includes/topnav.php'; ?>
+            <?php include 'topnav.php'; ?>
 
             <div class="page-header">
                 <div>

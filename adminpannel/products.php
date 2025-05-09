@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
-require_once 'includes/functions.php';
+require_once 'functions.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -81,10 +81,10 @@ $categories_result = mysqli_query($conn, $categories_query);
 </head>
 <body>
     <div class="admin-container">
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'sidebar.php'; ?>
 
         <main class="main-content">
-            <?php include 'includes/topnav.php'; ?>
+            <?php include 'topnav.php'; ?>
 
             <div class="page-header">
                 <div>

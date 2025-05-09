@@ -90,7 +90,7 @@
                         <div class="menu-icon"><i class="fas fa-cog"></i></div>
                         <div class="menu-text">General Settings</div>
                     </a>
-                    <a href="logout.php" class="menu-item">
+                    <a href="../adminlogout.php" class="menu-item">
                         <div class="menu-icon"><i class="fas fa-sign-out-alt"></i></div>
                         <div class="menu-text">Logout</div>
                     </a>

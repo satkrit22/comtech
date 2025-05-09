@@ -93,12 +93,12 @@ $result = mysqli_query($conn, $query);
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Navigation -->
-            <?php include 'includes/topnav.php'; ?>
+            <?php include 'topnav.php'; ?>
 
             <!-- Page Header -->
             <div class="page-header">
