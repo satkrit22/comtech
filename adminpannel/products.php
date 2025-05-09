@@ -78,6 +78,9 @@ $categories_result = mysqli_query($conn, $categories_query);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="product.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin.css">
+
 </head>
 <body>
     <div class="admin-container">
@@ -89,10 +92,7 @@ $categories_result = mysqli_query($conn, $categories_query);
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Products</h1>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Products</li>
-                    </ul>
+                   
                 </div>
                 <div class="page-actions">
                     <a href="add-product.php" class="btn btn-primary">
@@ -152,15 +152,13 @@ $categories_result = mysqli_query($conn, $categories_query);
                     <h2 class="card-title">All Products</h2>
                     <div class="card-tools">
                         <div class="table-search">
+                            
                             <input type="text" class="form-control table-search-input" placeholder="Search products...">
-                            <i class="fas fa-search"></i>
+                            
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-light active" id="list-view-btn">
                                 <i class="fas fa-list"></i>
-                            </button>
-                            <button class="btn btn-light" id="grid-view-btn">
-                                <i class="fas fa-th-large"></i>
                             </button>
                         </div>
                     </div>
@@ -188,7 +186,7 @@ $categories_result = mysqli_query($conn, $categories_query);
                                         echo '<tr>';
                                         echo '<td>
                                             <div class="product-info">
-                                                <img src="' . $product['image'] . '" alt="Product" class="product-image-small">
+                                                <img src="/comtech/assets/img/menu/' . $product['image'] . '" alt="Product" class="product-image-small">
                                                 <div>
                                                     <div class="product-name">' . $product['name'] . '</div>
                                                     <div class="product-sku">ID: ' . $product['id'] . '</div>
@@ -196,7 +194,7 @@ $categories_result = mysqli_query($conn, $categories_query);
                                             </div>
                                         </td>';
                                         echo '<td><span class="product-category-badge">' . $product['category_name'] . '</span></td>';
-                                        echo '<td class="product-price">$' . number_format($product['price'], 2) . '</td>';
+                                        echo '<td class="product-price">NPR.' . number_format($product['price'], 2) . '</td>';
                                         echo '<td class="product-stock-qty ' . $stockClass . '">' . $product['stock'] . '</td>';
                                         echo '<td><span class="badge status-badge">' . $status . '</span></td>';
                                         echo '<td>

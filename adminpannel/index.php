@@ -97,6 +97,8 @@ $top_products_result = mysqli_query($conn, $top_products_query);
     <title>Dashboard | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/comtech/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin.css">
     <style>
         /* Core Admin Dashboard Styles */
         :root {
@@ -338,9 +340,6 @@ $top_products_result = mysqli_query($conn, $top_products_query);
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Dashboard</h1>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ul>
                 </div>
             </div>
 
@@ -350,7 +349,7 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value"><?php echo $stats['total_users']; ?></div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['total_users']; ?></div>
                         <div class="stat-label">Total Users</div>
                     </div>
                 </div>
@@ -360,7 +359,7 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                         <i class="fas fa-box"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value"><?php echo $stats['total_products']; ?></div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['total_products']; ?></div>
                         <div class="stat-label">Total Products</div>
                     </div>
                 </div>
@@ -370,7 +369,7 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                         <i class="fas fa-tags"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value"><?php echo $stats['total_categories']; ?></div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['total_categories']; ?></div>
                         <div class="stat-label">Categories</div>
                     </div>
                 </div>
@@ -380,7 +379,7 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                         <i class="fas fa-shopping-cart"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value"><?php echo $stats['total_orders']; ?></div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['total_orders']; ?></div>
                         <div class="stat-label">Total Orders</div>
                     </div>
                 </div>
@@ -390,7 +389,7 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value">$<?php echo number_format($stats['total_revenue'], 2); ?></div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); ">NPR.<?php echo number_format($stats['total_revenue'], 2); ?></div>
                         <div class="stat-label">Total Revenue</div>
                     </div>
                 </div>
@@ -400,7 +399,7 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value"><?php echo $stats['pending_orders']; ?></div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['pending_orders']; ?></div>
                         <div class="stat-label">Pending Orders</div>
                     </div>
                 </div>
@@ -449,7 +448,7 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                                             echo '<tr>';
                                             echo '<td>#' . $order['id'] . '</td>';
                                             echo '<td>' . $order['name'] . '</td>';
-                                            echo '<td>$' . number_format($order['total_price'], 2) . '</td>';
+                                            echo '<td>NPR.' . number_format($order['total_price'], 2) . '</td>';
                                             echo '<td><span class="order-status ' . $status_class . '">' . ucfirst($order['status']) . '</span></td>';
                                             echo '<td>' . date('M d, Y', strtotime($order['created_at'])) . '</td>';
                                             echo '</tr>';
@@ -488,14 +487,14 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                                             echo '<tr>';
                                             echo '<td>
                                                 <div class="product-info">
-                                                    <img src="' . (!empty($product['image']) ? $product['image'] : 'https://via.placeholder.com/40') . '" alt="Product" class="product-image-tiny">
+                                                    <img src="/comtech/assets/img/menu/' . (!empty($product['image']) ? $product['image'] : 'https://via.placeholder.com/40') . '" alt="Product" class="product-image-tiny">
                                                     <div>
                                                         <div class="product-name">' . $product['name'] . '</div>
                                                         <div class="product-price">ID: ' . $product['id'] . '</div>
                                                     </div>
                                                 </div>
                                             </td>';
-                                            echo '<td>$' . number_format($product['price'], 2) . '</td>';
+                                            echo '<td>NPR.' . number_format($product['price'], 2) . '</td>';
                                             echo '<td class="order-count">' . $product['order_count'] . '</td>';
                                             echo '</tr>';
                                         }
