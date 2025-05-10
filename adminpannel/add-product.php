@@ -75,7 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Add Product | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/products.css">
+    <link rel="stylesheet" href="product.css">
+    
+    <link rel="stylesheet" href="/comtech/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin.css">
 </head>
 <body>
     <div class="admin-container">
@@ -87,11 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Add Product</h1>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="products.php">Products</a></li>
-                        <li class="breadcrumb-item active">Add Product</li>
-                    </ul>
+                    
                 </div>
                 <div class="page-actions">
                     <a href="products.php" class="btn btn-light">

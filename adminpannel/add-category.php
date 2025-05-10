@@ -15,9 +15,6 @@ $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = sanitize($_POST['name']);
-    $description = sanitize($_POST['description']);
-    $icon = sanitize($_POST['icon']);
-    $status = sanitize($_POST['status']);
     
     // Check if category name already exists
     $check_query = "SELECT id FROM categories WHERE name = '$name'";
@@ -30,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     } else {
         // Insert new category
-        $query = "INSERT INTO categories (name, description, icon, status) VALUES ('$name', '$description', '$icon', '$status')";
+        $query = "INSERT INTO categories (name) VALUES ('$name')";
         
         if (mysqli_query($conn, $query)) {
             $_SESSION['alert'] = [
@@ -56,20 +53,7 @@ $icons = [
     'fas fa-tv' => 'TV',
     'fas fa-camera' => 'Camera',
     'fas fa-gamepad' => 'Gaming',
-    'fas fa-tshirt' => 'Clothing',
-    'fas fa-shoe-prints' => 'Footwear',
-    'fas fa-gem' => 'Jewelry',
-    'fas fa-home' => 'Home',
-    'fas fa-couch' => 'Furniture',
-    'fas fa-utensils' => 'Kitchen',
-    'fas fa-book' => 'Books',
-    'fas fa-dumbbell' => 'Sports',
-    'fas fa-baby' => 'Baby',
-    'fas fa-car' => 'Automotive',
-    'fas fa-tools' => 'Tools',
-    'fas fa-paint-brush' => 'Art',
-    'fas fa-briefcase' => 'Office',
-    'fas fa-gift' => 'Gifts'
+    'fas fa-briefcase' => 'Office'
 ];
 ?>
 <html lang="en">
@@ -80,6 +64,8 @@ $icons = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="categories.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin.css">
     <style>
         .icon-grid {
             display: grid;
@@ -135,11 +121,7 @@ $icons = [
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Add Category</h1>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="categories.php">Categories</a></li>
-                        <li class="breadcrumb-item active">Add Category</li>
-                    </ul>
+                    
                 </div>
                 <div class="page-actions">
                     <a href="categories.php" class="btn btn-light">
@@ -169,15 +151,9 @@ $icons = [
                                 </div>
                                 
                                 <div class="form-group mb-4">
-                                    <label for="description" class="form-label">Description</label>
-                                    <textarea id="description" name="description" class="form-control" rows="4"></textarea>
-                                </div>
-                                
-                                <div class="form-group mb-4">
                                     <label for="status" class="form-label">Status</label>
                                     <select id="status" name="status" class="form-select">
                                         <option value="Active">Active</option>
-                                        <option value="Inactive">Inactive</option>
                                     </select>
                                 </div>
                             </div>

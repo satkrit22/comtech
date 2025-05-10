@@ -87,7 +87,7 @@ $categories_result = mysqli_query($conn, $categories_query);
         <?php include 'sidebar.php'; ?>
 
         <main class="main-content">
-            <?php include 'topnav.php'; ?>
+            
 
             <div class="page-header">
                 <div>

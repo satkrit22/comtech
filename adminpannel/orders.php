@@ -97,23 +97,14 @@ $result = mysqli_query($conn, $query);
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Navigation -->
-            <?php include 'topnav.php'; ?>
 
             <!-- Page Header -->
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Orders</h1>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Orders</li>
-                    </ul>
+                    
                 </div>
-                <div class="page-actions">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Order
-                    </button>
-                </div>
+                
             </div>
 
             <?php if (isset($status_message)): ?>
@@ -143,10 +134,6 @@ $result = mysqli_query($conn, $query);
                             </select>
                         </div>
                         <div class="order-filter-item">
-                            <label for="date-filter" class="form-label">Date Range</label>
-                            <input type="text" id="date-filter" name="date_range" class="form-control date-range-picker" placeholder="Select date range" value="<?php echo isset($_GET['date_range']) ? $_GET['date_range'] : ''; ?>">
-                        </div>
-                        <div class="order-filter-item">
                             <label for="customer-filter" class="form-label">Customer</label>
                             <input type="text" id="customer-filter" name="customer" class="form-control" placeholder="Search customer" value="<?php echo isset($_GET['customer']) ? $_GET['customer'] : ''; ?>">
                         </div>
@@ -169,9 +156,6 @@ $result = mysqli_query($conn, $query);
                             <input type="text" class="form-control table-search-input" placeholder="Search orders...">
                             <i class="fas fa-search"></i>
                         </div>
-                        <button class="btn btn-light" id="export-btn">
-                            <i class="fas fa-download"></i> Export
-                        </button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -211,7 +195,7 @@ $result = mysqli_query($conn, $query);
                                         </td>';
                                         echo '<td class="order-date">' . $date . '</td>';
                                         echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . ucfirst($order['status']) . '</span></td>';
-                                        echo '<td class="order-total">$' . number_format($order['total_price'], 2) . '</td>';
+                                        echo '<td class="order-total">NPR.' . number_format($order['total_price'], 2) . '</td>';
                                         echo '<td>
                                             <div class="btn-group">
                                                 <a href="order-details.php?id=' . $order['id'] . '" class="btn btn-sm btn-info">

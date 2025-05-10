@@ -57,74 +57,173 @@ if (isset($_POST['order'])) {
             $total_products .= $item['name'] . ' (' . $item['price'] . ' x ' . $item['quantity'] . ') - ';
             $grand_total += ($item['price'] * $item['quantity']);
         }
+        
+        // Add delivery charge if outside Kathmandu Valley
         if ($state === 'Other') {
             $grand_total += 200; 
         }
 
         if (!$out_of_stock) {
-            // If eSewa is selected, redirect to eSewa payment gateway
+            // If eSewa is selected, prepare for eSewa payment
             if ($method === 'Esewa') {
-                $transaction_uuid = uniqid();  // Generate a unique transaction ID
+                // Insert order into the orders table first
+                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+                $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
+                $stmt->execute();
+                $order_id = $conn->insert_id;  // Get the last inserted order ID
+                $stmt->close();
 
-                // Prepare data for redirection
-                $esewa_data = [
-                    'amount' => $grand_total,
-                    'tax_amount' => 10,  // Tax value if needed
-                    'total_amount' => $grand_total + 10,
-                    'transaction_uuid' => $transaction_uuid,
-                    'product_code' => 'EPAYTEST',  // Your product/service code
-                    'success_url' => 'https://developer.esewa.com.np/success',
-                    'failure_url' => 'https://developer.esewa.com.np/failure',
-                    'signature' => 'i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME='  // Replace with your eSewa signature
-                ];
-
-                // Redirect to eSewa
-                echo '<form id="esewa-form" action="https://rc-epay.esewa.com.np/auth" method="POST">';
-                foreach ($esewa_data as $key => $value) {
-                    echo '<input type="hidden" name="' . $key . '" value="' . htmlspecialchars($value) . '">';
+                // Insert each item into the order_items table
+                foreach ($cart_items as $item) {
+                    $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
+                    $stmt->bind_param("iiid", $order_id, $item['product_id'], $item['quantity'], $item['price']);
+                    $stmt->execute();
+                    $stmt->close();
                 }
-                echo '<script>document.getElementById("esewa-form").submit();</script>';
+
+                // Clear cart
+                $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $stmt->close();
+
+                // Generate a unique transaction ID
+                $transaction_uuid = 'COM' . $order_id . '_' . uniqid();
+                
+                // Calculate tax (assuming 13% VAT)
+                $tax_amount = round($grand_total * 0.13, 2);
+                $total_amount = $grand_total + $tax_amount;
+                
+                // Store the transaction details in a session for later verification
+                $_SESSION['esewa_transaction'] = [
+                    'order_id' => $order_id,
+                    'transaction_uuid' => $transaction_uuid,
+                    'amount' => $grand_total,
+                    'tax_amount' => $tax_amount,
+                    'total_amount' => $total_amount
+                ];
+                
+                // Redirect to the eSewa payment page with the form
+                ?>
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Redirecting to eSewa...</title>
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            background-color: #f5f7fb;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            height: 100vh;
+                            margin: 0;
+                        }
+                        .redirect-container {
+                            text-align: center;
+                            background: white;
+                            padding: 30px;
+                            border-radius: 10px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                            max-width: 500px;
+                        }
+                        h1 {
+                            color: #4361ee;
+                            margin-bottom: 20px;
+                        }
+                        p {
+                            margin-bottom: 20px;
+                            color: #555;
+                        }
+                        .spinner {
+                            border: 4px solid rgba(0, 0, 0, 0.1);
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            border-left-color: #4361ee;
+                            animation: spin 1s linear infinite;
+                            margin: 20px auto;
+                        }
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="redirect-container">
+                        <h1>Redirecting to eSewa</h1>
+                        <p>Please wait while we redirect you to the eSewa payment gateway...</p>
+                        <div class="spinner"></div>
+                        <p>Order Total: NPR <?php echo number_format($total_amount, 2); ?></p>
+                        
+                        <!-- Hidden eSewa Form -->
+                        <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+                            <input type="hidden" id="amount" name="amount" value="<?php echo $grand_total; ?>">
+                            <input type="hidden" id="tax_amount" name="tax_amount" value="<?php echo $tax_amount; ?>">
+                            <input type="hidden" id="total_amount" name="total_amount" value="<?php echo $total_amount; ?>">
+                            <input type="hidden" id="transaction_uuid" name="transaction_uuid" value="<?php echo $transaction_uuid; ?>">
+                            <input type="hidden" id="product_code" name="product_code" value="EPAYTEST">
+                            <input type="hidden" id="product_service_charge" name="product_service_charge" value="0">
+                            <input type="hidden" id="product_delivery_charge" name="product_delivery_charge" value="0">
+                            <input type="hidden" id="success_url" name="success_url" value="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/comtech/esewa_success.php'; ?>">
+                            <input type="hidden" id="failure_url" name="failure_url" value="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/comtech/esewa_failure.php'; ?>">
+                            <input type="hidden" id="signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
+                            <input type="hidden" id="signature" name="signature" value="i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME=">
+                        </form>
+                        
+                        <script>
+                            // Submit the form automatically after 2 seconds
+                            setTimeout(function() {
+                                document.getElementById('esewa-form').submit();
+                            }, 2000);
+                        </script>
+                    </div>
+                </body>
+                </html>
+                <?php
+                exit();
+            } else {
+                // For Cash on Delivery, proceed with normal order processing
+                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
+                $stmt->execute();
+                $order_id = $conn->insert_id;  // Get the last inserted order ID
+                $stmt->close();
+
+                // Insert each item into the order_items table
+                foreach ($cart_items as $item) {
+                    $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
+                    $stmt->bind_param("iiid", $order_id, $item['product_id'], $item['quantity'], $item['price']);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+
+                // Update stock for each product
+                foreach ($cart_items as $item) {
+                    $new_stock = $item['stock'] - $item['quantity'];
+                    $stmt = $conn->prepare("UPDATE products SET stock = ? WHERE id = ?");
+                    $stmt->bind_param("ii", $new_stock, $item['product_id']);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+
+                // Clear cart
+                $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $stmt->close();
+
+                $message = 'Order placed successfully!';
+                echo "<script>alert('$message'); window.location='productdisplay.php';</script>";
                 exit();
             }
-
-            // Insert order into the orders table (if not eSewa)
-            $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("issssssi", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
-            $stmt->execute();
-            $order_id = $conn->insert_id;  // Get the last inserted order ID
-            $stmt->close();
-
-            // Insert each item into the order_items table
-            foreach ($cart_items as $item) {
-                $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("iiid", $order_id, $item['product_id'], $item['quantity'], $item['price']);
-                $stmt->execute();
-                $stmt->close();
-            }
-
-            // Update stock for each product
-            foreach ($cart_items as $item) {
-                $new_stock = $item['stock'] - $item['quantity'];
-                $stmt = $conn->prepare("UPDATE products SET stock = ? WHERE id = ?");
-                $stmt->bind_param("ii", $new_stock, $item['product_id']);
-                $stmt->execute();
-                $stmt->close();
-            }
-
-            // Clear cart
-            $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $stmt->close();
-
-            $message = 'Order placed successfully!';
         }
     } else {
         $message = 'Your cart is empty.';
+        echo "<script>alert('$message'); window.location='productdisplay.php';</script>";
+        exit();
     }
-
-    echo "<script>alert('$message'); window.location='productdisplay.php';</script>";
-    exit();
 }
 
 // Fetch and calculate cart items for display
@@ -160,7 +259,7 @@ $stmt->close();
 <!-- Navbar -->
 <div class="navbar">
 <a href="productdisplay.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
-    <img src="assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
+    <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
     Comtech
 </a>
 
@@ -242,64 +341,30 @@ $stmt->close();
                         </div>
 
                         <div class="form-section">
-    <div class="form-section-title">
-        <i class="fas fa-credit-card"></i> Payment Method
-    </div>
-    <div class="payment-methods">
-        <!-- Cash on Delivery (COD) -->
-        <input type="radio" id="cod" name="method" value="Cash on Delivery" class="payment-method" checked>
-        <label for="cod"><i class="fas fa-money-bill-wave"></i> Cash on Delivery</label>
-        
-        <!-- eSewa -->
-        <input type="radio" id="esewa" name="method" value="Esewa" class="payment-method">
-        <label for="esewa"><i class="fas fa-wallet"></i> eSewa</label>
-        
-        <!-- eSewa Form (Hidden by Default) -->
-        <div id="esewa-form" style="display: none;">
-            <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
-                <input type="text" id="amount" name="amount" value="100" required>
-                <input type="text" id="tax_amount" name="tax_amount" value="10" required>
-                <input type="text" id="total_amount" name="total_amount" value="110" required>
-                <input type="text" id="transaction_uuid" name="transaction_uuid" value="241028" required>
-                <input type="text" id="product_code" name="product_code" value="EPAYTEST" required>
-                <input type="text" id="product_service_charge" name="product_service_charge" value="0" required>
-                <input type="text" id="product_delivery_charge" name="product_delivery_charge" value="0" required>
-                <input type="text" id="success_url" name="success_url" value="https://developer.esewa.com.np/success" required>
-                <input type="text" id="failure_url" name="failure_url" value="https://developer.esewa.com.np/failure" required>
-                <input type="text" id="signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code" required>
-                <input type="text" id="signature" name="signature" value="i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME=" required>
-                <input value="Submit" type="submit">
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- JavaScript to handle showing the eSewa form -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const esewaRadioButton = document.getElementById('esewa');
-    const codRadioButton = document.getElementById('cod');
-    const esewaForm = document.getElementById('esewa-form');
-
-    // Initially, eSewa form should be hidden
-    esewaForm.style.display = 'none';
-
-    // Event listener for when eSewa is selected
-    esewaRadioButton.addEventListener('change', function () {
-        if (esewaRadioButton.checked) {
-            esewaForm.style.display = 'block'; // Show eSewa form
-        }
-    });
-
-    // Event listener for when COD is selected
-    codRadioButton.addEventListener('change', function () {
-        if (codRadioButton.checked) {
-            esewaForm.style.display = 'none'; // Hide eSewa form
-        }
-    });
-});
-</script>
-
+                            <div class="form-section-title">
+                                <i class="fas fa-credit-card"></i> Payment Method
+                            </div>
+                            <div class="payment-methods">
+                                <!-- Cash on Delivery (COD) -->
+                                <input type="radio" id="cod" name="method" value="Cash on Delivery" class="payment-method" checked>
+                                <label for="cod"><i class="fas fa-money-bill-wave"></i> Cash on Delivery</label>
+                                
+                                <!-- eSewa -->
+                                <input type="radio" id="esewa" name="method" value="Esewa" class="payment-method">
+                                <label for="esewa"><i class="fas fa-wallet"></i> eSewa</label>
+                            </div>
+                            
+                            <!-- Payment Method Information -->
+                            <div id="payment-info-cod" class="payment-info">
+                                <p><i class="fas fa-info-circle"></i> Pay with cash upon delivery of your order.</p>
+                            </div>
+                            <div id="payment-info-esewa" class="payment-info" style="display: none;">
+                                <p><i class="fas fa-info-circle"></i> You will be redirected to eSewa to complete your payment securely.</p>
+                                <div class="esewa-logo">
+                                    <img src="https://esewa.com.np/common/images/esewa_logo.png" alt="eSewa Logo" style="max-height: 40px;">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card">
@@ -373,8 +438,14 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const deliveryOptions = document.querySelectorAll('input[name="state"]');
+    const paymentMethods = document.querySelectorAll('input[name="method"]');
     const deliveryChargeRow = document.getElementById('delivery-charge-row');
+    const taxRow = document.getElementById('tax-row');
+    const taxValue = document.getElementById('tax-value');
     const grandTotalElement = document.getElementById('grand-total-value');
+    const paymentInfoCod = document.getElementById('payment-info-cod');
+    const paymentInfoEsewa = document.getElementById('payment-info-esewa');
+    
     const extraCharge = 200;
     let initialGrandTotal = <?= $total ?>;
 
@@ -386,13 +457,40 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        let total = initialGrandTotal;
+        let selectedPaymentMethod;
+        paymentMethods.forEach(method => {
+            if (method.checked) {
+                selectedPaymentMethod = method.value;
+            }
+        });
 
+        let total = initialGrandTotal;
+        let taxAmount = 0;
+
+        // Add delivery charge if outside Kathmandu Valley
         if (selectedDeliveryOption === 'Other') {
             total += extraCharge;
             deliveryChargeRow.style.display = 'flex';
         } else {
             deliveryChargeRow.style.display = 'none';
+        }
+
+        // Show tax for eSewa payments
+        if (selectedPaymentMethod === 'Esewa') {
+            taxAmount = total * 0.13;
+            taxRow.style.display = 'flex';
+            taxValue.textContent = 'NPR ' + taxAmount.toFixed(2);
+            total += taxAmount;
+            
+            // Show eSewa payment info
+            paymentInfoCod.style.display = 'none';
+            paymentInfoEsewa.style.display = 'block';
+        } else {
+            taxRow.style.display = 'none';
+            
+            // Show COD payment info
+            paymentInfoCod.style.display = 'block';
+            paymentInfoEsewa.style.display = 'none';
         }
 
         grandTotalElement.textContent = 'NPR ' + total.toFixed(2);
@@ -402,6 +500,10 @@ document.addEventListener('DOMContentLoaded', function () {
         option.addEventListener('change', updateGrandTotal);
     });
 
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', updateGrandTotal);
+    });
+
     // Initialize on page load
     updateGrandTotal();
 
@@ -409,6 +511,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('form').addEventListener('submit', function (e) {
         let total = initialGrandTotal;
         let selectedDeliveryOption;
+        let selectedPaymentMethod;
         
         deliveryOptions.forEach(option => {
             if (option.checked) {
@@ -416,11 +519,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         
+        paymentMethods.forEach(method => {
+            if (method.checked) {
+                selectedPaymentMethod = method.value;
+            }
+        });
+        
         if (selectedDeliveryOption === 'Other') {
             total += extraCharge;
         }
 
-        const confirmMsg = `Your total including delivery charge is NPR ${total.toFixed(2)}. Confirm order?`;
+        const confirmMsg = `Your total is NPR ${total.toFixed(2)}. Confirm order?`;
         if (!confirm(confirmMsg)) {
             e.preventDefault();
         }

@@ -52,7 +52,9 @@ $result = mysqli_query($conn, $query);
     <title>Categories | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/categories.css">
+    <link rel="stylesheet" href="categories.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/comtech/assets/css/admin.css">
 </head>
 <body>
     <div class="admin-container">
@@ -64,10 +66,6 @@ $result = mysqli_query($conn, $query);
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Categories</h1>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Categories</li>
-                    </ul>
                 </div>
                 <div class="page-actions">
                     <a href="add-category.php" class="btn btn-primary">
@@ -89,14 +87,11 @@ $result = mysqli_query($conn, $query);
                     <div class="card-tools">
                         <div class="table-search">
                             <input type="text" class="form-control table-search-input" placeholder="Search categories...">
-                            <i class="fas fa-search"></i>
+                            
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-light active" id="list-view-btn">
                                 <i class="fas fa-list"></i>
-                            </button>
-                            <button class="btn btn-light" id="grid-view-btn">
-                                <i class="fas fa-th-large"></i>
                             </button>
                         </div>
                     </div>
@@ -107,7 +102,6 @@ $result = mysqli_query($conn, $query);
                             <thead>
                                 <tr>
                                     <th>Category</th>
-                                    <th>Description</th>
                                     <th class="sortable">Products</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -129,7 +123,6 @@ $result = mysqli_query($conn, $query);
                                                 </div>
                                             </div>
                                         </td>';
-                                        echo '<td>' . $category['description'] . '</td>';
                                         echo '<td class="category-count">' . $category['product_count'] . '</td>';
                                         echo '<td><span class="status-badge ' . (strtolower($status) === 'inactive' ? 'inactive' : '') . '">' . $status . '</span></td>';
                                         echo '<td>

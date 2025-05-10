@@ -106,14 +106,8 @@ $result = mysqli_query($conn, $query);
                     <span>Users</span>
                 </a>
             </li>
-            <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>">
-                <a href="settings.php">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
             <li>
-                <a href="logout.php">
+                <a href="adminlogout.php">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -122,37 +116,7 @@ $result = mysqli_query($conn, $query);
     </div>
 </aside>
         <main class="main-content">
-            <div class="top-nav">
-    <div class="top-nav-left">
-        <div class="search-container">
             
-        </div>
-    </div>
-    
-    <div class="top-nav-right">
-               
-        <div class="nav-item">
-            <div class="admin-profile">
-                <button class="profile-btn">
-                    <span><?= htmlspecialchars($admin_name) ?></span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown-menu profile-menu">
-                    <a href="profile.php" class="dropdown-item">
-                        <i class="fas fa-user"></i> Profile
-                    </a>
-                    <a href="settings.php" class="dropdown-item">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="/comtech/logout.php" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
             <div class="page-header">
                 <div>
@@ -255,10 +219,10 @@ $result = mysqli_query($conn, $query);
                                         echo '<td>' . $registered_date . '</td>';
                                         echo '<td>
                                             <div class="btn-group">
-                                                <a href="usersfiles/edit-user.php?id=' . $user['id'] . '" class="btn btn-sm btn-warning">
+                                                <a href="edit-user.php?id=' . $user['id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="usersfiles/delete-user.php?id=' . $user['id'] . '" class="btn btn-sm btn-danger delete-btn">
+                                                <a href="delete-user.php?id=' . $user['id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>

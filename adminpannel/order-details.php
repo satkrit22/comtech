@@ -1,11 +1,7 @@
 <?php
 session_start();
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "comtech";
-
-$conn = mysqli_connect($servername, $username, $password, $dbname);
+require_once 'db.php';
+require_once 'functions.php';
 
 // Check connection
 if (!$conn) {
@@ -18,6 +14,9 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+$admin_id = $_SESSION['admin_id'];
+$admin_name = $_SESSION['admin_name'] ?? 'Admin';
+
 // Check if order ID is provided
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header('Location: orders.php');
@@ -28,9 +27,9 @@ $order_id = mysqli_real_escape_string($conn, $_GET['id']);
 
 // Get order details
 $query = "SELECT o.*, u.Name as customer_name, u.Email as customer_email 
-          FROM orders o 
-          LEFT JOIN users u ON o.user_id = u.id 
-          WHERE o.id = '$order_id'";
+      FROM orders o 
+      LEFT JOIN users u ON o.user_id = u.id 
+      WHERE o.id = '$order_id'";
 $result = mysqli_query($conn, $query);
 
 if (mysqli_num_rows($result) == 0) {
@@ -43,7 +42,7 @@ $order = mysqli_fetch_assoc($result);
 // Handle status update
 if (isset($_POST['update_status'])) {
     $status = mysqli_real_escape_string($conn, $_POST['status']);
-    
+
     $update_query = "UPDATE orders SET status = '$status' WHERE id = '$order_id'";
     if (mysqli_query($conn, $update_query)) {
         $status_message = "Order status updated successfully.";
@@ -57,9 +56,9 @@ if (isset($_POST['update_status'])) {
 
 // Get order items
 $items_query = "SELECT oi.*, p.name, p.image 
-               FROM order_items oi 
-               JOIN products p ON oi.product_id = p.id 
-               WHERE oi.order_id = '$order_id'";
+           FROM order_items oi 
+           JOIN products p ON oi.product_id = p.id 
+           WHERE oi.order_id = '$order_id'";
 $items_result = mysqli_query($conn, $items_query);
 
 // If no items found in order_items table, try parsing the total_products field
@@ -69,10 +68,7 @@ if (mysqli_num_rows($items_result) > 0) {
         $order_items[] = $item;
     }
 } else {
-    // Parse the total_products field (assuming it's a serialized or JSON string)
-    // This is a fallback if you don't have order_items records
     $total_products = $order['total_products'];
-    // You'll need to implement parsing logic based on how your total_products is stored
 }
 ?>
 
@@ -85,16 +81,14 @@ if (mysqli_num_rows($items_result) > 0) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="orders.css">
+
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Navigation -->
-            <?php include 'includes/topnav.php'; ?>
 
             <!-- Page Header -->
             <div class="page-header">
@@ -112,6 +106,9 @@ if (mysqli_num_rows($items_result) > 0) {
                     </a>
                     <a href="edit-order.php?id=<?php echo $order['id']; ?>" class="btn btn-warning">
                         <i class="fas fa-edit"></i> Edit Order
+                    </a>
+                    <a href="#" class="btn btn-primary" id="print-btn">
+                        <i class="fas fa-print"></i> Print
                     </a>
                 </div>
             </div>
@@ -180,13 +177,14 @@ if (mysqli_num_rows($items_result) > 0) {
                                                 <tr>
                                                     <td>
                                                         <div class="product-info">
-                                                            <img src="<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>" class="product-image">
+                                                            <img src="/comtech/assets/img/menu/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>" class="product-image" style="width: 80px; height: 80px; object-fit: cover;">
+
                                                             <div class="product-name"><?php echo $item['name']; ?></div>
                                                         </div>
                                                     </td>
-                                                    <td>$<?php echo number_format($item['price'], 2); ?></td>
+                                                    <td>NPR.<?php echo number_format($item['price'], 2); ?></td>
                                                     <td><?php echo $item['quantity']; ?></td>
-                                                    <td>$<?php echo number_format($subtotal, 2); ?></td>
+                                                    <td>NPR.<?php echo number_format($subtotal, 2); ?></td>
                                                 </tr>
                                                 <?php
                                             }
@@ -200,7 +198,7 @@ if (mysqli_num_rows($items_result) > 0) {
                                     <tfoot>
                                         <tr>
                                             <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                                            <td><strong>$<?php echo number_format($order['total_price'], 2); ?></strong></td>
+                                            <td><strong>NPR.<?php echo number_format($order['total_price'], 2); ?></strong></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -244,6 +242,13 @@ if (mysqli_num_rows($items_result) > 0) {
                                 <hr>
                                 <h4>Shipping Address</h4>
                                 <p><?php echo nl2br($order['address']); ?></p>
+                                
+                                <?php if (!empty($order['customer_name'])): ?>
+                                <hr>
+                                <h4>Account Information</h4>
+                                <p><strong>Registered User:</strong> Yes</p>
+                                <p><strong>User ID:</strong> <?php echo $order['user_id']; ?></p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -261,6 +266,20 @@ if (mysqli_num_rows($items_result) > 0) {
                     alert.style.display = 'none';
                 });
             }, 5000);
+            
+            // Print functionality
+            document.getElementById('print-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.print();
+            });
+            
+            // Toggle sidebar on mobile
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    document.querySelector('.sidebar').classList.toggle('show');
+                });
+            }
         });
     </script>
 </body>

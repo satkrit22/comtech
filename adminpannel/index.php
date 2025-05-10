@@ -20,7 +20,10 @@ $stats = [
     'total_orders' => 0,
     'pending_orders' => 0,
     'completed_orders' => 0,
-    'total_revenue' => 0
+    'total_revenue' => 0,
+    'today_revenue' => 0,
+    'weekly_revenue' => 0,
+    'monthly_revenue' => 0
 ];
 
 // Get total users
@@ -72,6 +75,32 @@ if ($revenue_result) {
     $stats['total_revenue'] = mysqli_fetch_assoc($revenue_result)['total'] ?? 0;
 }
 
+// Get today's revenue
+$today = date('Y-m-d');
+$today_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) = '$today'";
+$today_revenue_result = mysqli_query($conn, $today_revenue_query);
+if ($today_revenue_result) {
+    $stats['today_revenue'] = mysqli_fetch_assoc($today_revenue_result)['total'] ?? 0;
+}
+
+// Get weekly revenue
+$week_start = date('Y-m-d', strtotime('monday this week'));
+$week_end = date('Y-m-d', strtotime('sunday this week'));
+$weekly_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) BETWEEN '$week_start' AND '$week_end'";
+$weekly_revenue_result = mysqli_query($conn, $weekly_revenue_query);
+if ($weekly_revenue_result) {
+    $stats['weekly_revenue'] = mysqli_fetch_assoc($weekly_revenue_result)['total'] ?? 0;
+}
+
+// Get monthly revenue
+$month_start = date('Y-m-01');
+$month_end = date('Y-m-t');
+$monthly_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) BETWEEN '$month_start' AND '$month_end'";
+$monthly_revenue_result = mysqli_query($conn, $monthly_revenue_query);
+if ($monthly_revenue_result) {
+    $stats['monthly_revenue'] = mysqli_fetch_assoc($monthly_revenue_result)['total'] ?? 0;
+}
+
 // Get recent orders
 $recent_orders_query = "SELECT o.*, u.Name as customer_name 
                         FROM orders o 
@@ -88,6 +117,33 @@ $top_products_query = "SELECT p.id, p.name, p.image, p.price, COUNT(oi.id) as or
                        ORDER BY order_count DESC 
                        LIMIT 5";
 $top_products_result = mysqli_query($conn, $top_products_query);
+
+// Get monthly sales data for chart
+$monthly_sales_data = [];
+for ($i = 0; $i < 6; $i++) {
+    $month = date('Y-m', strtotime("-$i months"));
+    $month_start = date('Y-m-01', strtotime("-$i months"));
+    $month_end = date('Y-m-t', strtotime("-$i months"));
+    
+    $monthly_sales_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) BETWEEN '$month_start' AND '$month_end'";
+    $monthly_sales_result = mysqli_query($conn, $monthly_sales_query);
+    $monthly_total = mysqli_fetch_assoc($monthly_sales_result)['total'] ?? 0;
+    
+    $monthly_sales_data[date('M Y', strtotime($month))] = $monthly_total;
+}
+$monthly_sales_data = array_reverse($monthly_sales_data);
+
+// Get sales by category
+$category_sales_query = "SELECT c.name, COUNT(oi.id) as order_count, SUM(oi.price * oi.quantity) as total_sales
+                         FROM categories c
+                         LEFT JOIN products p ON c.id = p.category_id
+                         LEFT JOIN order_items oi ON p.id = oi.product_id
+                         LEFT JOIN orders o ON oi.order_id = o.id
+                         WHERE o.status = 'completed'
+                         GROUP BY c.id
+                         ORDER BY total_sales DESC
+                         LIMIT 5";
+$category_sales_result = mysqli_query($conn, $category_sales_query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,8 +153,9 @@ $top_products_result = mysqli_query($conn, $top_products_query);
     <title>Dashboard | Comtech Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/comtech/assets/css/admin-dashboard.css">
+     <link rel="stylesheet" href="/comtech/assets/css/admin-dashboard.css">
     <link rel="stylesheet" href="/comtech/assets/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Core Admin Dashboard Styles */
         :root {
@@ -302,6 +359,41 @@ $top_products_result = mysqli_query($conn, $top_products_query);
             font-weight: 600;
             color: var(--primary);
         }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .sales-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .sales-card {
+            background-color: var(--card-bg);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .sales-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .sales-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
 
         /* Responsive */
         @media (max-width: 992px) {
@@ -327,6 +419,10 @@ $top_products_result = mysqli_query($conn, $top_products_query);
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .sales-summary {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
@@ -340,6 +436,27 @@ $top_products_result = mysqli_query($conn, $top_products_query);
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Dashboard</h1>
+                    
+                </div>
+            </div>
+            
+            <!-- Sales Summary -->
+            <div class="sales-summary">
+                <div class="sales-card">
+                    <div class="sales-value">NPR.<?php echo number_format($stats['today_revenue'], 2); ?></div>
+                    <div class="sales-label">Today's Sales</div>
+                </div>
+                <div class="sales-card">
+                    <div class="sales-value">NPR.<?php echo number_format($stats['weekly_revenue'], 2); ?></div>
+                    <div class="sales-label">Weekly Sales</div>
+                </div>
+                <div class="sales-card">
+                    <div class="sales-value">NPR.<?php echo number_format($stats['monthly_revenue'], 2); ?></div>
+                    <div class="sales-label">Monthly Sales</div>
+                </div>
+                <div class="sales-card">
+                    <div class="sales-value">NPR.<?php echo number_format($stats['total_revenue'], 2); ?></div>
+                    <div class="sales-label">Total Revenue</div>
                 </div>
             </div>
 
@@ -401,6 +518,18 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                     <div class="stat-info">
                         <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['pending_orders']; ?></div>
                         <div class="stat-label">Pending Orders</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sales Chart -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title">Monthly Sales</h2>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -508,6 +637,18 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                     </div>
                 </div>
             </div>
+            
+            <!-- Category Sales Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Sales by Category</h2>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="categorySalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -520,6 +661,102 @@ $top_products_result = mysqli_query($conn, $top_products_query);
                     document.querySelector('.sidebar').classList.toggle('show');
                 });
             }
+            
+            // Monthly Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: [<?php echo "'" . implode("', '", array_keys($monthly_sales_data)) . "'"; ?>],
+                    datasets: [{
+                        label: 'Monthly Sales',
+                        data: [<?php echo implode(', ', array_values($monthly_sales_data)); ?>],
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'NPR.' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Sales: NPR.' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Category Sales Chart
+            const categoryCtx = document.getElementById('categorySalesChart').getContext('2d');
+            const categoryChart = new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        <?php 
+                        $category_names = [];
+                        $category_sales = [];
+                        mysqli_data_seek($category_sales_result, 0);
+                        while ($category = mysqli_fetch_assoc($category_sales_result)) {
+                            $category_names[] = $category['name'];
+                            $category_sales[] = $category['total_sales'] ?? 0;
+                        }
+                        echo "'" . implode("', '", $category_names) . "'";
+                        ?>
+                    ],
+                    datasets: [{
+                        label: 'Sales Amount',
+                        data: [<?php echo implode(', ', $category_sales); ?>],
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(243, 156, 18, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'NPR.' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Sales: NPR.' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         });
     </script>
 </body>

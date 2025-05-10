@@ -42,14 +42,8 @@
                     <span>Users</span>
                 </a>
             </li>
-            <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>">
-                <a href="settings.php">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
             <li>
-                <a href="logout.php">
+                <a href="adminlogout.php">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>

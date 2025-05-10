@@ -14,14 +14,11 @@
                     <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="dropdown-menu profile-menu">
-                    <a href="profile.php" class="dropdown-item">
+                    <a href="admin_profile.php" class="dropdown-item">
                         <i class="fas fa-user"></i> Profile
                     </a>
-                    <a href="settings.php" class="dropdown-item">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
                     <div class="dropdown-divider"></div>
-                    <a href="/comtech/adminpannel/logout.php" class="dropdown-item">
+                    <a href="adminlogout.php" class="dropdown-item">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>

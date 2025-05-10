@@ -89,11 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Edit User</h1>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="/comtech/adminpannel/users.php">Users</a></li>
-                        <li class="breadcrumb-item active">Edit User</li>
-                    </ul>
                 </div>
                 <div class="page-actions">
                     <a href="users.php" class="btn btn-light">
