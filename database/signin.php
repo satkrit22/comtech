@@ -30,7 +30,7 @@ if ($result->num_rows > 0) {
         exit();
     } else {
         // Invalid password
-        echo "<script>alert('Incorrect password. Please try again.');</script>";
+        echo "<script>alert('Incorrect password. Please try again.'); window.location.href = '/comtech/database/login.php';</script>";
     }
 } else {
     // Email not found

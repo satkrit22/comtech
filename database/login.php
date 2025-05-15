@@ -6,7 +6,6 @@
     <title>Login</title>
     <link href="assets/img/favicon.png" rel="icon">
     <style>
-        
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
 * {
@@ -263,7 +262,7 @@ input {
 			<input type="email" placeholder="Email" name="email"  required/>
 			<input type="password" placeholder="Password" name="password" required />
 			<button>Login</button>
-		</form>
+			</form>
 	</div>
 	<div class="overlay-container">
 		<div class="overlay">

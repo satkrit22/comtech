@@ -70,7 +70,7 @@ if (isset($_POST['order'])) {
                 $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
-                $order_id = $conn->insert_id;  // Get the last inserted order ID
+                $order_id = $conn->insert_id; 
                 $stmt->close();
 
                 // Insert each item into the order_items table
@@ -87,10 +87,8 @@ if (isset($_POST['order'])) {
                 $stmt->execute();
                 $stmt->close();
 
-                // Generate a unique transaction ID
                 $transaction_uuid = 'COM' . $order_id . '_' . uniqid();
                 
-                // Calculate tax (assuming 13% VAT)
                 $tax_amount = round($grand_total * 0.13, 2);
                 $total_amount = $grand_total + $tax_amount;
                 
@@ -103,7 +101,6 @@ if (isset($_POST['order'])) {
                     'total_amount' => $total_amount
                 ];
                 
-                // Redirect to the eSewa payment page with the form
                 ?>
                 <!DOCTYPE html>
                 <html>
@@ -157,7 +154,6 @@ if (isset($_POST['order'])) {
                         <div class="spinner"></div>
                         <p>Order Total: NPR <?php echo number_format($total_amount, 2); ?></p>
                         
-                        <!-- Hidden eSewa Form -->
                         <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
                             <input type="hidden" id="amount" name="amount" value="<?php echo $grand_total; ?>">
                             <input type="hidden" id="tax_amount" name="tax_amount" value="<?php echo $tax_amount; ?>">
@@ -184,11 +180,10 @@ if (isset($_POST['order'])) {
                 <?php
                 exit();
             } else {
-                // For Cash on Delivery, proceed with normal order processing
                 $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
-                $order_id = $conn->insert_id;  // Get the last inserted order ID
+                $order_id = $conn->insert_id;  
                 $stmt->close();
 
                 // Insert each item into the order_items table
