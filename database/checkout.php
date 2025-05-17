@@ -1,8 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Comtech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="checkout.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
 <?php
 session_start();
 $conn = new mysqli("localhost", "root", "", "comtech");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
+}
+
+// Display transaction messages if set
+if (isset($_SESSION['transaction_msg'])) {
+    echo $_SESSION['transaction_msg'];
+    unset($_SESSION['transaction_msg']);
+}
+
+if (isset($_SESSION['validate_msg'])) {
+    echo $_SESSION['validate_msg'];
+    unset($_SESSION['validate_msg']);
 }
 
 // Check if user is logged in
@@ -64,13 +89,17 @@ if (isset($_POST['order'])) {
         }
 
         if (!$out_of_stock) {
-            // If eSewa is selected, prepare for eSewa payment
-            if ($method === 'Esewa') {
+            // If Khalti is selected, prepare for Khalti payment
+            if ($method === 'Khalti') {
                 // Insert order into the orders table first
-                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'processing')");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
+<<<<<<< Updated upstream
                 $order_id = $conn->insert_id; 
+=======
+                $order_id = $conn->insert_id;  
+>>>>>>> Stashed changes
                 $stmt->close();
 
                 // Insert each item into the order_items table
@@ -87,6 +116,7 @@ if (isset($_POST['order'])) {
                 $stmt->execute();
                 $stmt->close();
 
+<<<<<<< Updated upstream
                 $transaction_uuid = 'COM' . $order_id . '_' . uniqid();
                 
                 $tax_amount = round($grand_total * 0.13, 2);
@@ -178,6 +208,10 @@ if (isset($_POST['order'])) {
                 </body>
                 </html>
                 <?php
+=======
+                // Redirect to Khalti payment request page with order details
+                header("Location: payment-request.php?order_id=" . $order_id . "&amount=" . $grand_total . "&name=" . urlencode($name) . "&email=" . urlencode($email) . "&phone=" . urlencode($number));
+>>>>>>> Stashed changes
                 exit();
             } else {
                 $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
@@ -237,19 +271,6 @@ while ($item = $cart_result->fetch_assoc()) {
 }
 $stmt->close();
 ?>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Comtech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="checkout.css">
-</head>
-<body>
 
 <!-- Navbar -->
 <div class="navbar">
@@ -344,19 +365,19 @@ $stmt->close();
                                 <input type="radio" id="cod" name="method" value="Cash on Delivery" class="payment-method" checked>
                                 <label for="cod"><i class="fas fa-money-bill-wave"></i> Cash on Delivery</label>
                                 
-                                <!-- eSewa -->
-                                <input type="radio" id="esewa" name="method" value="Esewa" class="payment-method">
-                                <label for="esewa"><i class="fas fa-wallet"></i> eSewa</label>
+                                <!-- Khalti -->
+                                <input type="radio" id="khalti" name="method" value="Khalti" class="payment-method">
+                                <label for="khalti"><i class="fas fa-wallet"></i> Khalti</label>
                             </div>
                             
                             <!-- Payment Method Information -->
                             <div id="payment-info-cod" class="payment-info">
                                 <p><i class="fas fa-info-circle"></i> Pay with cash upon delivery of your order.</p>
                             </div>
-                            <div id="payment-info-esewa" class="payment-info" style="display: none;">
-                                <p><i class="fas fa-info-circle"></i> You will be redirected to eSewa to complete your payment securely.</p>
-                                <div class="esewa-logo">
-                                    <img src="https://esewa.com.np/common/images/esewa_logo.png" alt="eSewa Logo" style="max-height: 40px;">
+                            <div id="payment-info-khalti" class="payment-info" style="display: none;">
+                                <p><i class="fas fa-info-circle"></i> You will be redirected to Khalti to complete your payment securely.</p>
+                                <div class="khalti-logo">
+                                    <img src="https://khalti.com/static/images/khalti-logo.svg" alt="Khalti Logo" style="max-height: 40px;">
                                 </div>
                             </div>
                         </div>
@@ -435,11 +456,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const deliveryOptions = document.querySelectorAll('input[name="state"]');
     const paymentMethods = document.querySelectorAll('input[name="method"]');
     const deliveryChargeRow = document.getElementById('delivery-charge-row');
-    const taxRow = document.getElementById('tax-row');
-    const taxValue = document.getElementById('tax-value');
     const grandTotalElement = document.getElementById('grand-total-value');
     const paymentInfoCod = document.getElementById('payment-info-cod');
-    const paymentInfoEsewa = document.getElementById('payment-info-esewa');
+    const paymentInfoKhalti = document.getElementById('payment-info-khalti');
     
     const extraCharge = 200;
     let initialGrandTotal = <?= $total ?>;
@@ -460,7 +479,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         let total = initialGrandTotal;
-        let taxAmount = 0;
 
         // Add delivery charge if outside Kathmandu Valley
         if (selectedDeliveryOption === 'Other') {
@@ -470,22 +488,13 @@ document.addEventListener('DOMContentLoaded', function () {
             deliveryChargeRow.style.display = 'none';
         }
 
-        // Show tax for eSewa payments
-        if (selectedPaymentMethod === 'Esewa') {
-            taxAmount = total * 0.13;
-            taxRow.style.display = 'flex';
-            taxValue.textContent = 'NPR ' + taxAmount.toFixed(2);
-            total += taxAmount;
-            
-            // Show eSewa payment info
+        // Show appropriate payment info
+        if (selectedPaymentMethod === 'Khalti') {
             paymentInfoCod.style.display = 'none';
-            paymentInfoEsewa.style.display = 'block';
+            paymentInfoKhalti.style.display = 'block';
         } else {
-            taxRow.style.display = 'none';
-            
-            // Show COD payment info
             paymentInfoCod.style.display = 'block';
-            paymentInfoEsewa.style.display = 'none';
+            paymentInfoKhalti.style.display = 'none';
         }
 
         grandTotalElement.textContent = 'NPR ' + total.toFixed(2);
