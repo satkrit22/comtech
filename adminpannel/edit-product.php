@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="form-group mb-4">
                                     <label for="image" class="form-label">Product Image</label>
                                     <div class="product-image-preview mb-3">
-                                        <img id="image-preview" src="<?php echo !empty($product['image']) ? $product['image'] : 'https://via.placeholder.com/300x300'; ?>" alt="Product Image Preview" style="max-width: 100%; height: auto;">
+                                        <img id="image-preview" src="<?php echo !empty($product['image']) ? $product['image'] : 'comtech/assets/img/menu/'; ?>" alt="Product Image Preview" style="max-width: 100%; height: auto;">
                                     </div>
                                     <input type="file" id="image" name="image" class="form-control" accept="image/*">
                                     <small class="text-muted">Leave empty to keep the current image</small>

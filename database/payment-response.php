@@ -66,8 +66,9 @@ if ($response) {
     switch ($responseArray['status']) {
         case 'Completed':
             // Update order status to completed
-            $stmt = $conn->prepare("UPDATE orders SET status = 'completed', payment_id = ? WHERE id = ?");
-            $stmt->bind_param("si", $pidx, $order_id);
+            $stmt = $conn->prepare("UPDATE orders SET status = 'completed' WHERE id = ?");
+$stmt->bind_param("i", $order_id);
+
             $stmt->execute();
             $stmt->close();
             

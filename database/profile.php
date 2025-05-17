@@ -95,11 +95,6 @@ $stmt->close();
                     </div>
                 </div>
             </div>
-            <div class="user-actions">
-    <a href="update-password.php" class="btn btn-secondary">
-        <i class="fas fa-lock" ></i> Change Password
-    </a>
-</div>
         </div>
 
         <div class="order-history card">

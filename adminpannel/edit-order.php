@@ -152,7 +152,7 @@ $items_result = mysqli_query($conn, $items_query);
                                             <label for="method" class="form-label">Payment Method</label>
                                             <select id="method" name="method" class="form-select" required>
                                                 <option value="cash on delivery" <?php echo $order['method'] == 'cash on delivery' ? 'selected' : ''; ?>>Cash on Delivery</option>
-                                                <option value="esewa" <?php echo $order['method'] == 'esewa' ? 'selected' : ''; ?>>esewa</option>
+                                                <option value="Khalti" <?php echo $order['method'] == 'Khalti' ? 'selected' : ''; ?>>Khalti</option>
                                             </select>
                                         </div>
                                     </div>

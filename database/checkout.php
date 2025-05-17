@@ -95,11 +95,7 @@ if (isset($_POST['order'])) {
                 $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'processing')");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
-<<<<<<< Updated upstream
-                $order_id = $conn->insert_id; 
-=======
                 $order_id = $conn->insert_id;  
->>>>>>> Stashed changes
                 $stmt->close();
 
                 // Insert each item into the order_items table
@@ -116,108 +112,15 @@ if (isset($_POST['order'])) {
                 $stmt->execute();
                 $stmt->close();
 
-<<<<<<< Updated upstream
-                $transaction_uuid = 'COM' . $order_id . '_' . uniqid();
-                
-                $tax_amount = round($grand_total * 0.13, 2);
-                $total_amount = $grand_total + $tax_amount;
-                
-                // Store the transaction details in a session for later verification
-                $_SESSION['esewa_transaction'] = [
-                    'order_id' => $order_id,
-                    'transaction_uuid' => $transaction_uuid,
-                    'amount' => $grand_total,
-                    'tax_amount' => $tax_amount,
-                    'total_amount' => $total_amount
-                ];
-                
-                ?>
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Redirecting to eSewa...</title>
-                    <style>
-                        body {
-                            font-family: 'Inter', sans-serif;
-                            background-color: #f5f7fb;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            height: 100vh;
-                            margin: 0;
-                        }
-                        .redirect-container {
-                            text-align: center;
-                            background: white;
-                            padding: 30px;
-                            border-radius: 10px;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                            max-width: 500px;
-                        }
-                        h1 {
-                            color: #4361ee;
-                            margin-bottom: 20px;
-                        }
-                        p {
-                            margin-bottom: 20px;
-                            color: #555;
-                        }
-                        .spinner {
-                            border: 4px solid rgba(0, 0, 0, 0.1);
-                            width: 36px;
-                            height: 36px;
-                            border-radius: 50%;
-                            border-left-color: #4361ee;
-                            animation: spin 1s linear infinite;
-                            margin: 20px auto;
-                        }
-                        @keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(360deg); }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="redirect-container">
-                        <h1>Redirecting to eSewa</h1>
-                        <p>Please wait while we redirect you to the eSewa payment gateway...</p>
-                        <div class="spinner"></div>
-                        <p>Order Total: NPR <?php echo number_format($total_amount, 2); ?></p>
-                        
-                        <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
-                            <input type="hidden" id="amount" name="amount" value="<?php echo $grand_total; ?>">
-                            <input type="hidden" id="tax_amount" name="tax_amount" value="<?php echo $tax_amount; ?>">
-                            <input type="hidden" id="total_amount" name="total_amount" value="<?php echo $total_amount; ?>">
-                            <input type="hidden" id="transaction_uuid" name="transaction_uuid" value="<?php echo $transaction_uuid; ?>">
-                            <input type="hidden" id="product_code" name="product_code" value="EPAYTEST">
-                            <input type="hidden" id="product_service_charge" name="product_service_charge" value="0">
-                            <input type="hidden" id="product_delivery_charge" name="product_delivery_charge" value="0">
-                            <input type="hidden" id="success_url" name="success_url" value="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/comtech/esewa_success.php'; ?>">
-                            <input type="hidden" id="failure_url" name="failure_url" value="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/comtech/esewa_failure.php'; ?>">
-                            <input type="hidden" id="signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
-                            <input type="hidden" id="signature" name="signature" value="i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME=">
-                        </form>
-                        
-                        <script>
-                            // Submit the form automatically after 2 seconds
-                            setTimeout(function() {
-                                document.getElementById('esewa-form').submit();
-                            }, 2000);
-                        </script>
-                    </div>
-                </body>
-                </html>
-                <?php
-=======
                 // Redirect to Khalti payment request page with order details
                 header("Location: payment-request.php?order_id=" . $order_id . "&amount=" . $grand_total . "&name=" . urlencode($name) . "&email=" . urlencode($email) . "&phone=" . urlencode($number));
->>>>>>> Stashed changes
                 exit();
             } else {
+                // For Cash on Delivery, proceed with normal order processing
                 $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
-                $order_id = $conn->insert_id;  
+                $order_id = $conn->insert_id;  // Get the last inserted order ID
                 $stmt->close();
 
                 // Insert each item into the order_items table
@@ -376,9 +279,7 @@ $stmt->close();
                             </div>
                             <div id="payment-info-khalti" class="payment-info" style="display: none;">
                                 <p><i class="fas fa-info-circle"></i> You will be redirected to Khalti to complete your payment securely.</p>
-                                <div class="khalti-logo">
-                                    <img src="https://khalti.com/static/images/khalti-logo.svg" alt="Khalti Logo" style="max-height: 40px;">
-                                </div>
+                               
                             </div>
                         </div>
                     </div>

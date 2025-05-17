@@ -60,7 +60,7 @@ $_SESSION['khalti_order'] = [
 
 // Prepare data for Khalti API
 $postFields = array(
-    "return_url" => "http://" . $_SERVER['HTTP_HOST'] . "/payment-response.php",
+    "return_url" => "http://" . $_SERVER['HTTP_HOST'] . "/comtech/database/payment-response.php",
     "website_url" => "http://" . $_SERVER['HTTP_HOST'] . "/",
     "amount" => $amount,
     "purchase_order_id" => $purchase_order_id,
