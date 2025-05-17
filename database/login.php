@@ -287,12 +287,14 @@ function validateSignup() {
 	const confirmPassword = document.signupForm["Re-password"].value;
 
 
-		const nameRegex = /^[a-zA-Z]+$/;
-		const emailRegex = /^[a-zA-Z][a-zA-Z0-9._]*@gmail\.com$/;
-		const nepaliPhoneRegex = /^(98|97|96)[0-9]{8}$/;
+		const nameRegex = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+	const emailRegex = /^[a-zA-Z][a-zA-Z0-9._]*@gmail\.com$/;
+	const nepaliPhoneRegex = /^(98|97|96)[0-9]{8}$/;
+	const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$])[A-Za-z\d!@#$]{8,}$/;
+
 
 		if (!nameRegex.test(name)) {
-			alert("Name should contain only letters (A-Z or a-z).");
+			alert("NName should only contain letters and can include spaces (e.g., Satkrit Bhandari).");
 			return false;
 		}
 
@@ -305,11 +307,10 @@ function validateSignup() {
 			alert("Please enter a valid 10-digit Nepali phone number starting with 98, 97, or 96.");
 			return false;
 		}
-		if (password === "" || confirmPassword === "") {
-			alert("Password fields cannot be empty.");
-			return false;
-		}
-
+		if (!passwordRegex.test(password)) {
+		alert("Password must be at least 8 characters long, include letters, numbers, and at least one special character (!, @, or $).");
+		return false;
+	}
 		if (password !== confirmPassword) {
 			alert("Passwords do not match.");
 			return false;

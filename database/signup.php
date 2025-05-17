@@ -26,22 +26,23 @@ $email = htmlspecialchars(trim($_POST['email']));
 $phone = htmlspecialchars(trim($_POST['phone']));
 $password = $_POST['password'];  
 
-// Check if email already exists
-$sql_check = "SELECT * FROM users WHERE Email = ?";
+// Check if email or phone already exists
+$sql_check = "SELECT * FROM users WHERE Email = ? OR Phone = ?";
 $stmt_check = $conn->prepare($sql_check);
 
 if (!$stmt_check) {
     die("Prepare failed: " . $conn->error);
 }
 
-$stmt_check->bind_param("s", $email);
+$stmt_check->bind_param("ss", $email, $phone);
 $stmt_check->execute();
 $result = $stmt_check->get_result();
 
 if ($result && $result->num_rows > 0) {
-    echo "<script>alert('Email already exists. Please choose a different email.'); window.location.href = '/comtech/signup.html';</script>";
+    echo "<script>alert('Email or phone number already exists. Please use different credentials.'); window.location.href = '/comtech/signup.html';</script>";
     exit();
 }
+
 $stmt_check->close();
 
 // Hash the password securely

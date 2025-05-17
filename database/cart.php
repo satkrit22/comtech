@@ -107,9 +107,9 @@ $total = $subtotal + $shipping;
     <!-- Header -->
     <header class="header">
         <nav class="navbar">
-            <a href="index.php" class="logo">
-                <i class="fas fa-laptop-code"></i>
-                Comtech
+            <a href="productdisplay.php" class="logo">
+                <img src="/comtech/assets/img/logo.png" alt="Company Logo" style="width: 40px; height: 40px; margin-right: 10px;">
+   Comtech
             </a>
             
             <div class="nav-links">
