@@ -290,7 +290,7 @@ if (isset($_GET['logout'])) {
             notification.classList.add('show');
             setTimeout(() => {
                 notification.classList.remove('show');
-            }, 3000);
+            }, 1000);
         }
 
         // Update cart count
