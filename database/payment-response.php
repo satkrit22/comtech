@@ -67,8 +67,7 @@ if ($response) {
         case 'Completed':
             // Update order status to completed
             $stmt = $conn->prepare("UPDATE orders SET status = 'completed' WHERE id = ?");
-$stmt->bind_param("i", $order_id);
-
+            $stmt->bind_param("i", $order_id);
             $stmt->execute();
             $stmt->close();
             
@@ -90,16 +89,25 @@ $stmt->bind_param("i", $order_id);
             
             $stmt->close();
             
-            // Clear the order from session
+            // Clear the saved cart and order from session
             unset($_SESSION['khalti_order']);
+            unset($_SESSION['saved_cart']);
+            unset($_SESSION['saved_cart_user_id']);
             
             // Set success message
             $_SESSION['transaction_msg'] = '<script>
             Swal.fire({
                 icon: "success",
-                title: "Transaction successful",
-                showConfirmButton: false,
-                timer: 1500
+                title: "Payment Successful",
+                text: "Your order has been confirmed and is being processed!",
+                showConfirmButton: true,
+                confirmButtonText: "Continue Shopping"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "productdisplay.php";
+                } else {
+                    window.location.href = "profile.php";
+                }
             });
             </script>';
             
@@ -110,11 +118,44 @@ $stmt->bind_param("i", $order_id);
         case 'Expired':
         case 'User canceled':
         default:
-            // Update order status to failed
-            $stmt = $conn->prepare("UPDATE orders SET status = 'failed' WHERE id = ?");
-            $stmt->bind_param("i", $order_id);
-            $stmt->execute();
-            $stmt->close();
+            // Restore cart items if payment failed
+            if (isset($_SESSION['saved_cart']) && isset($_SESSION['saved_cart_user_id'])) {
+                $saved_cart = $_SESSION['saved_cart'];
+                $user_id = $_SESSION['saved_cart_user_id'];
+                
+                // First, check if the cart is already empty
+                $check_stmt = $conn->prepare("SELECT COUNT(*) as count FROM cart WHERE user_id = ?");
+                $check_stmt->bind_param("i", $user_id);
+                $check_stmt->execute();
+                $check_result = $check_stmt->get_result();
+                $cart_count = $check_result->fetch_assoc()['count'];
+                $check_stmt->close();
+                
+                // Only restore if cart is empty
+                if ($cart_count == 0) {
+                    foreach ($saved_cart as $item) {
+                        $restore_stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
+                        $restore_stmt->bind_param("iii", $user_id, $item['product_id'], $item['quantity']);
+                        $restore_stmt->execute();
+                        $restore_stmt->close();
+                    }
+                }
+                
+                // Clear saved cart from session
+                unset($_SESSION['saved_cart']);
+                unset($_SESSION['saved_cart_user_id']);
+            }
+            
+            // Delete the order and order items
+            $delete_items_stmt = $conn->prepare("DELETE FROM order_items WHERE order_id = ?");
+            $delete_items_stmt->bind_param("i", $order_id);
+            $delete_items_stmt->execute();
+            $delete_items_stmt->close();
+            
+            $delete_order_stmt = $conn->prepare("DELETE FROM orders WHERE id = ?");
+            $delete_order_stmt->bind_param("i", $order_id);
+            $delete_order_stmt->execute();
+            $delete_order_stmt->close();
             
             // Clear the order from session
             unset($_SESSION['khalti_order']);
@@ -123,28 +164,72 @@ $stmt->bind_param("i", $order_id);
             $_SESSION['transaction_msg'] = '<script>
             Swal.fire({
                 icon: "error",
-                title: "Transaction failed",
-                text: "' . $responseArray['status'] . '",
-                showConfirmButton: false,
-                timer: 1500
+                title: "Payment Failed",
+                text: "Your payment was not completed. Your cart has been restored.",
+                showConfirmButton: true,
+                confirmButtonText: "Return to Checkout"
+            }).then((result) => {
+                window.location.href = "checkout.php";
             });
             </script>';
             
-            header("Location: checkout.php");
+            header("Location: message.php");
             exit();
             break;
     }
 } else {
+    // Restore cart items if payment verification failed
+    if (isset($_SESSION['saved_cart']) && isset($_SESSION['saved_cart_user_id'])) {
+        $saved_cart = $_SESSION['saved_cart'];
+        $user_id = $_SESSION['saved_cart_user_id'];
+        
+        // First, check if the cart is already empty
+        $check_stmt = $conn->prepare("SELECT COUNT(*) as count FROM cart WHERE user_id = ?");
+        $check_stmt->bind_param("i", $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        $cart_count = $check_result->fetch_assoc()['count'];
+        $check_stmt->close();
+        
+        // Only restore if cart is empty
+        if ($cart_count == 0) {
+            foreach ($saved_cart as $item) {
+                $restore_stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
+                $restore_stmt->bind_param("iii", $user_id, $item['product_id'], $item['quantity']);
+                $restore_stmt->execute();
+                $restore_stmt->close();
+            }
+        }
+        
+        // Clear saved cart from session
+        unset($_SESSION['saved_cart']);
+        unset($_SESSION['saved_cart_user_id']);
+    }
+    
+    // Delete the order and order items
+    $delete_items_stmt = $conn->prepare("DELETE FROM order_items WHERE order_id = ?");
+    $delete_items_stmt->bind_param("i", $order_id);
+    $delete_items_stmt->execute();
+    $delete_items_stmt->close();
+    
+    $delete_order_stmt = $conn->prepare("DELETE FROM orders WHERE id = ?");
+    $delete_order_stmt->bind_param("i", $order_id);
+    $delete_order_stmt->execute();
+    $delete_order_stmt->close();
+    
     // Set error message
     $_SESSION['transaction_msg'] = '<script>
     Swal.fire({
         icon: "error",
         title: "Failed to verify payment",
-        showConfirmButton: false,
-        timer: 1500
+        text: "Your cart has been restored. Please try again.",
+        showConfirmButton: true,
+        confirmButtonText: "Return to Checkout"
+    }).then((result) => {
+        window.location.href = "checkout.php";
     });
     </script>';
     
-    header("Location: checkout.php");
+    header("Location: message.php");
     exit();
 }

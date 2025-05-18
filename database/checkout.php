@@ -91,8 +91,8 @@ if (isset($_POST['order'])) {
         if (!$out_of_stock) {
             // If Khalti is selected, prepare for Khalti payment
             if ($method === 'Khalti') {
-                // Insert order into the orders table first
-                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'processing')");
+                // Insert order into the orders table first with status 'pending'
+                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
                 $order_id = $conn->insert_id;  
@@ -106,6 +106,10 @@ if (isset($_POST['order'])) {
                     $stmt->close();
                 }
 
+                // Save cart items in session for restoration if payment fails
+                $_SESSION['saved_cart'] = $cart_items;
+                $_SESSION['saved_cart_user_id'] = $user_id;
+
                 // Clear cart
                 $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
                 $stmt->bind_param("i", $user_id);
@@ -117,7 +121,7 @@ if (isset($_POST['order'])) {
                 exit();
             } else {
                 // For Cash on Delivery, proceed with normal order processing
-                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confirmed')");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
                 $order_id = $conn->insert_id;  // Get the last inserted order ID
@@ -150,6 +154,8 @@ if (isset($_POST['order'])) {
                 echo "<script>alert('$message'); window.location='productdisplay.php';</script>";
                 exit();
             }
+        } else {
+            echo "<script>alert('$message');</script>";
         }
     } else {
         $message = 'Your cart is empty.';
@@ -157,6 +163,7 @@ if (isset($_POST['order'])) {
         exit();
     }
 }
+
 
 // Fetch and calculate cart items for display
 $stmt = $conn->prepare("SELECT c.*, p.name, p.price, p.image FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?");

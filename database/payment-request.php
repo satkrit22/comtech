@@ -7,6 +7,7 @@ if (!isset($_GET['order_id']) || !isset($_GET['amount']) || !isset($_GET['name']
     Swal.fire({
         icon: "error",
         title: "Invalid request",
+        text: "Missing required order information",
         showConfirmButton: false,
         timer: 1500
     });
@@ -43,6 +44,7 @@ if (!$order) {
     Swal.fire({
         icon: "error",
         title: "Order not found",
+        text: "The order you are trying to pay for could not be found",
         showConfirmButton: false,
         timer: 1500
     });
@@ -99,11 +101,13 @@ if (curl_errno($curl)) {
         icon: "error",
         title: "Payment Error",
         text: "' . curl_error($curl) . '",
-        showConfirmButton: false,
-        timer: 2000
+        showConfirmButton: true,
+        confirmButtonText: "Return to Checkout"
+    }).then((result) => {
+        window.location.href = "checkout.php";
     });
     </script>';
-    header("Location: checkout.php");
+    header("Location: message.php");
     exit();
 } else {
     $responseArray = json_decode($response, true);
@@ -114,11 +118,13 @@ if (curl_errno($curl)) {
             icon: "error",
             title: "Payment Error",
             text: "' . $responseArray['error'] . '",
-            showConfirmButton: false,
-            timer: 2000
+            showConfirmButton: true,
+            confirmButtonText: "Return to Checkout"
+        }).then((result) => {
+            window.location.href = "checkout.php";
         });
         </script>';
-        header("Location: checkout.php");
+        header("Location: message.php");
         exit();
     } elseif (isset($responseArray['payment_url'])) {
         // Redirect the user to the Khalti payment page
@@ -130,11 +136,13 @@ if (curl_errno($curl)) {
             icon: "error",
             title: "Unexpected Response",
             text: "Please try again later",
-            showConfirmButton: false,
-            timer: 2000
+            showConfirmButton: true,
+            confirmButtonText: "Return to Checkout"
+        }).then((result) => {
+            window.location.href = "checkout.php";
         });
         </script>';
-        header("Location: checkout.php");
+        header("Location: message.php");
         exit();
     }
 }
