@@ -49,9 +49,10 @@ $stmt->close();
 
 // Handle order submission
 if (isset($_POST['order'])) {
-    $name   = $conn->real_escape_string($_POST['name']);
-    $number = $conn->real_escape_string($_POST['number']);
-    $email  = $conn->real_escape_string($_POST['email']);
+    // Use fixed user details - cannot be changed
+    $name   = $user_details['name'];
+    $number = $user_details['phone'];
+    $email  = $user_details['email'];
     $method = $conn->real_escape_string($_POST['method']);
     $street  = $conn->real_escape_string($_POST['street']);
     $city    = $conn->real_escape_string($_POST['city']);
@@ -91,8 +92,8 @@ if (isset($_POST['order'])) {
         if (!$out_of_stock) {
             // If Khalti is selected, prepare for Khalti payment
             if ($method === 'Khalti') {
-                // Insert order into the orders table first with status 'pending'
-                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+                // Insert order with processing payment status and pending delivery status
+                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, payment_status, delivery_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'processing', 'pending')");
                 $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
                 $stmt->execute();
                 $order_id = $conn->insert_id;  
@@ -121,10 +122,13 @@ if (isset($_POST['order'])) {
                 exit();
             } else {
                 // For Cash on Delivery, proceed with normal order processing
-                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confirmed')");
-                $stmt->bind_param("issssssd", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total);
+                // Generate unique confirmation code
+                $confirmation_code = 'COM' . strtoupper(substr(uniqid(), -8)) . rand(10, 99);
+                
+                $stmt = $conn->prepare("INSERT INTO orders (user_id, name, number, email, method, address, total_products, total_price, confirmation_code, payment_status, delivery_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending')");
+                $stmt->bind_param("issssssds", $user_id, $name, $number, $email, $method, $address, $total_products, $grand_total, $confirmation_code);
                 $stmt->execute();
-                $order_id = $conn->insert_id;  // Get the last inserted order ID
+                $order_id = $conn->insert_id;  
                 $stmt->close();
 
                 // Insert each item into the order_items table
@@ -150,7 +154,7 @@ if (isset($_POST['order'])) {
                 $stmt->execute();
                 $stmt->close();
 
-                $message = 'Order placed successfully!';
+                $message = "Order placed successfully! Your confirmation code is: $confirmation_code";
                 echo "<script>alert('$message'); window.location='productdisplay.php';</script>";
                 exit();
             }
@@ -163,7 +167,6 @@ if (isset($_POST['order'])) {
         exit();
     }
 }
-
 
 // Fetch and calculate cart items for display
 $stmt = $conn->prepare("SELECT c.*, p.name, p.price, p.image FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?");
@@ -182,6 +185,7 @@ while ($item = $cart_result->fetch_assoc()) {
 $stmt->close();
 ?>
 
+<!-- Rest of the HTML remains the same as previous version -->
 <!-- Navbar -->
 <div class="navbar">
 <a href="productdisplay.php" class="logo" style="display: flex; align-items: center; text-decoration: none; font-size: 24px; color: #333; font-weight: 600;">
@@ -213,19 +217,20 @@ $stmt->close();
                     <div class="card-body">
                         <div class="form-section">
                             <div class="form-section-title">
-                                <i class="fas fa-id-card"></i> Personal Details
+                                <i class="fas fa-id-card"></i> Personal Details (Fixed)
                             </div>
                             <div class="form-group">
                                 <label for="name">Full Name</label>
-                                <input type="text" id="name" name="name" class="form-control" value="<?= htmlspecialchars($user_details['name']) ?>" required>
+                                <input type="text" id="name" name="name" class="form-control" value="<?= htmlspecialchars($user_details['name']) ?>" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
+                                <small class="text-muted">Personal details cannot be changed during checkout</small>
                             </div>
                             <div class="form-group">
                                 <label for="number">Phone Number</label>
-                                <input type="text" id="number" name="number" class="form-control" value="<?= htmlspecialchars($user_details['phone']) ?>" required>
+                                <input type="text" id="number" name="number" class="form-control" value="<?= htmlspecialchars($user_details['phone']) ?>" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
                             </div>
                             <div class="form-group">
                                 <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($user_details['email']) ?>" required>
+                                <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($user_details['email']) ?>" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
                             </div>
                         </div>
 
@@ -286,7 +291,6 @@ $stmt->close();
                             </div>
                             <div id="payment-info-khalti" class="payment-info" style="display: none;">
                                 <p><i class="fas fa-info-circle"></i> You will be redirected to Khalti to complete your payment securely.</p>
-                               
                             </div>
                         </div>
                     </div>
@@ -441,7 +445,13 @@ document.addEventListener('DOMContentLoaded', function () {
             total += extraCharge;
         }
 
-        const confirmMsg = `Your total is NPR ${total.toFixed(2)}. Confirm order?`;
+        let confirmMsg;
+        if (selectedPaymentMethod === 'Khalti') {
+            confirmMsg = `Your total is NPR ${total.toFixed(2)}. You will be redirected to Khalti for payment. Confirm order?`;
+        } else {
+            confirmMsg = `Your total is NPR ${total.toFixed(2)}. Confirm order?`;
+        }
+        
         if (!confirm(confirmMsg)) {
             e.preventDefault();
         }

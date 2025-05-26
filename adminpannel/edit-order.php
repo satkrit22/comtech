@@ -42,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $number = sanitize($_POST['number']);
     $address = sanitize($_POST['address']);
     $method = sanitize($_POST['method']);
-    $status = sanitize($_POST['status']);
+    $payment_status = sanitize($_POST['payment_status']);
+    $delivery_status = sanitize($_POST['delivery_status']);
     $total_price = (float)$_POST['total_price'];
     $user_id = !empty($_POST['user_id']) ? (int)$_POST['user_id'] : 'NULL';
     
@@ -53,7 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     number = '$number', 
                     address = '$address', 
                     method = '$method', 
-                    status = '$status', 
+                    payment_status = '$payment_status',
+                    delivery_status = '$delivery_status', 
                     total_price = $total_price, 
                     user_id = $user_id 
                     WHERE id = $order_id";
@@ -87,6 +89,217 @@ $items_result = mysqli_query($conn, $items_query);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="orders.css">
+    <style>
+        /* Admin styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fb;
+            color: #212529;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 250px;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .breadcrumb {
+            list-style: none;
+            display: flex;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .breadcrumb-item {
+            color: #6c757d;
+        }
+
+        .breadcrumb-item a {
+            color: #4361ee;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #333;
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: '/';
+            margin-left: 0.5rem;
+            color: #6c757d;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: #4361ee;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #4361ee;
+            color: white;
+        }
+
+        .btn-light {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .row {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .col-md-8 {
+            flex: 0 0 66.666667%;
+        }
+
+        .col-md-6 {
+            flex: 0 0 50%;
+        }
+
+        .col-md-4 {
+            flex: 0 0 33.333333%;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: #333;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -151,7 +364,7 @@ $items_result = mysqli_query($conn, $items_query);
                                         <div class="form-group mb-3">
                                             <label for="method" class="form-label">Payment Method</label>
                                             <select id="method" name="method" class="form-select" required>
-                                                <option value="cash on delivery" <?php echo $order['method'] == 'cash on delivery' ? 'selected' : ''; ?>>Cash on Delivery</option>
+                                                <option value="Cash on Delivery" <?php echo $order['method'] == 'Cash on Delivery' ? 'selected' : ''; ?>>Cash on Delivery</option>
                                                 <option value="Khalti" <?php echo $order['method'] == 'Khalti' ? 'selected' : ''; ?>>Khalti</option>
                                             </select>
                                         </div>
@@ -164,21 +377,31 @@ $items_result = mysqli_query($conn, $items_query);
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="status" class="form-label">Order Status</label>
-                                            <select id="status" name="status" class="form-select" required>
-                                                <option value="pending" <?php echo $order['status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                                <option value="processing" <?php echo $order['status'] == 'processing' ? 'selected' : ''; ?>>Processing</option>
-                                                <option value="completed" <?php echo $order['status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                                <option value="cancelled" <?php echo $order['status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                            <label for="payment_status" class="form-label">Payment Status</label>
+                                            <select id="payment_status" name="payment_status" class="form-select" required>
+                                                <option value="pending" <?php echo $order['payment_status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                                <option value="processing" <?php echo $order['payment_status'] == 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                                <option value="completed" <?php echo $order['payment_status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
+                                                <option value="failed" <?php echo $order['payment_status'] == 'failed' ? 'selected' : ''; ?>>Failed</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="total_price" class="form-label">Total Price</label>
-                                            <input type="number" id="total_price" name="total_price" class="form-control" value="<?php echo $order['total_price']; ?>" step="0.01" min="0" required>
+                                            <label for="delivery_status" class="form-label">Delivery Status</label>
+                                            <select id="delivery_status" name="delivery_status" class="form-select" required>
+                                                <option value="pending" <?php echo $order['delivery_status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                                <option value="processing" <?php echo $order['delivery_status'] == 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                                <option value="shipped" <?php echo $order['delivery_status'] == 'shipped' ? 'selected' : ''; ?>>Shipped</option>
+                                                <option value="delivered" <?php echo $order['delivery_status'] == 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+                                                <option value="cancelled" <?php echo $order['delivery_status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                            </select>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="total_price" class="form-label">Total Price</label>
+                                    <input type="number" id="total_price" name="total_price" class="form-control" value="<?php echo $order['total_price']; ?>" step="0.01" min="0" required>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="user_id" class="form-label">Linked User Account (Optional)</label>

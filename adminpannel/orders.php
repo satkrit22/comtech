@@ -23,15 +23,27 @@ $admin_id = $_SESSION['admin_id'];
 $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
 // Handle order status updates
-if (isset($_POST['update_status']) && isset($_POST['order_id']) && isset($_POST['status'])) {
+if (isset($_POST['update_payment_status']) && isset($_POST['order_id']) && isset($_POST['payment_status'])) {
     $order_id = $_POST['order_id'];
-    $status = $_POST['status'];
+    $payment_status = $_POST['payment_status'];
     
-    $update_query = "UPDATE orders SET status = '$status' WHERE id = $order_id";
+    $update_query = "UPDATE orders SET payment_status = '$payment_status' WHERE id = $order_id";
     if (mysqli_query($conn, $update_query)) {
-        $status_message = "Order status updated successfully.";
+        $status_message = "Payment status updated successfully.";
     } else {
-        $error_message = "Error updating order status: " . mysqli_error($conn);
+        $error_message = "Error updating payment status: " . mysqli_error($conn);
+    }
+}
+
+if (isset($_POST['update_delivery_status']) && isset($_POST['order_id']) && isset($_POST['delivery_status'])) {
+    $order_id = $_POST['order_id'];
+    $delivery_status = $_POST['delivery_status'];
+    
+    $update_query = "UPDATE orders SET delivery_status = '$delivery_status' WHERE id = $order_id";
+    if (mysqli_query($conn, $update_query)) {
+        $status_message = "Delivery status updated successfully.";
+    } else {
+        $error_message = "Error updating delivery status: " . mysqli_error($conn);
     }
 }
 
@@ -44,9 +56,14 @@ $start = ($page - 1) * $limit;
 $where = "1=1"; // Default condition that's always true
 
 // Apply filters if set
-if (isset($_GET['status']) && !empty($_GET['status'])) {
-    $status = mysqli_real_escape_string($conn, $_GET['status']);
-    $where .= " AND status = '$status'";
+if (isset($_GET['payment_status']) && !empty($_GET['payment_status'])) {
+    $payment_status = mysqli_real_escape_string($conn, $_GET['payment_status']);
+    $where .= " AND payment_status = '$payment_status'";
+}
+
+if (isset($_GET['delivery_status']) && !empty($_GET['delivery_status'])) {
+    $delivery_status = mysqli_real_escape_string($conn, $_GET['delivery_status']);
+    $where .= " AND delivery_status = '$delivery_status'";
 }
 
 if (isset($_GET['date_range']) && !empty($_GET['date_range'])) {
@@ -102,9 +119,7 @@ $result = mysqli_query($conn, $query);
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Orders</h1>
-                    
                 </div>
-                
             </div>
 
             <?php if (isset($status_message)): ?>
@@ -124,19 +139,27 @@ $result = mysqli_query($conn, $query);
                 <div class="card-body">
                     <form action="" method="GET" class="order-filters">
                         <div class="order-filter-item">
-                            <label for="status-filter" class="form-label">Status</label>
-                            <select id="status-filter" name="status" class="form-select">
-                                <option value="">All Statuses</option>
-                                <option value="pending" <?php echo (isset($_GET['status']) && $_GET['status'] == 'pending') ? 'selected' : ''; ?>>Pending</option>
-                                <option value="processing" <?php echo (isset($_GET['status']) && $_GET['status'] == 'processing') ? 'selected' : ''; ?>>Processing</option>
-                                <option value="completed" <?php echo (isset($_GET['status']) && $_GET['status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
-                                <option value="cancelled" <?php echo (isset($_GET['status']) && $_GET['status'] == 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
+                            <label for="payment-status-filter" class="form-label">Payment Status</label>
+                            <select id="payment-status-filter" name="payment_status" class="form-select">
+                                <option value="">All Payment Status</option>
+                                <option value="pending" <?php echo (isset($_GET['payment_status']) && $_GET['payment_status'] == 'pending') ? 'selected' : ''; ?>>Pending</option>
+                                <option value="processing" <?php echo (isset($_GET['payment_status']) && $_GET['payment_status'] == 'processing') ? 'selected' : ''; ?>>Processing</option>
+                                <option value="completed" <?php echo (isset($_GET['payment_status']) && $_GET['payment_status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
+                                <option value="failed" <?php echo (isset($_GET['payment_status']) && $_GET['payment_status'] == 'failed') ? 'selected' : ''; ?>>Failed</option>
                             </select>
                         </div>
                         <div class="order-filter-item">
-                            <label for="customer-filter" class="form-label">Customer</label>
-                            <input type="text" id="customer-filter" name="customer" class="form-control" placeholder="Search customer" value="<?php echo isset($_GET['customer']) ? $_GET['customer'] : ''; ?>">
+                            <label for="delivery-status-filter" class="form-label">Delivery Status</label>
+                            <select id="delivery-status-filter" name="delivery_status" class="form-select">
+                                <option value="">All Delivery Status</option>
+                                <option value="pending" <?php echo (isset($_GET['delivery_status']) && $_GET['delivery_status'] == 'pending') ? 'selected' : ''; ?>>Pending</option>
+                                <option value="processing" <?php echo (isset($_GET['delivery_status']) && $_GET['delivery_status'] == 'processing') ? 'selected' : ''; ?>>Processing</option>
+                                <option value="shipped" <?php echo (isset($_GET['delivery_status']) && $_GET['delivery_status'] == 'shipped') ? 'selected' : ''; ?>>Shipped</option>
+                                <option value="delivered" <?php echo (isset($_GET['delivery_status']) && $_GET['delivery_status'] == 'delivered') ? 'selected' : ''; ?>>Delivered</option>
+                                <option value="cancelled" <?php echo (isset($_GET['delivery_status']) && $_GET['delivery_status'] == 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
+                            </select>
                         </div>
+                        
                         <div class="order-filter-item" style="align-self: flex-end;">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter"></i> Filter
@@ -151,23 +174,19 @@ $result = mysqli_query($conn, $query);
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">All Orders</h2>
-                    <div class="card-tools">
-                        <div class="table-search">
-                            <input type="text" class="form-control table-search-input" placeholder="Search orders...">
-                            <i class="fas fa-search"></i>
-                        </div>
-                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table order-table">
                             <thead>
                                 <tr>
-                                    <th class="sortable">Order ID</th>
+                                    <th>Order ID</th>
                                     <th>Customer</th>
-                                    <th class="sortable">Date</th>
-                                    <th>Status</th>
-                                    <th class="sortable">Total</th>
+                                    <th>Date</th>
+                                    <th>Confirmation Code</th>
+                                    <th>Payment Status</th>
+                                    <th>Delivery Status</th>
+                                    <th>Total</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -194,7 +213,15 @@ $result = mysqli_query($conn, $query);
                                             </div>
                                         </td>';
                                         echo '<td class="order-date">' . $date . '</td>';
-                                        echo '<td><span class="order-status ' . strtolower($order['status']) . '"><i class="fas fa-circle"></i> ' . ucfirst($order['status']) . '</span></td>';
+                                        echo '<td>';
+                                        if ($order['confirmation_code']) {
+                                            echo '<span class="confirmation-code">' . htmlspecialchars($order['confirmation_code']) . '</span>';
+                                        } else {
+                                            echo '<span style="color: #9ca3af;">Not generated</span>';
+                                        }
+                                        echo '</td>';
+                                        echo '<td><span class="order-status payment-' . $order['payment_status'] . '"><i class="fas fa-circle"></i> ' . ucfirst($order['payment_status']) . '</span></td>';
+                                        echo '<td><span class="order-status delivery-' . $order['delivery_status'] . '"><i class="fas fa-circle"></i> ' . ucfirst($order['delivery_status']) . '</span></td>';
                                         echo '<td class="order-total">NPR.' . number_format($order['total_price'], 2) . '</td>';
                                         echo '<td>
                                             <div class="btn-group">
@@ -204,6 +231,12 @@ $result = mysqli_query($conn, $query);
                                                 <a href="edit-order.php?id=' . $order['id'] . '" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
+                                                <button class="btn btn-sm btn-primary payment-status-btn" data-id="' . $order['id'] . '" data-status="' . $order['payment_status'] . '">
+                                                    <i class="fas fa-credit-card"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-warning delivery-status-btn" data-id="' . $order['id'] . '" data-status="' . $order['delivery_status'] . '">
+                                                    <i class="fas fa-truck"></i>
+                                                </button>
                                                 <a href="delete-order.php?id=' . $order['id'] . '" class="btn btn-sm btn-danger delete-btn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
@@ -213,7 +246,7 @@ $result = mysqli_query($conn, $query);
                                     }
                                 } else {
                                     // If no orders found
-                                    echo '<tr><td colspan="6" class="text-center">No orders found</td></tr>';
+                                    echo '<tr><td colspan="8" class="text-center">No orders found</td></tr>';
                                 }
                                 ?>
                             </tbody>
@@ -227,7 +260,7 @@ $result = mysqli_query($conn, $query);
                         </div>
                         <ul class="pagination">
                             <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                                <a class="page-link" href="?page=<?php echo $page - 1; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : ''; ?><?php echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : ''; ?>" tabindex="-1">Previous</a>
+                                <a class="page-link" href="?page=<?php echo $page - 1; ?><?php echo isset($_GET['payment_status']) ? '&payment_status=' . $_GET['payment_status'] : ''; ?><?php echo isset($_GET['delivery_status']) ? '&delivery_status=' . $_GET['delivery_status'] : ''; ?><?php echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : ''; ?>" tabindex="-1">Previous</a>
                             </li>
                             
                             <?php
@@ -235,42 +268,18 @@ $result = mysqli_query($conn, $query);
                             $start_page = max(1, $page - 2);
                             $end_page = min($total_pages, $page + 2);
                             
-                            // Always show first page button
-                            if ($start_page > 1) {
-                                echo '<li class="page-item"><a class="page-link" href="?page=1';
-                                echo isset($_GET['status']) ? '&status=' . $_GET['status'] : '';
-                                echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : '';
-                                echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : '';
-                                echo '">1</a></li>';
-                                if ($start_page > 2) {
-                                    echo '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
-                                }
-                            }
-                            
                             // Display the page numbers
                             for ($i = $start_page; $i <= $end_page; $i++) {
                                 echo '<li class="page-item ' . (($page == $i) ? 'active' : '') . '"><a class="page-link" href="?page=' . $i;
-                                echo isset($_GET['status']) ? '&status=' . $_GET['status'] : '';
-                                echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : '';
+                                echo isset($_GET['payment_status']) ? '&payment_status=' . $_GET['payment_status'] : '';
+                                echo isset($_GET['delivery_status']) ? '&delivery_status=' . $_GET['delivery_status'] : '';
                                 echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : '';
                                 echo '">' . $i . '</a></li>';
-                            }
-                            
-                            // Always show last page button
-                            if ($end_page < $total_pages) {
-                                if ($end_page < $total_pages - 1) {
-                                    echo '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
-                                }
-                                echo '<li class="page-item"><a class="page-link" href="?page=' . $total_pages;
-                                echo isset($_GET['status']) ? '&status=' . $_GET['status'] : '';
-                                echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : '';
-                                echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : '';
-                                echo '">' . $total_pages . '</a></li>';
                             }
                             ?>
                             
                             <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
-                                <a class="page-link" href="?page=<?php echo $page + 1; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['date_range']) ? '&date_range=' . $_GET['date_range'] : ''; ?><?php echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : ''; ?>">Next</a>
+                                <a class="page-link" href="?page=<?php echo $page + 1; ?><?php echo isset($_GET['payment_status']) ? '&payment_status=' . $_GET['payment_status'] : ''; ?><?php echo isset($_GET['delivery_status']) ? '&delivery_status=' . $_GET['delivery_status'] : ''; ?><?php echo isset($_GET['customer']) ? '&customer=' . $_GET['customer'] : ''; ?>">Next</a>
                             </li>
                         </ul>
                     </div>
@@ -279,30 +288,61 @@ $result = mysqli_query($conn, $query);
         </main>
     </div>
 
-    <!-- Order Status Modal -->
-    <div class="modal" id="statusModal">
+    <!-- Payment Status Modal -->
+    <div class="modal" id="paymentStatusModal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Update Order Status</h5>
+                    <h5 class="modal-title">Update Payment Status</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <form action="" method="POST">
                     <div class="modal-body">
-                        <input type="hidden" name="order_id" id="order_id">
+                        <input type="hidden" name="order_id" id="payment_order_id">
                         <div class="form-group">
-                            <label for="status">Status</label>
-                            <select name="status" id="status" class="form-control">
+                            <label for="payment_status">Payment Status</label>
+                            <select name="payment_status" id="payment_status" class="form-control">
                                 <option value="pending">Pending</option>
                                 <option value="processing">Processing</option>
                                 <option value="completed">Completed</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                        <button type="submit" name="update_payment_status" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivery Status Modal -->
+    <div class="modal" id="deliveryStatusModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Delivery Status</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="order_id" id="delivery_order_id">
+                        <div class="form-group">
+                            <label for="delivery_status">Delivery Status</label>
+                            <select name="delivery_status" id="delivery_status" class="form-control">
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" name="update_status" class="btn btn-primary">Update Status</button>
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                        <button type="submit" name="update_delivery_status" class="btn btn-primary">Update Status</button>
                     </div>
                 </form>
             </div>
@@ -311,64 +351,48 @@ $result = mysqli_query($conn, $query);
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Table search functionality
-            const tableSearch = document.querySelector('.table-search-input');
-            if (tableSearch) {
-                tableSearch.addEventListener('keyup', function() {
-                    const searchTerm = this.value.toLowerCase();
-                    const table = document.querySelector('.order-table');
-                    const rows = table.querySelectorAll('tbody tr');
-                    
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        if (text.includes(searchTerm)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-                });
-            }
+            // Payment status update modal
+            const paymentStatusButtons = document.querySelectorAll('.payment-status-btn');
+            const paymentModal = document.getElementById('paymentStatusModal');
             
-            // Sortable columns
-            const sortableHeaders = document.querySelectorAll('.sortable');
-            sortableHeaders.forEach(header => {
-                header.addEventListener('click', function() {
-                    const table = this.closest('table');
-                    const index = Array.from(this.parentNode.children).indexOf(this);
-                    const rows = Array.from(table.querySelectorAll('tbody tr'));
-                    const direction = this.classList.contains('asc') ? 'desc' : 'asc';
-                    
-                    // Remove sort classes from all headers
-                    table.querySelectorAll('th').forEach(th => {
-                        th.classList.remove('asc', 'desc');
-                    });
-                    
-                    // Add sort class to current header
-                    this.classList.add(direction);
-                    
-                    // Sort the rows
-                    rows.sort((a, b) => {
-                        const aValue = a.children[index].textContent.trim();
-                        const bValue = b.children[index].textContent.trim();
-                        
-                        // Check if values are numbers
-                        if (!isNaN(aValue.replace('$', '')) && !isNaN(bValue.replace('$', ''))) {
-                            return direction === 'asc' 
-                                ? parseFloat(aValue.replace('$', '')) - parseFloat(bValue.replace('$', ''))
-                                : parseFloat(bValue.replace('$', '')) - parseFloat(aValue.replace('$', ''));
-                        }
-                        
-                        // Sort as strings
-                        return direction === 'asc'
-                            ? aValue.localeCompare(bValue)
-                            : bValue.localeCompare(aValue);
-                    });
-                    
-                    // Reorder the rows
-                    const tbody = table.querySelector('tbody');
-                    rows.forEach(row => tbody.appendChild(row));
+            paymentStatusButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    const currentStatus = this.getAttribute('data-status');
+                    document.getElementById('payment_order_id').value = orderId;
+                    document.getElementById('payment_status').value = currentStatus;
+                    paymentModal.classList.add('show');
                 });
+            });
+
+            // Delivery status update modal
+            const deliveryStatusButtons = document.querySelectorAll('.delivery-status-btn');
+            const deliveryModal = document.getElementById('deliveryStatusModal');
+            
+            deliveryStatusButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    const currentStatus = this.getAttribute('data-status');
+                    document.getElementById('delivery_order_id').value = orderId;
+                    document.getElementById('delivery_status').value = currentStatus;
+                    deliveryModal.classList.add('show');
+                });
+            });
+
+            // Close modal functionality
+            const closeButtons = document.querySelectorAll('[data-dismiss="modal"]');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    modal.classList.remove('show');
+                });
+            });
+
+            // Close modal when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('show');
+                }
             });
             
             // Delete confirmation
@@ -380,55 +404,6 @@ $result = mysqli_query($conn, $query);
                     }
                 });
             });
-            
-            // Toggle sidebar on mobile
-            const sidebarToggle = document.querySelector('.sidebar-toggle');
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    document.querySelector('.sidebar').classList.toggle('show');
-                });
-            }
-            
-            // Status update modal
-            const statusButtons = document.querySelectorAll('.status-btn');
-            statusButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const orderId = this.getAttribute('data-id');
-                    const currentStatus = this.getAttribute('data-status');
-                    document.getElementById('order_id').value = orderId;
-                    document.getElementById('status').value = currentStatus;
-                    $('#statusModal').modal('show');
-                });
-            });
-            
-            // Export functionality
-            document.getElementById('export-btn').addEventListener('click', function() {
-                window.location.href = 'export-orders.php<?php 
-                    $params = [];
-                    if (isset($_GET['status'])) $params[] = 'status=' . $_GET['status'];
-                    if (isset($_GET['date_range'])) $params[] = 'date_range=' . $_GET['date_range'];
-                    if (isset($_GET['customer'])) $params[] = 'customer=' . $_GET['customer'];
-                    echo !empty($params) ? '?' . implode('&', $params) : '';
-                ?>';
-            });
-            
-            // Initialize date range picker if available
-            if (typeof daterangepicker !== 'undefined') {
-                $('.date-range-picker').daterangepicker({
-                    autoUpdateInput: false,
-                    locale: {
-                        cancelLabel: 'Clear'
-                    }
-                });
-                
-                $('.date-range-picker').on('apply.daterangepicker', function(ev, picker) {
-                    $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-                });
-                
-                $('.date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
-                    $(this).val('');
-                });
-            }
         });
     </script>
 </body>

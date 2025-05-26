@@ -39,18 +39,32 @@ if (mysqli_num_rows($result) == 0) {
 
 $order = mysqli_fetch_assoc($result);
 
-// Handle status update
-if (isset($_POST['update_status'])) {
-    $status = mysqli_real_escape_string($conn, $_POST['status']);
+// Handle status updates
+if (isset($_POST['update_payment_status'])) {
+    $payment_status = mysqli_real_escape_string($conn, $_POST['payment_status']);
 
-    $update_query = "UPDATE orders SET status = '$status' WHERE id = '$order_id'";
+    $update_query = "UPDATE orders SET payment_status = '$payment_status' WHERE id = '$order_id'";
     if (mysqli_query($conn, $update_query)) {
-        $status_message = "Order status updated successfully.";
+        $status_message = "Payment status updated successfully.";
         // Refresh order data
         $result = mysqli_query($conn, $query);
         $order = mysqli_fetch_assoc($result);
     } else {
-        $error_message = "Error updating order status: " . mysqli_error($conn);
+        $error_message = "Error updating payment status: " . mysqli_error($conn);
+    }
+}
+
+if (isset($_POST['update_delivery_status'])) {
+    $delivery_status = mysqli_real_escape_string($conn, $_POST['delivery_status']);
+
+    $update_query = "UPDATE orders SET delivery_status = '$delivery_status' WHERE id = '$order_id'";
+    if (mysqli_query($conn, $update_query)) {
+        $status_message = "Delivery status updated successfully.";
+        // Refresh order data
+        $result = mysqli_query($conn, $query);
+        $order = mysqli_fetch_assoc($result);
+    } else {
+        $error_message = "Error updating delivery status: " . mysqli_error($conn);
     }
 }
 
@@ -81,7 +95,315 @@ if (mysqli_num_rows($items_result) > 0) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="orders.css">
+    <style>
+        /* Admin styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fb;
+            color: #212529;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 250px;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .breadcrumb {
+            list-style: none;
+            display: flex;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .breadcrumb-item {
+            color: #6c757d;
+        }
+
+        .breadcrumb-item a {
+            color: #4361ee;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #333;
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: '/';
+            margin-left: 0.5rem;
+            color: #6c757d;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: #4361ee;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #4361ee;
+            color: white;
+        }
+
+        .btn-light {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .row {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .col-md-8 {
+            flex: 0 0 66.666667%;
+        }
+
+        .col-md-6 {
+            flex: 0 0 50%;
+        }
+
+        .col-md-4 {
+            flex: 0 0 33.333333%;
+        }
+
+        .order-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .payment-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .payment-processing {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .payment-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .payment-failed {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .delivery-pending {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .delivery-processing {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .delivery-shipped {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .delivery-delivered {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .delivery-cancelled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .confirmation-code {
+            font-family: 'Courier New', monospace;
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .product-name {
+            font-weight: 500;
+        }
+
+        .customer-profile {
+            text-align: center;
+        }
+
+        .customer-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .customer-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .customer-email, .customer-phone {
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: #333;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -137,7 +459,13 @@ if (mysqli_num_rows($items_result) > 0) {
                                 <div class="col-md-6">
                                     <p><strong>Order ID:</strong> #<?php echo $order['id']; ?></p>
                                     <p><strong>Date:</strong> <?php echo date('F j, Y, g:i a', strtotime($order['created_at'])); ?></p>
-                                    <p><strong>Status:</strong> <span class="order-status <?php echo $order['status']; ?>"><i class="fas fa-circle"></i> <?php echo ucfirst($order['status']); ?></span></p>
+                                    <p><strong>Confirmation Code:</strong> 
+                                        <?php if ($order['confirmation_code']): ?>
+                                            <span class="confirmation-code"><?php echo htmlspecialchars($order['confirmation_code']); ?></span>
+                                        <?php else: ?>
+                                            <span style="color: #9ca3af;">Not generated</span>
+                                        <?php endif; ?>
+                                    </p>
                                     <p><strong>Payment Method:</strong> <?php echo ucfirst($order['method']); ?></p>
                                 </div>
                                 <div class="col-md-6">
@@ -145,6 +473,22 @@ if (mysqli_num_rows($items_result) > 0) {
                                     <p><strong>Email:</strong> <?php echo $order['email']; ?></p>
                                     <p><strong>Phone:</strong> <?php echo $order['number']; ?></p>
                                     <p><strong>Address:</strong> <?php echo $order['address']; ?></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Payment Status:</strong> 
+                                        <span class="order-status payment-<?php echo $order['payment_status']; ?>">
+                                            <i class="fas fa-circle"></i> <?php echo ucfirst($order['payment_status']); ?>
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Delivery Status:</strong> 
+                                        <span class="order-status delivery-<?php echo $order['delivery_status']; ?>">
+                                            <i class="fas fa-circle"></i> <?php echo ucfirst($order['delivery_status']); ?>
+                                        </span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -177,8 +521,7 @@ if (mysqli_num_rows($items_result) > 0) {
                                                 <tr>
                                                     <td>
                                                         <div class="product-info">
-                                                            <img src="/comtech/assets/img/menu/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>" class="product-image" style="width: 80px; height: 80px; object-fit: cover;">
-
+                                                            <img src="/comtech/assets/img/menu/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>" class="product-image">
                                                             <div class="product-name"><?php echo $item['name']; ?></div>
                                                         </div>
                                                     </td>
@@ -207,23 +550,45 @@ if (mysqli_num_rows($items_result) > 0) {
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <!-- Order Status -->
+                    <!-- Payment Status -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h2 class="card-title">Update Status</h2>
+                            <h2 class="card-title">Update Payment Status</h2>
                         </div>
                         <div class="card-body">
                             <form action="" method="POST">
                                 <div class="form-group">
-                                    <label for="status" class="form-label">Status</label>
-                                    <select name="status" id="status" class="form-select">
-                                        <option value="pending" <?php echo $order['status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="processing" <?php echo $order['status'] == 'processing' ? 'selected' : ''; ?>>Processing</option>
-                                        <option value="completed" <?php echo $order['status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                        <option value="cancelled" <?php echo $order['status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                    <label for="payment_status" class="form-label">Payment Status</label>
+                                    <select name="payment_status" id="payment_status" class="form-select">
+                                        <option value="pending" <?php echo $order['payment_status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                        <option value="processing" <?php echo $order['payment_status'] == 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                        <option value="completed" <?php echo $order['payment_status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
+                                        <option value="failed" <?php echo $order['payment_status'] == 'failed' ? 'selected' : ''; ?>>Failed</option>
                                     </select>
                                 </div>
-                                <button type="submit" name="update_status" class="btn btn-primary">Update Status</button>
+                                <button type="submit" name="update_payment_status" class="btn btn-primary">Update Payment Status</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Status -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h2 class="card-title">Update Delivery Status</h2>
+                        </div>
+                        <div class="card-body">
+                            <form action="" method="POST">
+                                <div class="form-group">
+                                    <label for="delivery_status" class="form-label">Delivery Status</label>
+                                    <select name="delivery_status" id="delivery_status" class="form-select">
+                                        <option value="pending" <?php echo $order['delivery_status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                        <option value="processing" <?php echo $order['delivery_status'] == 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                        <option value="shipped" <?php echo $order['delivery_status'] == 'shipped' ? 'selected' : ''; ?>>Shipped</option>
+                                        <option value="delivered" <?php echo $order['delivery_status'] == 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+                                        <option value="cancelled" <?php echo $order['delivery_status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                    </select>
+                                </div>
+                                <button type="submit" name="update_delivery_status" class="btn btn-primary">Update Delivery Status</button>
                             </form>
                         </div>
                     </div>

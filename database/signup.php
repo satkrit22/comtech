@@ -39,7 +39,7 @@ $stmt_check->execute();
 $result = $stmt_check->get_result();
 
 if ($result && $result->num_rows > 0) {
-    echo "<script>alert('Email or phone number already exists. Please use different credentials.'); window.location.href = '/comtech/signup.html';</script>";
+    echo "<script>alert('Email or phone number already exists. Please use different credentials.'); window.location.href = '/comtech/database/login.php';</script>";
     exit();
 }
 

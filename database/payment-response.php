@@ -65,9 +65,12 @@ if ($response) {
     
     switch ($responseArray['status']) {
         case 'Completed':
-            // Update order status to completed
-            $stmt = $conn->prepare("UPDATE orders SET status = 'completed' WHERE id = ?");
-            $stmt->bind_param("i", $order_id);
+            // Generate unique confirmation code
+            $confirmation_code = 'KHL' . strtoupper(substr(uniqid(), -8)) . rand(10, 99);
+            
+            // Update order payment status to completed and add confirmation code
+            $stmt = $conn->prepare("UPDATE orders SET payment_status = 'completed', confirmation_code = ? WHERE id = ?");
+            $stmt->bind_param("si", $confirmation_code, $order_id);
             $stmt->execute();
             $stmt->close();
             
@@ -94,12 +97,12 @@ if ($response) {
             unset($_SESSION['saved_cart']);
             unset($_SESSION['saved_cart_user_id']);
             
-            // Set success message
+            // Set success message with confirmation code
             $_SESSION['transaction_msg'] = '<script>
             Swal.fire({
                 icon: "success",
                 title: "Payment Successful",
-                text: "Your order has been confirmed and is being processed!",
+                html: "Your order has been confirmed!<br><strong>Confirmation Code: ' . $confirmation_code . '</strong><br>Please save this code for your records.",
                 showConfirmButton: true,
                 confirmButtonText: "Continue Shopping"
             }).then((result) => {
@@ -146,7 +149,7 @@ if ($response) {
                 unset($_SESSION['saved_cart_user_id']);
             }
             
-            // Delete the order and order items
+            // Delete the order and order items (order cancelled)
             $delete_items_stmt = $conn->prepare("DELETE FROM order_items WHERE order_id = ?");
             $delete_items_stmt->bind_param("i", $order_id);
             $delete_items_stmt->execute();
@@ -164,8 +167,8 @@ if ($response) {
             $_SESSION['transaction_msg'] = '<script>
             Swal.fire({
                 icon: "error",
-                title: "Payment Failed",
-                text: "Your payment was not completed. Your cart has been restored.",
+                title: "Payment Cancelled",
+                text: "Your payment was cancelled or failed. The order has been cancelled and your cart has been restored.",
                 showConfirmButton: true,
                 confirmButtonText: "Return to Checkout"
             }).then((result) => {
@@ -206,7 +209,7 @@ if ($response) {
         unset($_SESSION['saved_cart_user_id']);
     }
     
-    // Delete the order and order items
+    // Delete the order and order items (order cancelled due to verification failure)
     $delete_items_stmt = $conn->prepare("DELETE FROM order_items WHERE order_id = ?");
     $delete_items_stmt->bind_param("i", $order_id);
     $delete_items_stmt->execute();
@@ -221,8 +224,8 @@ if ($response) {
     $_SESSION['transaction_msg'] = '<script>
     Swal.fire({
         icon: "error",
-        title: "Failed to verify payment",
-        text: "Your cart has been restored. Please try again.",
+        title: "Payment Verification Failed",
+        text: "Failed to verify payment. The order has been cancelled and your cart has been restored.",
         showConfirmButton: true,
         confirmButtonText: "Return to Checkout"
     }).then((result) => {
@@ -233,3 +236,4 @@ if ($response) {
     header("Location: message.php");
     exit();
 }
+?>

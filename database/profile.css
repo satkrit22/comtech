@@ -135,12 +135,14 @@
         }
 
         .card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            transition: var(--transition);
-        }
+    width: 400px;              /* Fixed width */
+    height: 300px;             /* Fixed height */
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    overflow: auto;            /* Scrollbars appear if content overflows */
+    transition: var(--transition);
+}
 
         .card:hover {
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);

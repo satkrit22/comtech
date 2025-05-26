@@ -18,8 +18,10 @@ $stats = [
     'total_products' => 0,
     'total_categories' => 0,
     'total_orders' => 0,
-    'pending_orders' => 0,
-    'completed_orders' => 0,
+    'pending_payments' => 0,
+    'completed_payments' => 0,
+    'pending_deliveries' => 0,
+    'delivered_orders' => 0,
     'total_revenue' => 0,
     'today_revenue' => 0,
     'weekly_revenue' => 0,
@@ -54,22 +56,36 @@ if ($orders_result) {
     $stats['total_orders'] = mysqli_fetch_assoc($orders_result)['count'];
 }
 
-// Get pending orders
-$pending_query = "SELECT COUNT(*) as count FROM orders WHERE status = 'pending'";
-$pending_result = mysqli_query($conn, $pending_query);
-if ($pending_result) {
-    $stats['pending_orders'] = mysqli_fetch_assoc($pending_result)['count'];
+// Get pending payments
+$pending_payments_query = "SELECT COUNT(*) as count FROM orders WHERE payment_status = 'pending'";
+$pending_payments_result = mysqli_query($conn, $pending_payments_query);
+if ($pending_payments_result) {
+    $stats['pending_payments'] = mysqli_fetch_assoc($pending_payments_result)['count'];
 }
 
-// Get completed orders
-$completed_query = "SELECT COUNT(*) as count FROM orders WHERE status = 'completed'";
-$completed_result = mysqli_query($conn, $completed_query);
-if ($completed_result) {
-    $stats['completed_orders'] = mysqli_fetch_assoc($completed_result)['count'];
+// Get completed payments
+$completed_payments_query = "SELECT COUNT(*) as count FROM orders WHERE payment_status = 'completed'";
+$completed_payments_result = mysqli_query($conn, $completed_payments_query);
+if ($completed_payments_result) {
+    $stats['completed_payments'] = mysqli_fetch_assoc($completed_payments_result)['count'];
+}
+
+// Get pending deliveries
+$pending_deliveries_query = "SELECT COUNT(*) as count FROM orders WHERE delivery_status = 'pending'";
+$pending_deliveries_result = mysqli_query($conn, $pending_deliveries_query);
+if ($pending_deliveries_result) {
+    $stats['pending_deliveries'] = mysqli_fetch_assoc($pending_deliveries_result)['count'];
+}
+
+// Get delivered orders
+$delivered_query = "SELECT COUNT(*) as count FROM orders WHERE delivery_status = 'delivered'";
+$delivered_result = mysqli_query($conn, $delivered_query);
+if ($delivered_result) {
+    $stats['delivered_orders'] = mysqli_fetch_assoc($delivered_result)['count'];
 }
 
 // Get total revenue
-$revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed'";
+$revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE payment_status = 'completed'";
 $revenue_result = mysqli_query($conn, $revenue_query);
 if ($revenue_result) {
     $stats['total_revenue'] = mysqli_fetch_assoc($revenue_result)['total'] ?? 0;
@@ -77,7 +93,7 @@ if ($revenue_result) {
 
 // Get today's revenue
 $today = date('Y-m-d');
-$today_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) = '$today'";
+$today_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE payment_status = 'completed' AND DATE(created_at) = '$today'";
 $today_revenue_result = mysqli_query($conn, $today_revenue_query);
 if ($today_revenue_result) {
     $stats['today_revenue'] = mysqli_fetch_assoc($today_revenue_result)['total'] ?? 0;
@@ -86,7 +102,7 @@ if ($today_revenue_result) {
 // Get weekly revenue
 $week_start = date('Y-m-d', strtotime('monday this week'));
 $week_end = date('Y-m-d', strtotime('sunday this week'));
-$weekly_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) BETWEEN '$week_start' AND '$week_end'";
+$weekly_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE payment_status = 'completed' AND DATE(created_at) BETWEEN '$week_start' AND '$week_end'";
 $weekly_revenue_result = mysqli_query($conn, $weekly_revenue_query);
 if ($weekly_revenue_result) {
     $stats['weekly_revenue'] = mysqli_fetch_assoc($weekly_revenue_result)['total'] ?? 0;
@@ -95,7 +111,7 @@ if ($weekly_revenue_result) {
 // Get monthly revenue
 $month_start = date('Y-m-01');
 $month_end = date('Y-m-t');
-$monthly_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) BETWEEN '$month_start' AND '$month_end'";
+$monthly_revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE payment_status = 'completed' AND DATE(created_at) BETWEEN '$month_start' AND '$month_end'";
 $monthly_revenue_result = mysqli_query($conn, $monthly_revenue_query);
 if ($monthly_revenue_result) {
     $stats['monthly_revenue'] = mysqli_fetch_assoc($monthly_revenue_result)['total'] ?? 0;
@@ -125,7 +141,7 @@ for ($i = 0; $i < 6; $i++) {
     $month_start = date('Y-m-01', strtotime("-$i months"));
     $month_end = date('Y-m-t', strtotime("-$i months"));
     
-    $monthly_sales_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed' AND DATE(created_at) BETWEEN '$month_start' AND '$month_end'";
+    $monthly_sales_query = "SELECT SUM(total_price) as total FROM orders WHERE payment_status = 'completed' AND DATE(created_at) BETWEEN '$month_start' AND '$month_end'";
     $monthly_sales_result = mysqli_query($conn, $monthly_sales_query);
     $monthly_total = mysqli_fetch_assoc($monthly_sales_result)['total'] ?? 0;
     
@@ -139,7 +155,7 @@ $category_sales_query = "SELECT c.name, COUNT(oi.id) as order_count, SUM(oi.pric
                          LEFT JOIN products p ON c.id = p.category_id
                          LEFT JOIN order_items oi ON p.id = oi.product_id
                          LEFT JOIN orders o ON oi.order_id = o.id
-                         WHERE o.status = 'completed'
+                         WHERE o.payment_status = 'completed'
                          GROUP BY c.id
                          ORDER BY total_sales DESC
                          LIMIT 5";
@@ -283,6 +299,16 @@ $category_sales_result = mysqli_query($conn, $category_sales_query);
             color: var(--danger);
         }
 
+        .stat-icon.payments {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .stat-icon.deliveries {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
         .stat-info {
             flex: 1;
         }
@@ -313,22 +339,47 @@ $category_sales_result = mysqli_query($conn, $category_sales_query);
             font-weight: 600;
         }
 
-        .order-status.pending {
+        .payment-pending {
             background-color: rgba(243, 156, 18, 0.1);
             color: var(--warning);
         }
 
-        .order-status.processing {
+        .payment-processing {
             background-color: rgba(52, 152, 219, 0.1);
             color: var(--info);
         }
 
-        .order-status.completed {
+        .payment-completed {
             background-color: rgba(46, 204, 113, 0.1);
             color: var(--success);
         }
 
-        .order-status.cancelled {
+        .payment-failed {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .delivery-pending {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--secondary);
+        }
+
+        .delivery-processing {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .delivery-shipped {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .delivery-delivered {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .delivery-cancelled {
             background-color: rgba(231, 76, 60, 0.1);
             color: var(--danger);
         }
@@ -395,6 +446,97 @@ $category_sales_result = mysqli_query($conn, $category_sales_query);
             font-weight: 500;
         }
 
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: #4361ee;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-tools {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-light {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .dashboard-row {
@@ -436,7 +578,6 @@ $category_sales_result = mysqli_query($conn, $category_sales_query);
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Dashboard</h1>
-                    
                 </div>
             </div>
             
@@ -502,22 +643,22 @@ $category_sales_result = mysqli_query($conn, $category_sales_query);
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon revenue">
-                        <i class="fas fa-dollar-sign"></i>
+                    <div class="stat-icon payments">
+                        <i class="fas fa-credit-card"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value" style="color: rgb(0, 0, 0); ">NPR.<?php echo number_format($stats['total_revenue'], 2); ?></div>
-                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['pending_payments']; ?></div>
+                        <div class="stat-label">Pending Payments</div>
                     </div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon orders" style="background-color: rgba(243, 156, 18, 0.1); color: var(--warning);">
-                        <i class="fas fa-clock"></i>
+                    <div class="stat-icon deliveries">
+                        <i class="fas fa-truck"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['pending_orders']; ?></div>
-                        <div class="stat-label">Pending Orders</div>
+                        <div class="stat-value" style="color: rgb(0, 0, 0); "><?php echo $stats['pending_deliveries']; ?></div>
+                        <div class="stat-label">Pending Deliveries</div>
                     </div>
                 </div>
             </div>
@@ -550,7 +691,8 @@ $category_sales_result = mysqli_query($conn, $category_sales_query);
                                         <th>Order ID</th>
                                         <th>Customer</th>
                                         <th>Amount</th>
-                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th>Delivery</th>
                                         <th>Date</th>
                                     </tr>
                                 </thead>
@@ -558,32 +700,17 @@ $category_sales_result = mysqli_query($conn, $category_sales_query);
                                     <?php 
                                     if (mysqli_num_rows($recent_orders_result) > 0) {
                                         while ($order = mysqli_fetch_assoc($recent_orders_result)) {
-                                            $status_class = '';
-                                            switch ($order['status']) {
-                                                case 'pending':
-                                                    $status_class = 'pending';
-                                                    break;
-                                                case 'processing':
-                                                    $status_class = 'processing';
-                                                    break;
-                                                case 'completed':
-                                                    $status_class = 'completed';
-                                                    break;
-                                                case 'cancelled':
-                                                    $status_class = 'cancelled';
-                                                    break;
-                                            }
-                                            
                                             echo '<tr>';
                                             echo '<td>#' . $order['id'] . '</td>';
                                             echo '<td>' . $order['name'] . '</td>';
                                             echo '<td>NPR.' . number_format($order['total_price'], 2) . '</td>';
-                                            echo '<td><span class="order-status ' . $status_class . '">' . ucfirst($order['status']) . '</span></td>';
+                                            echo '<td><span class="order-status payment-' . $order['payment_status'] . '">' . ucfirst($order['payment_status']) . '</span></td>';
+                                            echo '<td><span class="order-status delivery-' . $order['delivery_status'] . '">' . ucfirst($order['delivery_status']) . '</span></td>';
                                             echo '<td>' . date('M d, Y', strtotime($order['created_at'])) . '</td>';
                                             echo '</tr>';
                                         }
                                     } else {
-                                        echo '<tr><td colspan="5" class="text-center">No orders found</td></tr>';
+                                        echo '<tr><td colspan="6" class="text-center">No orders found</td></tr>';
                                     }
                                     ?>
                                 </tbody>
