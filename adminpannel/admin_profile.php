@@ -123,11 +123,6 @@ if ($users_result) {
     $stats['total_users'] = mysqli_fetch_assoc($users_result)['count'];
 }
 
-$revenue_query = "SELECT SUM(total_price) as total FROM orders WHERE status = 'completed'";
-$revenue_result = mysqli_query($conn, $revenue_query);
-if ($revenue_result) {
-    $stats['total_revenue'] = mysqli_fetch_assoc($revenue_result)['total'] ?? 0;
-}
 ?>
 
 <!DOCTYPE html>
@@ -371,7 +366,7 @@ if ($revenue_result) {
             <!-- Profile Header -->
             <div class="profile-header">
                 <div class="profile-header-content">
-                    <img src="/comtech/assets/img/<?php echo !empty($admin['profile_image']) ? $admin['profile_image'] : 'https://ui-avatars.com/api/?name=' . urlencode($admin['name'] ?? 'Administrator') . '&background=4361ee&color=fff&size=120'; ?>" alt="Admin" class="profile-avatar-large">
+                    <!-- <img src="/comtech/assets/img/<?php echo !empty($admin['profile_image']) ? $admin['profile_image'] : 'https://ui-avatars.com/api/?name=' . urlencode($admin['name'] ?? 'Administrator') . '&background=4361ee&color=fff&size=120'; ?>" alt="Admin" class="profile-avatar-large"> -->
                     <div class="profile-info">
                         <h1><?php echo $admin['name'] ?? 'Administrator'; ?></h1>
                         <p><i class="fas fa-envelope"></i> <?php echo $admin['email'] ?? 'admin@comtech.com'; ?></p>
@@ -426,7 +421,7 @@ if ($revenue_result) {
                         
                         <form action="" method="POST">
                             <div class="row">
-                                <div class="col-md-4">
+                                <!-- <div class="col-md-4">
                                     <div class="avatar-upload">
                                         <div class="avatar-preview">
                                             <img src="<?php echo !empty($admin['profile_image']) ? $admin['profile_image'] : 'https://ui-avatars.com/api/?name=' . urlencode($admin['name'] ?? 'Administrator') . '&background=4361ee&color=fff'; ?>" alt="Admin Avatar" id="avatar-preview-img">
@@ -439,7 +434,7 @@ if ($revenue_result) {
                                         </div>
                                     </div>
                                     <p class="text-center mb-4">Profile Picture</p>
-                                </div>
+                                </div> -->
                                 <div class="col-md-8">
                                     <div class="form-group mb-3">
                                         <label for="name" class="form-label">Full Name</label>
