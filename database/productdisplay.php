@@ -113,7 +113,7 @@ if (isset($_GET['ajax'])) {
             } else {
                 echo '<button class="out-of-stock-btn" disabled><i class="fas fa-times-circle"></i> Out of Stock</button>';
             }
-            // echo '<button class="quick-view-btn" onclick="quickView(' . intval($row['id']) . ')"><i class="fas fa-eye"></i></button>';
+            //echo '<button class="quick-view-btn" onclick="quickView(' . intval($row['id']) . ')"><i class="fas fa-eye"></i></button>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
